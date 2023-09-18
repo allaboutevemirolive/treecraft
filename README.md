@@ -11,18 +11,31 @@ References:
 
 
 ```txt
-my_project/
-│
-├── src/
-│   ├── main.rs          # Entry point of the program
-│   ├── tree.rs          # Module for tree-related functionality
-│   ├── list.rs          # Module for list-related functionality
-│   ├── hash.rs          # Module for hash-related functionality
-│   ├── color.rs         # Module for color-related functionality
-│   ├── filter.rs        # Module for filtering-related functionality
-│   ├── info.rs          # Module for info-related functionality
-│   └── lib.rs           # Module declarations and imports
-│
-├── Cargo.toml            # Package metadata and dependencies
-└── Cargo.lock            # Dependency versions (auto-generated)
+my_treeview/
+    ├── src/
+    │   ├── main.rs
+    │   ├── filesystem.rs
+    │   ├── rendering.rs
+    │   ├── user_input.rs (if needed)
+    │   ├── config.rs (if needed)
+    │   ├── error.rs (if needed)
+    │   ├── utils.rs
+    │   ├── tests.rs (or tests/ for a directory)
+    │   ├── logging.rs (if needed)
+    │   ├── themes.rs (if needed)
+    │   ├── export.rs (if needed)
+    │   ├── animation.rs (if needed)
+    │   ├── color.rs
+    │   ├── file.rs
+    │   ├── filter.rs
+    │   ├── hash.rs
+    │   ├── info.rs
+    │   ├── lib.rs
+    │   ├── list.rs
+    │   ├── sys_unix.rs
+    │   ├── type_html.rs
+    │   ├── type_json.rs
+    │   ├── type_xml.rs
+    └── Cargo.toml
+
 ```
