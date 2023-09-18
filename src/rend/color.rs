@@ -1,0 +1,1 @@
+// This file is to generate color for folders
