@@ -1,6 +1,0 @@
-
-/*
-psize
-printit
-Ftype
-*/

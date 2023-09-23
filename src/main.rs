@@ -1,10 +1,10 @@
-mod config;
-mod fsys;
-mod platform;
-mod rend;
-mod ty;
-mod util;
+mod file_info;
+mod list_dirs;
+mod print_branch;
+pub mod print_filename;
+
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    treecraft::run()
+    treecraft::run()?;
+    Ok(())
 }

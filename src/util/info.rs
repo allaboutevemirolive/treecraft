@@ -1,5 +1,0 @@
-
-/*
-fillinfo
-stat2info
-*/
