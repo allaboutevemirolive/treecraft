@@ -62,3 +62,8 @@ impl FileInfo {
         }
     }
 }
+
+// pub fn retrieve_metadata(file_or_dir_path: &str, level: i32) -> io::Result<FileInfo> {
+//     // let metadata = fs::symlink_metadata(file_or_dir_path)?;
+//     Ok(FileInfo::new(file_or_dir_path, &metadata, level))
+// }
