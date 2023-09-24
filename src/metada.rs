@@ -1,14 +1,15 @@
 use std::fs;
 use std::io;
-use std::os::unix::fs::MetadataExt; // For Unix-specific file metadata
+use std::os::unix::fs::MetadataExt;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct FileInfo {
     pub name: String,
     pub path: String,
+    pub depth: i32,
     pub mode: u32,
-    pub uid: u32,
-    pub gid: u32,
+    pub user_id: u32,
+    pub group_id: u32,
     pub size: u64,
     pub device_id: u64,
     pub inode: u64,
@@ -21,46 +22,48 @@ pub struct FileInfo {
 }
 
 impl FileInfo {
-    pub fn new(current_path: &str, metadata: &fs::Metadata) -> Self {
-        let mut is_symlink = false;
-        let mut symlink_target = None::<String>;
+    pub fn new(current_path: &str, depth: &i32) -> io::Result<Self> {
+        let metadata = fs::symlink_metadata(current_path)?;
+        let mut file_info = FileInfo::default(); 
 
-        // Check if the entry is a symbolic link
-        if metadata.file_type().is_symlink() {
-            is_symlink = true;
-            if let Ok(target) = fs::read_link(current_path) {
-                symlink_target = Some(target.to_string_lossy().into_owned());
-            }
-        }
+        file_info.name = Self::get_file_name(current_path);
+        file_info.path = current_path.to_string();
+        file_info.depth = *depth;
+        file_info.mode = metadata.mode();
+        file_info.user_id = metadata.uid();
+        file_info.group_id = metadata.gid();
+        file_info.size = metadata.len();
+        file_info.device_id = metadata.dev();
+        file_info.inode = metadata.ino();
+        file_info.is_directory = metadata.is_dir();
+        file_info.is_symlink = metadata.file_type().is_symlink();
+        file_info.symlink_target = Self::get_symlink_target(current_path, &file_info.is_symlink);
+        file_info.access_time = metadata.atime();
+        file_info.change_time = metadata.ctime();
+        file_info.modification_time = metadata.mtime();
 
-        let file_name = std::path::Path::new(&current_path)
+        Ok(file_info)
+    }
+
+    fn get_file_name(path: &str) -> String {
+        std::path::Path::new(path)
             .file_name()
             .and_then(|os_str| os_str.to_str())
-            .unwrap_or("Unknown");
+            .unwrap_or("Unknown")
+            .to_string()
+    }
 
-        Self {
-            name: file_name.to_string(),
-            path: current_path.to_string(),
-            mode: metadata.mode(),
-            uid: metadata.uid(),
-            gid: metadata.gid(),
-            size: metadata.len(),
-            device_id: metadata.dev(),
-            inode: metadata.ino(),
-            is_directory: metadata.is_dir(),
-            is_symlink,
-            symlink_target,
-            access_time: metadata.atime(),
-            change_time: metadata.ctime(),
-            modification_time: metadata.mtime(),
+    fn get_symlink_target(path: &str, is_symlink: &bool) -> Option<String> {
+        if *is_symlink {
+            fs::read_link(path)
+                .ok()
+                .and_then(|target| Some(target.to_string_lossy().into_owned()))
+        } else {
+            None
         }
     }
 }
 
-pub fn retrieve_metadata(file_or_dir_path: &str) -> io::Result<FileInfo> {
-    let metadata = fs::symlink_metadata(file_or_dir_path)?;
-    Ok(FileInfo::new(file_or_dir_path, &metadata))
-}
 
 // fn main() -> io::Result<()> {
 //     let file_or_directory_path = "/home/nemesis/Documents/Github/my_repo/treecraft/read_dir"; // Replace with the file or directory path you want to inspect

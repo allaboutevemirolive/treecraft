@@ -21,13 +21,13 @@ impl TreeStructureFormatter {
 
     pub fn print_directory_structure(
         &self,
-        dirs: &Vec<i32>, 
+        dynamic_places: &[i32], 
         maxlevel: usize,
         outfile: &mut String,
     ) {
         for i in 0..=maxlevel {
-            if let Some(dir) = dirs.get(i) {
-                if dirs.get(i + 1).is_some() {
+            if let Some(dir) = dynamic_places.get(i) {
+                if dynamic_places.get(i + 1).is_some() {
                     if *dir == 1 {
                         // "│   "
                         outfile.push_str(&self.vertical_bar);
@@ -37,10 +37,10 @@ impl TreeStructureFormatter {
                     }
                 } else {
                     if *dir == 1 {
-                        // "    "
+                        // "├── "
                         outfile.push_str(&self.branch_mid);
                     } else {
-                        // "├── "
+                        // "└── "
                         outfile.push_str(&self.branch_end);
                     }
                 }
