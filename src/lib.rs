@@ -1,6 +1,7 @@
 pub mod format;
 pub mod metada;
 pub mod total;
+pub mod engine;
 use std::fs;
 use std::io;
 use std::path::Path;
@@ -8,9 +9,13 @@ use std::path::Path;
 use crate::{format::*, metada::*, total::*};
 
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
-    let directory_path = "/home/nemesis/Documents/Github/my_repo/treecraft";
+    let directory_path = "/home/nemesis/Documents/Github/my_repo";
 
     // FIXME: Initialize fixed vector, flexible vector is expensive
+    // Main place to determine the structure of branch
+    // 
+    // FIXME:
+    // Extract this logic into new file
     let mut dynamic_places: Vec<i32> = Vec::new();
 
     let depth = 1;
@@ -41,7 +46,7 @@ fn read_directory_recursive(
     treestructureformatter: &TreeStructureFormatter,
 ) -> io::Result<()> {
 
-
+    // FIXME:
     // We can split our findings into several part 
     // and use rayon for parallel process
 
@@ -52,6 +57,9 @@ fn read_directory_recursive(
     // We need to define sort where
     // - Files is first
     // - Folder is first
+    //
+    // FIXME:
+    // Extract this logic into new file
     entries.sort_unstable_by_key(|entry| entry.as_ref().unwrap().file_name());
 
     for (index, entry) in entries.iter().enumerate() {
@@ -69,6 +77,9 @@ fn read_directory_recursive(
         // then use 1 and 2 as the marker, 0 as pop,
         // Use depth/index as the index we need to modify 
         // the vector
+        // 
+        // FIXME:
+        // Extract this logic into new file
         if index < entries.len() - 1 {
             dynamic_places.push(1);
         } else {
@@ -108,6 +119,9 @@ fn read_directory_recursive(
 
         totals.size += info.size;
 
+        // FIXME:
+        // Extract this logic into new file
+        //
         // Pop the last element to backtrack
         dynamic_places.pop();
     }
