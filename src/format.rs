@@ -21,7 +21,7 @@ impl TreeStructureFormatter {
 
     pub fn print_directory_structure(
         &self,
-        dynamic_places: &[i32], 
+        dynamic_places: &Vec<i32>, 
         maxlevel: usize,
         outfile: &mut String,
     ) {

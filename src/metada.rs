@@ -1,12 +1,15 @@
 use std::fs;
+use std::fs::DirEntry;
 use std::io;
 use std::os::unix::fs::MetadataExt;
+use std::path::{Path, PathBuf};
+use std::fs::FileType;
 
-#[derive(Default)]
 pub struct FileInfo {
     pub name: String,
-    pub path: String,
+    pub path: PathBuf,
     pub depth: i32,
+    pub file_type: FileType,
     pub mode: u32,
     pub user_id: u32,
     pub group_id: u32,
@@ -22,49 +25,47 @@ pub struct FileInfo {
 }
 
 impl FileInfo {
-    pub fn new(current_path: &str, depth: &i32) -> io::Result<Self> {
-        let metadata = fs::symlink_metadata(current_path)?;
+    pub fn new(entry: &DirEntry, depth: &i32) -> io::Result<Self> {
+        let full_path = entry.path();
+        let metadata = fs::symlink_metadata(&full_path)?;
 
-        // FIXME: We can initialize early.
-        let mut file_info = FileInfo::default(); 
+        let file_type = entry.file_type()?;
+        let (is_symlink, symlink_target) = FileInfo::get_symlink_info(&full_path, &file_type);
 
-        file_info.name = Self::get_file_name(current_path);
-        file_info.path = current_path.to_string();
-        file_info.depth = *depth;
-        file_info.mode = metadata.mode();
-        file_info.user_id = metadata.uid();
-        file_info.group_id = metadata.gid();
-        file_info.size = metadata.len();
-        file_info.device_id = metadata.dev();
-        file_info.inode = metadata.ino();
-        file_info.is_directory = metadata.is_dir();
-        file_info.is_symlink = metadata.file_type().is_symlink();
-        file_info.symlink_target = Self::get_symlink_target(current_path, &file_info.is_symlink);
-        file_info.access_time = metadata.atime();
-        file_info.change_time = metadata.ctime();
-        file_info.modification_time = metadata.mtime();
-
-        Ok(file_info)
+        Ok(FileInfo {
+            name: full_path.file_name().and_then(|os_str| os_str.to_str()).unwrap_or("Unknown").to_string(),
+            path: full_path.clone(),
+            depth: *depth,
+            file_type,
+            mode: metadata.mode(),
+            user_id: metadata.uid(),
+            group_id: metadata.gid(),
+            size: metadata.len(),
+            device_id: metadata.dev(),
+            inode: metadata.ino(),
+            is_directory: metadata.is_dir(),
+            is_symlink,
+            symlink_target,
+            access_time: metadata.atime(),
+            change_time: metadata.ctime(),
+            modification_time: metadata.mtime(),
+        })
     }
 
-    fn get_file_name(path: &str) -> String {
-        std::path::Path::new(path)
-            .file_name()
-            .and_then(|os_str| os_str.to_str())
-            .unwrap_or("Unknown")
-            .to_string()
-    }
-
-    fn get_symlink_target(path: &str, is_symlink: &bool) -> Option<String> {
-        if *is_symlink {
-            fs::read_link(path)
-                .ok()
-                .and_then(|target| Some(target.to_string_lossy().into_owned()))
+    fn get_symlink_info(path: &Path, file_type: &FileType) -> (bool, Option<String>) {
+        if file_type.is_symlink() {
+            match fs::read_link(path) {
+                Ok(target) => (true, Some(target.to_string_lossy().into_owned())),
+                Err(_) => (false, None),
+            }
         } else {
-            None
+            (false, None)
         }
     }
 }
+
+
+
 
 
 // fn main() -> io::Result<()> {

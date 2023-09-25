@@ -8,6 +8,8 @@ use std::path::Path;
 
 use crate::{format::*, metada::*, total::*};
 
+use std::time::Instant;
+
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let directory_path = "/home/nemesis/Documents/Github/my_repo";
 
@@ -16,12 +18,15 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     // 
     // FIXME:
     // Extract this logic into new file
-    let mut dynamic_places: Vec<i32> = Vec::new();
+    let mut dynamic_places: Vec<i32> = Vec::with_capacity(1);
 
     let depth = 1;
 
     let mut totals = Totals::new();
     let treestructureformatter = TreeStructureFormatter::new();
+
+    // Measure execution time
+    let start_time = Instant::now();
 
     read_directory_recursive(
         Path::new(directory_path),
@@ -31,9 +36,15 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         &treestructureformatter,
     )?;
 
-    println!("Total Directories : {}", totals.dirs);
+    let milli_seconds = start_time.elapsed();
+    let seconds = milli_seconds.as_secs() as f64 + milli_seconds.subsec_nanos() as f64 / 1_000_000_000.0;
+
+    println!();
+    println!("Times Processing  : {:?}s", seconds);
+    println!("Total Folders     : {}", totals.dirs);
     println!("Total Files       : {}", totals.files);
     println!("Total Size        : {} bytes", totals.size);
+    println!();
 
     Ok(())
 }
@@ -60,16 +71,14 @@ fn read_directory_recursive(
     //
     // FIXME:
     // Extract this logic into new file
+    //
+    // FIXME:
+    // When sorting, sort it with case insensitive or make it as option 
     entries.sort_unstable_by_key(|entry| entry.as_ref().unwrap().file_name());
 
     for (index, entry) in entries.iter().enumerate() {
 
-        // FIXME: Can we insert this into "FileInfo" struct?
-        let entry = entry.as_ref().unwrap();
-        let file_type = entry.file_type()?;
-        let full_path = entry.path();
-
-        let info = FileInfo::new(&full_path.to_string_lossy(), &depth)?;
+        let info = FileInfo::new(&entry.as_ref().unwrap(), depth)?;
 
         // FIXME: 
         // We need to work around for push and pop
@@ -97,17 +106,22 @@ fn read_directory_recursive(
         // to handle unicode char in folder list that we find
         //
         let mut outfile = String::from("");
-        let maxlevel = dynamic_places.len() - 1;
 
-        treestructureformatter.print_directory_structure(dynamic_places, maxlevel, &mut outfile);
+        treestructureformatter.print_directory_structure(
+            dynamic_places, 
+            dynamic_places.len() - 1, 
+            &mut outfile
+        );
 
+        // FIXME:
+        // Maybe put this call inside "print_directory_structure"?
         // Will replace it with custom print
         println!("{}{}", outfile, info.name);
 
-        if file_type.is_dir() {
+        if info.file_type.is_dir() {
             totals.dirs += 1;
             read_directory_recursive(
-                &full_path,
+                &info.path,
                 dynamic_places,
                 &(depth + 1),
                 totals,
