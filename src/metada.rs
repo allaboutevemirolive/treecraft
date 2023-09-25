@@ -2,7 +2,7 @@ use std::fs;
 use std::io;
 use std::os::unix::fs::MetadataExt;
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct FileInfo {
     pub name: String,
     pub path: String,
@@ -24,6 +24,8 @@ pub struct FileInfo {
 impl FileInfo {
     pub fn new(current_path: &str, depth: &i32) -> io::Result<Self> {
         let metadata = fs::symlink_metadata(current_path)?;
+
+        // FIXME: We can initialize early.
         let mut file_info = FileInfo::default(); 
 
         file_info.name = Self::get_file_name(current_path);

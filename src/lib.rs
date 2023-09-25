@@ -10,13 +10,12 @@ use crate::{format::*, metada::*, total::*};
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let directory_path = "/home/nemesis/Documents/Github/my_repo/treecraft";
 
-    // FIXME: Initialize to fix vector, flexible vector is expensive
+    // FIXME: Initialize fixed vector, flexible vector is expensive
     let mut dynamic_places: Vec<i32> = Vec::new();
 
     let depth = 1;
 
     let mut totals = Totals::new();
-
     let treestructureformatter = TreeStructureFormatter::new();
 
     read_directory_recursive(
@@ -26,7 +25,6 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         &mut totals,
         &treestructureformatter,
     )?;
-
 
     println!("Total Directories : {}", totals.dirs);
     println!("Total Files       : {}", totals.files);
@@ -42,25 +40,51 @@ fn read_directory_recursive(
     totals: &mut Totals,
     treestructureformatter: &TreeStructureFormatter,
 ) -> io::Result<()> {
+
+
+    // We can split our findings into several part 
+    // and use rayon for parallel process
+
     let mut entries: Vec<_> = fs::read_dir(path)?.collect();
 
-    // FIXME: Custom sort
+    // FIXME: 
+    // Need to custom sort
+    // We need to define sort where
+    // - Files is first
+    // - Folder is first
     entries.sort_unstable_by_key(|entry| entry.as_ref().unwrap().file_name());
 
     for (index, entry) in entries.iter().enumerate() {
+
+        // FIXME: Can we insert this into "FileInfo" struct?
         let entry = entry.as_ref().unwrap();
         let file_type = entry.file_type()?;
         let full_path = entry.path();
 
         let info = FileInfo::new(&full_path.to_string_lossy(), &depth)?;
 
+        // FIXME: 
+        // We need to work around for push and pop
+        // Like, use fix arrays initialized with 0,
+        // then use 1 and 2 as the marker, 0 as pop,
+        // Use depth/index as the index we need to modify 
+        // the vector
         if index < entries.len() - 1 {
             dynamic_places.push(1);
         } else {
             dynamic_places.push(2);
         };
 
-        // FIXME: Use std::io
+        // FIXME: 
+        //
+        // Use std::io ?
+        //
+        // For better memory-efficient, we may use vector,
+        // but it also mean we need to handle character encoding 
+        // and decoding manually. Thus, we need to use "custom printit".
+        // Another resonale for "custom printit" is that we need
+        // to handle unicode char in folder list that we find
+        //
         let mut outfile = String::from("");
         let maxlevel = dynamic_places.len() - 1;
 
