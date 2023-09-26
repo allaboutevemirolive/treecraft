@@ -3,23 +3,33 @@ pub mod format;
 pub mod metada;
 pub mod sort;
 pub mod total;
+use crate::{format::*, metada::*, total::*};
+use colored::*;
+use sort::sort::*;
 use std::fs;
 use std::io;
 use std::io::Write;
 use std::path::Path;
 use std::time::Instant;
-use sort::sort::*;
-use crate::{format::*, metada::*, total::*};
-use colored::*;
 
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let directory_path = "/home/nemesis/Documents/Github/my_repo";
 
-    // FIXME: Initialize fixed vector, flexible vector is expensive
-    // Main place to determine the structure of branch
-    //
-    // FIXME:
-    // Extract this logic into new file
+    /*
+    ## Main place to determine the structure of branch
+
+    FIXME: 
+    Initialize fixed vector with 64_000 size and initialize to 0, 
+    then replace push and pop with marker 1 and 2, 
+    then use "depth" as the benchmark to modify marker to 0
+    or update the marker
+    
+    This ways we can avoid amortized O(1) operation
+    
+    FIXME:
+    Extract this logic into new file
+
+     */
     let mut dynamic_places: Vec<i32> = Vec::with_capacity(1);
 
     let depth = 1;
@@ -43,9 +53,8 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     )
     .unwrap();
 
-    let milli_seconds = start_time.elapsed();
-    let seconds =
-        milli_seconds.as_secs() as f64 + milli_seconds.subsec_nanos() as f64 / 1_000_000_000.0;
+    let seconds = (start_time.elapsed()).as_secs() as f64
+        + (start_time.elapsed()).subsec_nanos() as f64 / 1_000_000_000.0;
 
     println!();
     println!("Times Processing  : {:?}s", seconds);
@@ -121,8 +130,6 @@ fn read_directory_recursive(
             dynamic_places.len() - 1,
             output,
         )?;
-
-        // writeln!(output, "{}", info.name.color(Color::Blue))?;
 
         // FIXME:
         // Maybe put this call inside "print_directory_structure"?
