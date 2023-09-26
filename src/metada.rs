@@ -26,9 +26,9 @@ pub struct FileInfo {
 
 impl FileInfo {
     pub fn new(entry: &DirEntry, depth: &i32) -> io::Result<Self> {
+        
         let full_path = entry.path();
         let metadata = fs::symlink_metadata(&full_path)?;
-
         let file_type = entry.file_type()?;
         let (is_symlink, symlink_target) = FileInfo::get_symlink_info(&full_path, &file_type);
 
