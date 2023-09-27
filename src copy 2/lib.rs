@@ -3,11 +3,9 @@ pub mod format;
 pub mod metada;
 pub mod sort;
 pub mod total;
-pub mod flag;
 use crate::{format::*, metada::*, total::*};
 use colored::*;
 use sort::sort::*;
-use std::env;
 use std::fs;
 use std::io;
 use std::io::Write;
@@ -16,10 +14,7 @@ use std::time::Instant;
 
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
 
-    // let args: Vec<String> = env::args().collect();
-
     let directory_path = "/home/nemesis/Documents/Github/my_repo";
-    let sort_type = SortType::ByLowerCaseFileName;
 
     // Main place to determine the structure of branch
     let mut dynamic_places: Vec<i32> = Vec::with_capacity(1);
@@ -29,7 +24,9 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let treestructureformatter = TreeStructureFormatter::new();
     let stdout = io::stdout();
     let mut handle = stdout.lock();
-    
+    let sort_type = SortType::ByLowerCaseFileName;
+
+    // Measure execution time
     let start_time = Instant::now();
 
     read_directory_recursive(
@@ -69,6 +66,18 @@ fn read_directory_recursive(
     // We can split our findings into several part
     // and use rayon for parallel process
 
+    // FIXME:
+    // Need to custom sort
+    // We need to define sort where
+    // - Files is first
+    // - Folder is first
+    //
+    // FIXME:
+    // Extract this logic into new file
+    //
+    // FIXME:
+    // When sorting, sort it with case insensitive or make it as option
+
     let mut entries: Vec<_> = fs::read_dir(path).unwrap().collect();
 
     sort_entries(&mut entries, &sort_type);
@@ -82,14 +91,27 @@ fn read_directory_recursive(
             dynamic_places.push(2);
         };
 
+        // FIXME:
+        //
+        // For better memory-efficient, we may use vector,
+        // but it also mean we need to handle character encoding
+        // and decoding manually. Thus, we need to use "custom printit".
+        // Another resonale for "custom printit" is that we need
+        // to handle unicode char in folder list that we find
+        //
+        // let mut outfile = String::from("");
+
         treestructureformatter.print_directory_structure(
             dynamic_places,
             dynamic_places.len() - 1,
             output,
         )?;
 
+        // FIXME:
+        // Maybe put this call inside "print_directory_structure"?
+        // Will replace it with custom print
+
         if info.file_type.is_dir() {
-            // FIXME: Create custom "printit"
             writeln!(output, "{}", info.name.color(Color::BrightGreen))?;
             totals.dirs += 1;
             read_directory_recursive(
@@ -108,6 +130,9 @@ fn read_directory_recursive(
 
         totals.size += info.size;
 
+        // FIXME:
+        // Extract this logic into new file
+        //
         // Pop the last element to backtrack
         dynamic_places.pop();
     }
