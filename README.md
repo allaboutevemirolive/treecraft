@@ -19,6 +19,8 @@ TreeCraft is a utility written in pure Rust that allows you to display a tree vi
 
 ## Usage for `treecraft` binary
 
+[treecraft's binary](https://github.com/allaboutevemirolive/treecraft/releases/tag/treecraft)
+
 To use TreeCraft, follow these simple steps:
 
 1. Place the `treecraft` binary in the folder where you want to generate a tree view.
