@@ -2,63 +2,89 @@ pub mod engine;
 pub mod flag;
 pub mod format;
 pub mod metada;
+pub mod output;
 pub mod sort;
 pub mod total;
 use crate::{flag::*, format::*, metada::*, total::*};
 use colored::*;
+use output::*;
 use sort::sort::*;
 use std::env;
 use std::fs;
+use std::fs::File;
 use std::io;
 use std::io::Write;
 use std::path::Path;
 use std::time::Instant;
 
+// pub fn run() -> Result<(), Box<dyn std::error::Error>>{
+//     // let args: Vec<String> = env::args().collect();
+//     let mut flags = Flags::new();
+//     // flags.processing_args(args);
+
+//     // HardCode
+//     let directory_path = "/home/nemesis/Documents/Github/Focus/lang";
+//     let sort_type = SortType::ByLowerCaseFileName;
+
+//     // let directory_path = flags.dirname.to_string();
+//     // let sort_type = flags.sorttype;
+
+//     // Main place to determine the structure of branch
+//     let mut dynamic_places: Vec<i32> = Vec::with_capacity(1);
+
+//     let depth = 1;
+//     let mut totals = Totals::new();
+//     let treestructureformatter = TreeStructureFormatter::new();
+
+//     // ---------------
+//     let stdout = io::stdout();
+//     let mut handle = stdout.lock();
+
+//     let start_time = Instant::now();
+
+//     read_directory_recursive(
+//         Path::new(&directory_path),
+//         &mut dynamic_places,
+//         &depth,
+//         &mut totals,
+//         &treestructureformatter,
+//         &mut handle,
+//         &sort_type,
+//     )
+//     .unwrap();
+
+//     let seconds = (start_time.elapsed()).as_secs() as f64
+//         + (start_time.elapsed()).subsec_nanos() as f64 / 1_000_000_000.0;
+
+//     let gigabytes = totals.size as f64 / 1_073_741_824.0;
+
+//     println!();
+//     println!("Times Processing  : {:?}s", seconds);
+//     println!("Total Folders     : {}", totals.dirs);
+//     println!("Total Files       : {}", totals.files);
+//     println!("Total Items       : {}", totals.files + totals.dirs);
+//     println!(
+//         "Total Size        : {:.2} GB or {} bytes",
+//         gigabytes, totals.size
+//     );
+//     println!();
+
+//     Ok(())
+// }
+
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
-    // let args: Vec<String> = env::args().collect();
+    let args: Vec<String> = env::args().collect();
+    let mut flags = Flags::new();
+    flags.processing_args(args);
 
-    // let mut flags = Flags::new();
-
-    // flags.processing_args(args);
-
-    // HardCode
-    let directory_path = "/home/nemesis/Documents/Github/Focus/lang";
-    let sort_type = SortType::ByLowerCaseFileName;
-
-    // let directory_path = flags.dirname.to_string();
-    // let sort_type = flags.sorttype;
-
-    // Main place to determine the structure of branch
-    let mut dynamic_places: Vec<i32> = Vec::with_capacity(1);
-
-    let depth = 1;
-    let mut totals = Totals::new();
-    let treestructureformatter = TreeStructureFormatter::new();
-    let stdout = io::stdout();
-    let mut handle = stdout.lock();
-
-    let start_time = Instant::now();
-
-    read_directory_recursive(
-        Path::new(&directory_path),
-        &mut dynamic_places,
-        &depth,
-        &mut totals,
-        &treestructureformatter,
-        &mut handle,
-        &sort_type,
-    )
-    .unwrap();
-
-    let seconds = (start_time.elapsed()).as_secs() as f64
-        + (start_time.elapsed()).subsec_nanos() as f64 / 1_000_000_000.0;
-
-    println!();
-    println!("Times Processing  : {:?}s", seconds);
-    println!("Total Folders     : {}", totals.dirs);
-    println!("Total Files       : {}", totals.files);
-    println!("Total Size        : {} bytes", totals.size);
-    println!();
+    match flags.output {
+        OutputType::Terminal => {
+            run_terminal(flags)?;
+        }
+        OutputType::TextFile => {
+            run_text_file(&flags)?;
+        }
+    }
 
     Ok(())
 }
@@ -71,6 +97,7 @@ fn read_directory_recursive(
     treestructureformatter: &TreeStructureFormatter,
     output: &mut dyn Write,
     sort_type: &SortType,
+    flags: &Flags,
 ) -> Result<(), Box<dyn std::error::Error>> {
     // FIXME:
     // We can split our findings into several part
@@ -96,9 +123,16 @@ fn read_directory_recursive(
         )?;
 
         if info.file_type.is_dir() {
+            
             // FIXME: Create custom "printit"
-            writeln!(output, "{}", info.name.color(Color::BrightGreen))?;
+            if flags.output == OutputType::TextFile {
+                writeln!(output, "{}", info.name)?;
+            } else {
+                writeln!(output, "{}", info.name.color(Color::BrightGreen))?;
+            }
+
             totals.dirs += 1;
+
             read_directory_recursive(
                 &info.path,
                 dynamic_places,
@@ -107,6 +141,7 @@ fn read_directory_recursive(
                 treestructureformatter,
                 output,
                 &sort_type,
+                &flags,
             )?;
         } else {
             writeln!(output, "{}", info.name,)?;

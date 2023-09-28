@@ -1,6 +1,6 @@
 use std::{env::args, path::{PathBuf, Path}};
 
-use crate::sort::sort::SortType;
+use crate::{sort::sort::SortType, output::*};
 
 #[derive(Debug, Default)]
 pub struct Flags {
@@ -73,6 +73,7 @@ pub struct Flags {
     // nolinks: bool,          // --nolinks: Turn off hyperlinks in HTML output.
     // hintro: Option<String>, // --hintro X: Use file X as the HTML intro.
     // houtro: Option<String>, // --houtro X: Use file X as the HTML outro.
+    pub output: OutputType,
 
     // // Input options
     // fromfile: bool,         // --fromfile: Reads paths from files (.=stdin)
@@ -95,6 +96,7 @@ impl Flags {
     
         // Set default values
         self.dirname = ".".to_string();
+        self.output = OutputType::Terminal;
         // self.aflag = true;
 
         // let mut default_sort_type = SortType::default();
@@ -144,6 +146,11 @@ impl Flags {
                     // "--prune" => self.pruneflag = true,
                     // "--meta-first" => self.metafirst = true,
                     // "--git-ignore" => self.gitignore = true,
+
+                    // Output options
+                    "-tf" => {
+                        self.output = OutputType::TextFile
+                    }
                     
                     // Sort
                     "-st-fn-lc" => self.sorttype = SortType::default(),

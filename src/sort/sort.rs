@@ -3,17 +3,16 @@ use std::io;
 
 #[derive(Debug)]
 pub enum SortType {
+    
     // -st-lc
     ByLowerCaseFileName,
-    /*
 
+    /*
     -st-fn
 
     This is much faster
-
     FIXME
     Make this as default
-
      */
     ByFileName,
 
