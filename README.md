@@ -25,9 +25,19 @@ To use TreeCraft, follow these simple steps:
 
 1. Place the `treecraft` binary in the folder where you want to generate a tree view.
 
-2. Open your terminal and navigate to the folder where you put the `treecraft` binary with command `cd "filepath"`.
+2. Open your terminal and navigate to the folder where you put the `treecraft` binary with command 
+   ```bash
+   cd "filepath"
+   ```
 
-3. Run the following command to generate an ASCII tree-view on the terminal:
+
+3. Then run the following command:
+
+   ```bash
+   chmod +x treecraft
+   ```
+
+4. Run the following command to generate an ASCII tree-view on the terminal:
 
    ```
    ./treecraft "filepath"
