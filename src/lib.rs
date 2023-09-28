@@ -62,8 +62,11 @@ fn read_directory_recursive(
     sort_entries(&mut entries, &sort_type);
 
     for (index, entry) in entries.iter().enumerate() {
+
+        // Collect information for each file/folder
         let info = FileInfo::new(&entry.as_ref().unwrap(), depth)?;
 
+        // Manipulate vector for branches creation
         if index < entries.len() - 1 {
             dynamic_places.push(1);
         } else {
@@ -77,7 +80,7 @@ fn read_directory_recursive(
         )?;
 
         if info.file_type.is_dir() {
-            // FIXME: Create custom "printit"
+            // FIXME: Create custom "printit" to handle unicode
             if flags.output == OutputType::TextFile {
                 writeln!(output, "{}", info.name)?;
             } else {

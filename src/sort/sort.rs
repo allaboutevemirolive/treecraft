@@ -3,17 +3,13 @@ use std::io;
 
 #[derive(Debug)]
 pub enum SortType {
-    /// `-st-lc`
-    /// Sort by filename with case insensitive
+    /// `-st-lc` Sort by file's name with case insensitive
     ByLowerCaseFileName,
-
-    // FIXME: Make this as default?
-    /// `-st-fn`
-    /// Sort by filename
+    
+    /// `-st-fn` Sort by file's name only
     ByFileName,
 
-    /// `-st-no`
-    /// No sort
+    /// `-st-no` No sort
     NoSort,
 }
 

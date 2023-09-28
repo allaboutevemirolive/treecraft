@@ -79,9 +79,7 @@ pub fn run_text_file(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
     let directory_path = &flags.dirname.to_string();
     let sort_type = &flags.sorttype;
 
-    // FIXME
-    // Enable user to define the output_file's name and file extenstion
-    // Output.txt
+    // FIXME: Enable user to define the output_file's name and file extenstion
     let output_file_path = "Output.txt";
     let output_file = File::create(&output_file_path)?;
 

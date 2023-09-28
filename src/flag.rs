@@ -4,7 +4,7 @@ use crate::{sort::sort::SortType, output::*};
 
 #[derive(Debug, Default)]
 pub struct Flags {
-    // Folder name
+    // Folder's name
     pub dirname: String,
     
     // // Listing options
