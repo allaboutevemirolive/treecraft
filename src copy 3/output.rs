@@ -21,13 +21,13 @@ impl Default for OutputType {
     }
 }
 
-pub fn run_terminal(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
+pub fn run_terminal(flags: Flags) -> Result<(), Box<dyn std::error::Error>> {
 
     // HardCode for debugging purpose
     // let directory_path = "/home/nemesis/Documents/Github/Focus/lang";
     // let sort_type = SortType::ByLowerCaseFileName;
 
-    let directory_path = &flags.dirname.to_string();
+    let directory_path = flags.dirname.to_string();
     let sort_type = &flags.sorttype;
 
     // Main place to determine the structure of branch
@@ -79,10 +79,8 @@ pub fn run_text_file(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
     let directory_path = &flags.dirname.to_string();
     let sort_type = &flags.sorttype;
 
-    // FIXME
-    // Enable user to define the output_file's name and file extenstion
     // Output.txt
-    let output_file_path = "Output.txt";
+    let output_file_path = flags.dirname.to_string() + ".txt";
     let output_file = File::create(&output_file_path)?;
 
     // Main place to determine the structure of branch

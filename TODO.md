@@ -17,3 +17,7 @@ Currently, ANSI color only works with terminal, if the same output were produce 
 │   │   │   ├── [92mtar[0m
 │   │   │   │   ├── common.go
 ```
+
+2. Use Rayon
+
+We can split our findings into several part and use rayon for parallel process

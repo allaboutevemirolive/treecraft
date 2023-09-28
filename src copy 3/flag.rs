@@ -1,11 +1,12 @@
-use std::path::{PathBuf, Path};
+use std::{env::args, path::{PathBuf, Path}};
 
 use crate::{sort::sort::SortType, output::*};
 
 #[derive(Debug, Default)]
 pub struct Flags {
-    // Folder name
     pub dirname: String,
+    pub sorttype: SortType,
+    
     
     // // Listing options
     // aflag: bool,            // -a: All files are listed.
@@ -55,8 +56,7 @@ pub struct Flags {
     // rflag: bool,            // -r: Reverse the order of the sort.
     // dirsfirst: bool,        // --dirsfirst: List directories before files (-U disables).
     // filesfirst: bool,       // --filesfirst: List files before directories (-U disables).
-    // sort: Option<String>,   // --sort X: Select sort: name, version, size, mtime, ctime.
-    pub sorttype: SortType,
+    // sort: Option<String>,    // --sort X: Select sort: name, version, size, mtime, ctime.
 
     // // Graphics options
     // i: bool,                // -i: Don't print indentation lines.
@@ -80,15 +80,10 @@ pub struct Flags {
     // fromtabfile: bool,      // --fromtabfile: Reads trees from tab indented files (.=stdin).
     // fflinks: bool,          // --fflinks: Process link information when using --fromfile.
 
-    // // Input options
-    // fromfile: bool,            // --fromfile: Reads paths from files (.=stdin)
-    // fromtabfile: bool,         // --fromtabfile: Reads trees from tab indented files (.=stdin)
-    // fflinks: bool,             // --fflinks: Process link information when using --fromfile.
-
     // // Miscellaneous options
-    // version: bool,              // --version: Print version and exit.
-    pub help: bool,                // --help: Print usage and this help message and exit.
-    // terminator: bool,           // --: Options processing terminator.
+    // version: bool,          // --version: Print version and exit.
+    // help: bool,             // --help: Print usage and this help message and exit.
+    // terminator: bool,       // --: Options processing terminator.
 }
 
 impl Flags {
@@ -102,8 +97,8 @@ impl Flags {
         // Set default values
         self.dirname = ".".to_string();
         self.output = OutputType::Terminal;
+        // self.aflag = true;
 
-        // Debugging purpose
         // let mut default_sort_type = SortType::default();
         // println!("Default SortType: {:?}", default_sort_type);
 
@@ -161,10 +156,6 @@ impl Flags {
                     "-st-fn-lc" => self.sorttype = SortType::default(),
                     "-st-fn"    => self.sorttype = SortType::ByFileName,
                     "-st-no" => self.sorttype = SortType::NoSort,
-
-                    // Miscellaneous options
-                    "-help" => self.help = true,
-                    
                     _ => {
                         break;
                     }

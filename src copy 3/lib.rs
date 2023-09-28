@@ -14,30 +14,14 @@ use std::fs;
 use std::io::Write;
 use std::path::Path;
 
-const HELP_TEXT: [&str; 5] = [
-    "-tf                         Print output in a text file",
-    "-st-fn-lc                   Sort filename with case insensitive or lowercase",
-    "-st-fn                      Sort filename",
-    "-st-no                      No sort",
-    "-help                       Print usage and exit",
-];
-
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
     let mut flags = Flags::new();
     flags.processing_args(args);
 
-    if flags.help {
-        for line in &HELP_TEXT {
-            println!("{}", line);
-        }
-
-        std::process::exit(0);
-    }
-
     match flags.output {
         OutputType::Terminal => {
-            run_terminal(&flags)?;
+            run_terminal(flags)?;
         }
         OutputType::TextFile => {
             run_text_file(&flags)?;
@@ -57,6 +41,7 @@ fn read_directory_recursive(
     sort_type: &SortType,
     flags: &Flags,
 ) -> Result<(), Box<dyn std::error::Error>> {
+
     let mut entries: Vec<_> = fs::read_dir(path).unwrap().collect();
 
     sort_entries(&mut entries, &sort_type);
@@ -77,6 +62,7 @@ fn read_directory_recursive(
         )?;
 
         if info.file_type.is_dir() {
+
             // FIXME: Create custom "printit"
             if flags.output == OutputType::TextFile {
                 writeln!(output, "{}", info.name)?;
@@ -109,6 +95,7 @@ fn read_directory_recursive(
 
     Ok(())
 }
+
 
 // pub fn run() -> Result<(), Box<dyn std::error::Error>>{
 //     // let args: Vec<String> = env::args().collect();
