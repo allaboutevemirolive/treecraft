@@ -5,6 +5,15 @@ use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 use std::fs::FileType;
 
+/*
+FIXME
+Apply lazy evaluation where the default info we only need is the 
+- files name
+- files size
+
+Others is optional.
+*/
+
 pub struct FileInfo {
     pub name: String,
     pub path: PathBuf,

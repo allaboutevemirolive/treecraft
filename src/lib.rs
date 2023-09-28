@@ -1,10 +1,10 @@
 pub mod engine;
+pub mod flag;
 pub mod format;
 pub mod metada;
 pub mod sort;
 pub mod total;
-pub mod flag;
-use crate::{format::*, metada::*, total::*};
+use crate::{flag::*, format::*, metada::*, total::*};
 use colored::*;
 use sort::sort::*;
 use std::env;
@@ -15,11 +15,18 @@ use std::path::Path;
 use std::time::Instant;
 
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
-
     // let args: Vec<String> = env::args().collect();
 
-    let directory_path = "/home/nemesis/Documents/Github/my_repo";
+    // let mut flags = Flags::new();
+
+    // flags.processing_args(args);
+
+    // HardCode
+    let directory_path = "/home/nemesis/Documents/Github/Focus/lang";
     let sort_type = SortType::ByLowerCaseFileName;
+
+    // let directory_path = flags.dirname.to_string();
+    // let sort_type = flags.sorttype;
 
     // Main place to determine the structure of branch
     let mut dynamic_places: Vec<i32> = Vec::with_capacity(1);
@@ -29,11 +36,11 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let treestructureformatter = TreeStructureFormatter::new();
     let stdout = io::stdout();
     let mut handle = stdout.lock();
-    
+
     let start_time = Instant::now();
 
     read_directory_recursive(
-        Path::new(directory_path),
+        Path::new(&directory_path),
         &mut dynamic_places,
         &depth,
         &mut totals,
