@@ -1,4 +1,4 @@
-# /home/nemesis/Documents/Github/my_repo/treecraft/LICENSE
+# /treecraft/LICENSE
 
 
 MIT License
