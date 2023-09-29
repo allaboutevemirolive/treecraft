@@ -14,7 +14,19 @@ TreeCraft is a utility written in pure Rust that allows you to display a tree vi
    cargo init
    ```
 
-4. You can now contribute to the project or modify it according to your needs.
+4. Run the following command to generate ASCII tree view
+
+   ```
+   cargo run "filepath" "flag"
+   ```
+
+   Example:
+
+   ```
+   cargo run /home/nemesis/Documents/Github/Focus/lang -tf
+   ```
+
+5. You can now contribute to the project or modify it according to your needs.
 
 
 ## Usage for `treecraft` binary
