@@ -9,9 +9,9 @@ edition = "2021"
 colored = "2.0.4"
 
 [[bin]]
-name = "src"
+name = "treecraft"
 path = "main.rs"
 
 [lib]
-name = "src"
+name = "treecraft"
 path = "lib.rs"
