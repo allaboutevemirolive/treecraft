@@ -1,16 +1,16 @@
 pub mod flag;
 pub mod format;
-pub mod metada;
 pub mod output;
 pub mod sort;
-pub mod total;
-pub mod analysis;
-use crate::{flag::*, format::*, metada::*, total::*};
-use analysis::ext;
+pub mod meta;
+pub mod file;
+use crate::{flag::*, format::*};
+use crate::meta::total::*;
+use crate::meta::metada::*;
+use meta::ext;
 use colored::*;
 use output::*;
 use sort::sort::*;
-use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::io::Write;
@@ -22,11 +22,15 @@ const HELP_TEXT: [&str; 5] = [
     "-st-fn                      Sort filename",
     "-st-no                      No sort",
     "-help                       Print usage and exit",
+    // add -ext
 ];
 
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
+
     let args: Vec<String> = env::args().collect();
+
     let mut flags = Flags::new();
+
     flags.processing_args(args);
 
     if flags.help {
@@ -66,7 +70,6 @@ fn read_directory_recursive(
 
     for (index, entry) in entries.iter().enumerate() {
 
-        // Collect information for each file/folder
         let info = FileInfo::new(&entry.as_ref().unwrap(), depth)?;
 
         // Manipulate vector for branches creation
@@ -90,7 +93,7 @@ fn read_directory_recursive(
                 writeln!(output, "{}", info.name.color(Color::BrightGreen))?;
             }
 
-            totals.dirs += 1;
+            totals.increment_dirs();
 
             read_directory_recursive(
                 &info.path,
@@ -105,16 +108,14 @@ fn read_directory_recursive(
             )?;
         } else {
             writeln!(output, "{}", info.name,)?;
-            totals.files += 1;
 
-            
-            // *extensions.extensions.entry(info.extension.unwrap_or_default()).or_insert(0) += 1;
+            totals.increment_files();
+
             extensions.collect_extension(info.extension);
-
 
         }
 
-        totals.size += info.size;
+        totals.add_size(info.size);
 
         // Pop the last element to backtrack
         dynamic_places.pop();

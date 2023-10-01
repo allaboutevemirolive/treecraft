@@ -100,6 +100,7 @@ impl Flags {
     pub fn processing_args(&mut self, args: Vec<String>) {
         let mut iter = args.iter().skip(1); // Skip the program name
     
+        // FIXME: use default block
         // Set default values
         self.dirname = ".".to_string();
         self.output = OutputType::Terminal;

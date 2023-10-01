@@ -1,17 +1,17 @@
 use std::{
-    collections::HashMap,
-    fs::File,
-    io::{self, Write},
+    io::{self},
     path::Path,
     time::Instant,
 };
 
 use crate::{
-    analysis::ext::*, 
+    meta::ext::*, 
     flag::Flags, 
     format::TreeStructureFormatter,
-    read_directory_recursive, total::Totals,
+    read_directory_recursive,
 };
+
+use crate::meta::total::*;
 
 #[derive(Debug, PartialEq)]
 pub enum OutputType {
@@ -45,11 +45,13 @@ pub fn run_terminal(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
 
     println!("{}", flags.dirname.to_string());
 
-    let start_time = Instant::now();
+    
 
     // let mut extensions: HashMap<String, usize> = HashMap::new();
 
     let mut extensions = Extensions::new();
+
+    let start_time = Instant::now();
 
     read_directory_recursive(
         Path::new(&directory_path),
@@ -72,17 +74,12 @@ pub fn run_terminal(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
     let seconds = (start_time.elapsed()).as_secs() as f64
         + (start_time.elapsed()).subsec_nanos() as f64 / 1_000_000_000.0;
 
-    let gigabytes = totals.size as f64 / 1_073_741_824.0;
-
     println!();
+
     println!("Times Processing  : {:?}s", seconds);
-    println!("Total Folders     : {}", totals.dirs);
-    println!("Total Files       : {}", totals.files);
-    println!("Total Items       : {}", totals.files + totals.dirs);
-    println!(
-        "Total Size        : {:.2} GB or {} bytes",
-        gigabytes, totals.size
-    );
+
+    println!("{}", totals);
+
     println!();
 
     Ok(())

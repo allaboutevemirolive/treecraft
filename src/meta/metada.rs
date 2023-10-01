@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::fs;
 use std::fs::DirEntry;
 use std::fs::FileType;
@@ -37,33 +36,21 @@ pub struct FileInfo {
 }
 
 impl FileInfo {
+    /// Collect information for each file/folder
     pub fn new(entry: &DirEntry, depth: &i32) -> io::Result<Self> {
         let full_path = entry.path();
+
         let metadata = fs::symlink_metadata(&full_path)?;
+
         let file_type = entry.file_type()?;
 
-        // println!("{:?}", file_type);
         let (is_symlink, symlink_target) = FileInfo::get_symlink_info(&full_path, &file_type);
-
-        let extension = full_path
-            .extension()
-            .and_then(|ext| ext.to_str())
-            .map(|ext| ext.to_string());
-
-        // let mut extensions = HashMap::new();
-
-        // if let Some(ext) = &extension {
-        //     // Increment the count for this extension
-        //     *extensions.entry(ext.clone()).or_insert(0) += 1;
-        // }
-
-        // println!("extension: {:?}", extension);
 
         Ok(FileInfo {
             name: full_path
                 .file_name()
                 .and_then(|os_str| os_str.to_str())
-                .unwrap_or("Unknown")
+                .unwrap_or_default()
                 .to_string(),
             path: full_path.clone(),
             depth: *depth,
@@ -80,7 +67,10 @@ impl FileInfo {
             access_time: metadata.atime(),
             change_time: metadata.ctime(),
             modification_time: metadata.mtime(),
-            extension,
+            extension: full_path
+                .extension()
+                .and_then(|ext| ext.to_str())
+                .map(|ext| ext.to_string()),
         })
     }
 
@@ -94,35 +84,6 @@ impl FileInfo {
             (false, None)
         }
     }
-}
-
-// Function to accumulate and count extensions in a folder
-pub fn accumulate_extensions_in_folder_recursive(folder_path: &Path) -> HashMap<String, usize> {
-    let mut extensions = HashMap::new();
-
-    if let Ok(entries) = fs::read_dir(folder_path) {
-        for entry in entries {
-            if let Ok(entry) = entry {
-                let entry_path = entry.path();
-                if entry_path.is_dir() {
-                    // If the entry is a directory, recursively accumulate extensions
-                    let nested_extensions = accumulate_extensions_in_folder_recursive(&entry_path);
-                    for (extension, count) in nested_extensions {
-                        *extensions.entry(extension).or_insert(0) += count;
-                    }
-                } else if let Some(extension) = entry_path
-                    .extension()
-                    .and_then(|ext| ext.to_str())
-                    .map(|ext| ext.to_string())
-                {
-                    // If the entry is a file, increment the count for its extension
-                    *extensions.entry(extension).or_insert(0) += 1;
-                }
-            }
-        }
-    }
-
-    extensions
 }
 
 // fn main() -> io::Result<()> {
