@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 colored = "2.0.4"
+tabular = "0.2.0"

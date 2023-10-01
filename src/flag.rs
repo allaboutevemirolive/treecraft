@@ -46,6 +46,7 @@ pub struct Flags {
     // Fflag: bool,            // -F: Appends '/', '=', '*', '@', '|' or '>' as per ls -F.
     // inodes: bool,           // --inodes: Print the inode number of each file.
     // device: bool,           // --device: Print the device ID number to which each file belongs.
+    pub extensions: bool,
 
     // // Sorting options
     // vflag: bool,            // -v: Sort files alphanumerically by version.
@@ -164,6 +165,8 @@ impl Flags {
 
                     // Miscellaneous options
                     "-help" => self.help = true,
+
+                    "-ext" => self.extensions = true,
                     
                     _ => {
                         break;

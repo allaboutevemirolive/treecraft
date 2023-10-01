@@ -1,14 +1,16 @@
-pub mod engine;
 pub mod flag;
 pub mod format;
 pub mod metada;
 pub mod output;
 pub mod sort;
 pub mod total;
+pub mod analysis;
 use crate::{flag::*, format::*, metada::*, total::*};
+use analysis::ext;
 use colored::*;
 use output::*;
 use sort::sort::*;
+use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::io::Write;
@@ -40,7 +42,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
             run_terminal(&flags)?;
         }
         OutputType::TextFile => {
-            run_text_file(&flags)?;
+            // run_text_file(&flags)?;
         }
     }
 
@@ -56,6 +58,7 @@ fn read_directory_recursive(
     output: &mut dyn Write,
     sort_type: &SortType,
     flags: &Flags,
+    mut extensions: &mut ext::Extensions,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut entries: Vec<_> = fs::read_dir(path).unwrap().collect();
 
@@ -98,10 +101,17 @@ fn read_directory_recursive(
                 output,
                 &sort_type,
                 &flags,
+                &mut extensions,
             )?;
         } else {
             writeln!(output, "{}", info.name,)?;
             totals.files += 1;
+
+            
+            // *extensions.extensions.entry(info.extension.unwrap_or_default()).or_insert(0) += 1;
+            extensions.collect_extension(info.extension);
+
+
         }
 
         totals.size += info.size;
