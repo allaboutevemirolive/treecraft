@@ -1,5 +1,5 @@
 [package]
-name = "src"
+name = "treecraft"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,11 +7,4 @@ edition = "2021"
 
 [dependencies]
 colored = "2.0.4"
-
-[[bin]]
-name = "src"
-path = "main.rs"
-
-[lib]
-name = "src"
-path = "lib.rs"
+tabular = "0.2.0"

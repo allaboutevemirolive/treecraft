@@ -1,5 +1,7 @@
 use std::io::{self, Write};
 
+use crate::file::file::OutputHandle;
+
 pub struct TreeStructureFormatter {
     // "└── "
     branch_end: String,
@@ -23,31 +25,34 @@ impl TreeStructureFormatter {
 
     pub fn print_directory_structure(
         &self,
-        dynamic_places: &[i32], // Use a slice instead of Vec
+        dynamic_places: &[i32],
         maxlevel: usize,
-        outfile: &mut dyn Write,
+        output: &mut OutputHandle, // Change the parameter type
     ) -> io::Result<()> {
         for i in 0..=maxlevel {
             if let Some(dir) = dynamic_places.get(i) {
                 if dynamic_places.get(i + 1).is_some() {
                     if *dir == 1 {
                         // "│   "
-                        write!(outfile, "{}", self.vertical_bar)?;
+                        write!(output, "{}", self.vertical_bar)?;
                     } else {
                         // "    "
-                        write!(outfile, "{}", self.indent)?;
+                        write!(output, "{}", self.indent)?;
                     }
                 } else {
                     if *dir == 1 {
                         // "├── "
-                        write!(outfile, "{}", self.branch_mid)?;
+                        write!(output, "{}", self.branch_mid)?;
                     } else {
                         // "└── "
-                        write!(outfile, "{}", self.branch_end)?;
+                        write!(output, "{}", self.branch_end)?;
                     }
                 }
             }
         }
         Ok(())
     }
+    
+    
+    
 }

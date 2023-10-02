@@ -1,13 +1,13 @@
 use std::fs;
 use std::fs::DirEntry;
+use std::fs::FileType;
 use std::io;
 use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
-use std::fs::FileType;
 
 /*
 FIXME
-Apply lazy evaluation where the default info we only need is the 
+Apply lazy evaluation where the default info we only need is the
 - files name
 - files size
 
@@ -31,18 +31,27 @@ pub struct FileInfo {
     pub access_time: i64,
     pub change_time: i64,
     pub modification_time: i64,
+    // Test
+    pub extension: Option<String>,
 }
 
 impl FileInfo {
+    /// Collect information for each file/folder
     pub fn new(entry: &DirEntry, depth: &i32) -> io::Result<Self> {
-        
         let full_path = entry.path();
+
         let metadata = fs::symlink_metadata(&full_path)?;
+
         let file_type = entry.file_type()?;
+
         let (is_symlink, symlink_target) = FileInfo::get_symlink_info(&full_path, &file_type);
 
         Ok(FileInfo {
-            name: full_path.file_name().and_then(|os_str| os_str.to_str()).unwrap_or("Unknown").to_string(),
+            name: full_path
+                .file_name()
+                .and_then(|os_str| os_str.to_str())
+                .unwrap_or_default()
+                .to_string(),
             path: full_path.clone(),
             depth: *depth,
             file_type,
@@ -58,6 +67,10 @@ impl FileInfo {
             access_time: metadata.atime(),
             change_time: metadata.ctime(),
             modification_time: metadata.mtime(),
+            extension: full_path
+                .extension()
+                .and_then(|ext| ext.to_str())
+                .map(|ext| ext.to_string()),
         })
     }
 
@@ -72,3 +85,27 @@ impl FileInfo {
         }
     }
 }
+
+// fn main() -> io::Result<()> {
+//     let file_or_directory_path = "/home/nemesis/Documents/Github/my_repo/treecraft/read_dir"; // Replace with the file or directory path you want to inspect
+//     let info = retrieve_metadata(file_or_directory_path)?;
+
+//     println!("File/Directory Info:");
+//     println!("  Name: {}", info.name);
+//     println!("  Mode: {:o}", info.mode);
+//     println!("  UID: {}", info.uid);
+//     println!("  GID: {}", info.gid);
+//     println!("  Size: {} bytes", info.size);
+//     println!("  Device ID: {}", info.device_id);
+//     println!("  Inode: {}", info.inode);
+//     println!("  Is Directory: {}", info.is_directory);
+//     println!("  Is Symbolic Link: {}", info.is_symlink);
+//     if let Some(target) = &info.symlink_target {
+//         println!("  Symlink Target: {}", target);
+//     }
+//     println!("  Access Time: {}", info.access_time);
+//     println!("  Change Time: {}", info.change_time);
+//     println!("  Modification Time: {}", info.modification_time);
+
+//     Ok(())
+// }

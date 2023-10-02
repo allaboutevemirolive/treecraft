@@ -46,6 +46,7 @@ pub struct Flags {
     // Fflag: bool,            // -F: Appends '/', '=', '*', '@', '|' or '>' as per ls -F.
     // inodes: bool,           // --inodes: Print the inode number of each file.
     // device: bool,           // --device: Print the device ID number to which each file belongs.
+    pub extensions: bool,
 
     // // Sorting options
     // vflag: bool,            // -v: Sort files alphanumerically by version.
@@ -99,6 +100,7 @@ impl Flags {
     pub fn processing_args(&mut self, args: Vec<String>) {
         let mut iter = args.iter().skip(1); // Skip the program name
     
+        // FIXME: use default block
         // Set default values
         self.dirname = ".".to_string();
         self.output = OutputType::Terminal;
@@ -164,6 +166,8 @@ impl Flags {
 
                     // Miscellaneous options
                     "-help" => self.help = true,
+
+                    "-ext" => self.extensions = true,
                     
                     _ => {
                         break;
@@ -185,3 +189,17 @@ fn valid_path(arg: &str) -> Option<PathBuf> {
         None
     }
 }
+
+// fn main() {
+//     // Create a mutable instance of the Flags struct with default values
+//     let mut flags = Flags::new();
+
+//     // Modify individual fields as needed
+//     flags.aflag = true;
+//     flags.dflag = true;
+//     flags.fflag = true;
+//     // ... (modify other fields)
+
+//     // Now you have a Flags struct with modified field values
+//     println!("{:?}", flags);
+// }
