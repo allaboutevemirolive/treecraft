@@ -4,6 +4,8 @@ use std::path::Path;
 use std::time::Instant;
 use std::str::Utf8Error;
 
+use crate::file::*;
+
 #[derive(Debug, PartialEq)]
 pub enum OutputType {
     Terminal,
@@ -13,7 +15,7 @@ pub enum OutputType {
 
 pub enum OutputHandle {
     Terminal(StdoutLock<'static>),
-    TextFile(OutputHandler),
+    TextFile(file::file::OutputHandler),
 }
 
 impl OutputHandle {
@@ -58,7 +60,13 @@ impl Write for OutputHandle {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         match self {
             OutputHandle::TextFile(output_handler) => {
-                output_handler.write(buf)?;
+                let data = match std::str::from_utf8(buf) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        return Err(io::Error::new(io::ErrorKind::InvalidInput, e));
+                    }
+                };
+                output_handler.write(data)?;
                 Ok(buf.len())
             }
             OutputHandle::Terminal(stdout) => stdout.write(buf),
@@ -74,6 +82,8 @@ impl Write for OutputHandle {
         }
     }
 }
+
+
 
 
 
