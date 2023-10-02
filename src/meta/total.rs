@@ -48,3 +48,27 @@ impl fmt::Display for Totals {
         )
     }
 }
+
+
+
+
+
+
+// Define a struct to hold your data
+pub struct DisplayData {
+    pub seconds: f64,
+    pub total_folders: usize,
+    pub total_files: usize,
+    pub total_size_gb: f64,
+    pub total_size_bytes: u64,
+}
+
+impl fmt::Display for DisplayData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Times Processing  : {:.6}s\n", self.seconds)?;
+        write!(f, "Total Folders     : {}\n", self.total_folders)?;
+        write!(f, "Total Files       : {}\n", self.total_files)?;
+        write!(f, "Total Items       : {}\n", self.total_files + self.total_folders)?;
+        write!(f, "Total Size        : {:.2} GB or {} bytes\n", self.total_size_gb, self.total_size_bytes)
+    }
+}
