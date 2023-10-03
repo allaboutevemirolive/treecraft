@@ -1,14 +1,15 @@
+pub mod file;
 pub mod flag;
 pub mod format;
-pub mod metada;
+pub mod meta;
 pub mod output;
 pub mod sort;
-pub mod total;
-pub mod file;
-use crate::{flag::*, format::*, metada::*, total::*};
+use crate::{flag::*, format::*};
 use colored::*;
 use file::file::OutputHandle;
 use file::file::OutputType;
+use meta::metada::FileInfo;
+use meta::total::Totals;
 use output::*;
 use sort::sort::*;
 use std::env;
@@ -37,16 +38,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         std::process::exit(0);
     }
 
-    match flags.output {
-        OutputType::Stdout => {
-            // run_terminal(&flags)?;
-            run_main(&flags)?;
-        }
-        OutputType::File => {
-            // run_text_file(&flags)?;
-            run_main(&flags)?;
-        }
-    }
+    run_main(&flags)?;
 
     Ok(())
 }
@@ -66,7 +58,6 @@ fn read_directory_recursive(
     sort_entries(&mut entries, &sort_type);
 
     for (index, entry) in entries.iter().enumerate() {
-
         // Collect information for each file/folder
         let info = FileInfo::new(&entry.as_ref().unwrap(), depth)?;
 
@@ -84,7 +75,6 @@ fn read_directory_recursive(
         )?;
 
         // output.flush()?;
-        
 
         if info.file_type.is_dir() {
             // FIXME: Create custom "printit" to handle unicode

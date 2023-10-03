@@ -2,8 +2,6 @@ use std::cell::RefCell;
 use std::io::{self, Write};
 use std::rc::Rc;
 
-
-
 #[derive(Debug, PartialEq)]
 pub enum OutputType {
     /// Print in text file
@@ -18,14 +16,13 @@ impl Default for OutputType {
     }
 }
 
-
 /// This struct can handle:
 /// - File
 /// - Stdout
 /// - TcpStream
 /// - Memory Buffer
 /// - Database
-/// - JSON 
+/// - JSON
 /// - HTML
 /// - XML
 /// - and others

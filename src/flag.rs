@@ -1,12 +1,12 @@
-use std::path::{PathBuf, Path};
-use crate::sort::sort::SortType;
 use crate::file::file::OutputType;
+use crate::sort::sort::SortType;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Default)]
 pub struct Flags {
     // Folder's name
     pub dirname: String,
-    
+
     // // Listing options
     // aflag: bool,            // -a: All files are listed.
     // dflag: bool,            // -d: List directories only.
@@ -87,8 +87,8 @@ pub struct Flags {
 
     // // Miscellaneous options
     // version: bool,              // --version: Print version and exit.
-    pub help: bool,                // --help: Print usage and this help message and exit.
-    // terminator: bool,           // --: Options processing terminator.
+    pub help: bool, // --help: Print usage and this help message and exit.
+                    // terminator: bool,           // --: Options processing terminator.
 }
 
 impl Flags {
@@ -98,7 +98,7 @@ impl Flags {
 
     pub fn processing_args(&mut self, args: Vec<String>) {
         let mut iter = args.iter().skip(1); // Skip the program name
-    
+
         // Set default values
         self.dirname = ".".to_string();
         self.output = OutputType::Stdout;
@@ -109,7 +109,7 @@ impl Flags {
 
         // default_sort_type = SortType::ByFileName;
         // println!("Default SortType: {:?}", default_sort_type);
-    
+
         for arg in &mut iter {
             if let Some(path) = valid_path(arg) {
                 self.dirname = path.to_str().unwrap_or_default().to_string();
@@ -154,25 +154,22 @@ impl Flags {
 
                     // Output options
                     "-tf" => self.output = OutputType::File,
-                    
+
                     // Sort
                     "-st-fn-lc" => self.sorttype = SortType::default(),
-                    "-st-fn"    => self.sorttype = SortType::ByFileName,
+                    "-st-fn" => self.sorttype = SortType::ByFileName,
                     "-st-no" => self.sorttype = SortType::NoSort,
 
                     // Miscellaneous options
                     "-help" => self.help = true,
-                    
+
                     _ => {
                         break;
                     }
                 }
             }
         }
-    
-        
     }
-    
 }
 
 fn valid_path(arg: &str) -> Option<PathBuf> {
