@@ -1,5 +1,7 @@
 use std::io::{self, Write};
 
+use crate::file::file::OutputHandle;
+
 pub struct TreeStructureFormatter {
     // "└── "
     branch_end: String,
@@ -25,7 +27,7 @@ impl TreeStructureFormatter {
         &self,
         dynamic_places: &[i32], // Use a slice instead of Vec
         maxlevel: usize,
-        outfile: &mut dyn Write,
+        outfile: &mut OutputHandle,
     ) -> io::Result<()> {
         for i in 0..=maxlevel {
             if let Some(dir) = dynamic_places.get(i) {

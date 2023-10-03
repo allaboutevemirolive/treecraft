@@ -4,8 +4,11 @@ pub mod metada;
 pub mod output;
 pub mod sort;
 pub mod total;
+pub mod file;
 use crate::{flag::*, format::*, metada::*, total::*};
 use colored::*;
+use file::file::OutputHandle;
+use file::file::OutputType;
 use output::*;
 use sort::sort::*;
 use std::env;
@@ -35,11 +38,13 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     match flags.output {
-        OutputType::Terminal => {
-            run_terminal(&flags)?;
+        OutputType::Stdout => {
+            // run_terminal(&flags)?;
+            run_main(&flags)?;
         }
-        OutputType::TextFile => {
-            run_text_file(&flags)?;
+        OutputType::File => {
+            // run_text_file(&flags)?;
+            run_main(&flags)?;
         }
     }
 
@@ -52,7 +57,7 @@ fn read_directory_recursive(
     depth: &i32,
     totals: &mut Totals,
     treestructureformatter: &TreeStructureFormatter,
-    output: &mut dyn Write,
+    output: &mut OutputHandle,
     sort_type: &SortType,
     flags: &Flags,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -80,7 +85,7 @@ fn read_directory_recursive(
 
         if info.file_type.is_dir() {
             // FIXME: Create custom "printit" to handle unicode
-            if flags.output == OutputType::TextFile {
+            if flags.output == OutputType::File {
                 writeln!(output, "{}", info.name)?;
             } else {
                 writeln!(output, "{}", info.name.color(Color::BrightGreen))?;

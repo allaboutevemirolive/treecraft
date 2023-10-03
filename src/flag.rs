@@ -1,6 +1,6 @@
 use std::path::{PathBuf, Path};
 
-use crate::{sort::sort::SortType, output::*};
+use crate::{sort::sort::SortType, output::*, file::file::OutputType};
 
 #[derive(Debug, Default)]
 pub struct Flags {
@@ -101,7 +101,7 @@ impl Flags {
     
         // Set default values
         self.dirname = ".".to_string();
-        self.output = OutputType::Terminal;
+        self.output = OutputType::Stdout;
 
         // Debugging purpose
         // let mut default_sort_type = SortType::default();
@@ -154,7 +154,7 @@ impl Flags {
 
                     // Output options
                     "-tf" => {
-                        self.output = OutputType::TextFile
+                        self.output = OutputType::File
                     }
                     
                     // Sort
