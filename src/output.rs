@@ -80,7 +80,6 @@ pub fn run_main(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
                 gigabytes, totals.size
             )?;
 
-            // 'handle' cannot be use after this
             drop(handle);
         }
         OutputType::Stdout => {
@@ -102,7 +101,6 @@ pub fn run_main(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
             )?;
             writeln!(handle)?;
 
-            // Flush the writer if needed
             // handle.flush().expect("Failed to flush writer");
             drop(handle);
         }
