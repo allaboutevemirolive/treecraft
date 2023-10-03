@@ -14,16 +14,16 @@ use output::*;
 use sort::sort::*;
 use std::env;
 use std::fs;
+use std::io;
 use std::io::Write;
 use std::path::Path;
 
-const HELP_TEXT: [&str; 5] = [
-    "-tf                         Print output in a text file",
-    "-st-fn-lc                   Sort filename with case insensitive or lowercase",
-    "-st-fn                      Sort filename",
-    "-st-no                      No sort",
-    "-help                       Print usage and exit",
-];
+const HELP_TEXT: &str = "\
+-tf                         Print output in a text file
+-st-fn-lc                   Sort filename with case insensitive or lowercase
+-st-fn                      Sort filename
+-st-no                      No sort
+-help                       Print usage and exit";
 
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
@@ -31,10 +31,10 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     flags.processing_args(args);
 
     if flags.help {
-        for line in &HELP_TEXT {
-            println!("{}", line);
-        }
+        let stdout = io::stdout();
+        let mut handle = stdout.lock(); 
 
+        writeln!(&mut handle, "{}", HELP_TEXT)?;
         std::process::exit(0);
     }
 
@@ -58,6 +58,7 @@ fn read_directory_recursive(
     sort_entries(&mut entries, &sort_type);
 
     for (index, entry) in entries.iter().enumerate() {
+        
         // Collect information for each file/folder
         let info = FileInfo::new(&entry.as_ref().unwrap(), depth)?;
 

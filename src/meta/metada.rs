@@ -42,7 +42,7 @@ impl FileInfo {
         let (is_symlink, symlink_target) = FileInfo::get_symlink_info(&full_path, &file_type);
 
         Ok(FileInfo {
-            name: full_path.file_name().and_then(|os_str| os_str.to_str()).unwrap_or("Unknown").to_string(),
+            name: full_path.file_name().and_then(|os_str| os_str.to_str()).unwrap_or("Invalid full-path").to_string(),
             path: full_path.clone(),
             depth: *depth,
             file_type,

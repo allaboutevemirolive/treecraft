@@ -2,7 +2,7 @@ use crate::file::file::OutputType;
 use crate::sort::sort::SortType;
 use std::path::{Path, PathBuf};
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Flags {
     // Folder's name
     pub dirname: String,
@@ -91,17 +91,29 @@ pub struct Flags {
     // terminator: bool,           // --: Options processing terminator.
 }
 
+// Explicit default
+impl Default for Flags {
+    fn default() -> Self {
+        Flags {
+            dirname: ".".to_string(),
+            sorttype: SortType::ByFileName, 
+            output: OutputType::Stdout,
+            help: false,
+        }
+    }
+}
+
 impl Flags {
     pub fn new() -> Self {
         Default::default()
     }
 
     pub fn processing_args(&mut self, args: Vec<String>) {
-        let mut iter = args.iter().skip(1); // Skip the program name
+        let mut iter = args.iter().skip(1); 
 
-        // Set default values
-        self.dirname = ".".to_string();
-        self.output = OutputType::Stdout;
+        // // Set default values
+        // self.dirname = ".".to_string();
+        // self.output = OutputType::Stdout;
 
         // Debugging purpose
         // let mut default_sort_type = SortType::default();

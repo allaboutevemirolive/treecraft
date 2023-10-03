@@ -25,7 +25,7 @@ impl TreeStructureFormatter {
 
     pub fn print_directory_structure(
         &self,
-        dynamic_places: &[i32], // Use a slice instead of Vec
+        dynamic_places: &[i32],
         maxlevel: usize,
         outfile: &mut OutputHandle,
     ) -> io::Result<()> {

@@ -41,7 +41,7 @@ pub fn run_main(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    println!("{}", flags.dirname.to_string());
+    // println!("{}", flags.dirname.to_string());
     let start_time = Instant::now();
 
     read_directory_recursive(

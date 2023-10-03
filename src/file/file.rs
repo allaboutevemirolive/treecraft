@@ -16,16 +16,11 @@ impl Default for OutputType {
     }
 }
 
-/// This struct can handle:
-/// - File
-/// - Stdout
-/// - TcpStream
-/// - Memory Buffer
-/// - Database
-/// - JSON
-/// - HTML
-/// - XML
-/// - and others
+/// This struct supports various data sources and formats, 
+/// 
+/// including `files`, `Stdout`, `TCP streams`, `memory buffers`, 
+/// 
+/// `databases`, `JSON`, `HTML`, `XML`, and more.
 pub struct OutputHandle {
     inner: Rc<RefCell<dyn Write>>,
 }
