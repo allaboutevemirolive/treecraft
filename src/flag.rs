@@ -1,12 +1,12 @@
-use std::path::{PathBuf, Path};
+use crate::file::file::OutputType;
+use crate::sort::sort::SortType;
+use std::path::{Path, PathBuf};
 
-use crate::{sort::sort::SortType, output::*};
-
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Flags {
     // Folder's name
     pub dirname: String,
-    
+
     // // Listing options
     // aflag: bool,            // -a: All files are listed.
     // dflag: bool,            // -d: List directories only.
@@ -91,17 +91,29 @@ pub struct Flags {
     // terminator: bool,           // --: Options processing terminator.
 }
 
+// Explicit default
+impl Default for Flags {
+    fn default() -> Self {
+        Flags {
+            dirname: ".".to_string(),
+            sorttype: SortType::ByFileName, 
+            output: OutputType::Stdout,
+            help: false,
+        }
+    }
+}
+
 impl Flags {
     pub fn new() -> Self {
         Default::default()
     }
 
     pub fn processing_args(&mut self, args: Vec<String>) {
-        let mut iter = args.iter().skip(1); // Skip the program name
-    
-        // Set default values
-        self.dirname = ".".to_string();
-        self.output = OutputType::Terminal;
+        let mut iter = args.iter().skip(1); 
+
+        // // Set default values
+        // self.dirname = ".".to_string();
+        // self.output = OutputType::Stdout;
 
         // Debugging purpose
         // let mut default_sort_type = SortType::default();
@@ -109,7 +121,7 @@ impl Flags {
 
         // default_sort_type = SortType::ByFileName;
         // println!("Default SortType: {:?}", default_sort_type);
-    
+
         for arg in &mut iter {
             if let Some(path) = valid_path(arg) {
                 self.dirname = path.to_str().unwrap_or_default().to_string();
@@ -153,28 +165,23 @@ impl Flags {
                     // "--git-ignore" => self.gitignore = true,
 
                     // Output options
-                    "-tf" => {
-                        self.output = OutputType::TextFile
-                    }
-                    
+                    "-tf" => self.output = OutputType::File,
+
                     // Sort
                     "-st-fn-lc" => self.sorttype = SortType::default(),
-                    "-st-fn"    => self.sorttype = SortType::ByFileName,
+                    "-st-fn" => self.sorttype = SortType::ByFileName,
                     "-st-no" => self.sorttype = SortType::NoSort,
 
                     // Miscellaneous options
                     "-help" => self.help = true,
-                    
+
                     _ => {
                         break;
                     }
                 }
             }
         }
-    
-        
     }
-    
 }
 
 fn valid_path(arg: &str) -> Option<PathBuf> {
