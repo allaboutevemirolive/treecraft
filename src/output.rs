@@ -123,6 +123,7 @@ use crate::{
 // }
 
 pub fn run_main(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
+
     let directory_path = &flags.dirname.to_string();
     let sort_type = &flags.sorttype;
     // Main place to determine the structure of branch
@@ -131,6 +132,7 @@ pub fn run_main(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
     let mut totals = Totals::new();
     let treestructureformatter = TreeStructureFormatter::new();
 
+    
     let mut handle: OutputHandle;
 
     // We handle textfile and terminal output

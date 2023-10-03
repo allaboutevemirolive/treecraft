@@ -1,6 +1,6 @@
 use std::path::{PathBuf, Path};
-
-use crate::{sort::sort::SortType, output::*, file::file::OutputType};
+use crate::sort::sort::SortType;
+use crate::file::file::OutputType;
 
 #[derive(Debug, Default)]
 pub struct Flags {
@@ -153,9 +153,7 @@ impl Flags {
                     // "--git-ignore" => self.gitignore = true,
 
                     // Output options
-                    "-tf" => {
-                        self.output = OutputType::File
-                    }
+                    "-tf" => self.output = OutputType::File,
                     
                     // Sort
                     "-st-fn-lc" => self.sorttype = SortType::default(),
