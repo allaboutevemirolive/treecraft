@@ -134,7 +134,7 @@ pub fn run_main(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
     let mut handle: OutputHandle;
 
     // We handle textfile and terminal output
-    match OutputType::File {
+    match flags.output {
         OutputType::File => {
             let output_file = File::create("Output.txt")?;
             let file_writer = io::BufWriter::new(output_file);
@@ -164,6 +164,8 @@ pub fn run_main(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
     )
     .unwrap();
 
+    handle.flush()?;
+
     match flags.output {
         OutputType::File => {
             let seconds = (start_time.elapsed()).as_secs() as f64
@@ -190,6 +192,7 @@ pub fn run_main(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
             drop(handle);
         }
         OutputType::Stdout => {
+
             let seconds = (start_time.elapsed()).as_secs() as f64
                 + (start_time.elapsed()).subsec_nanos() as f64 / 1_000_000_000.0;
 

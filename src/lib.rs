@@ -83,6 +83,9 @@ fn read_directory_recursive(
             output,
         )?;
 
+        // output.flush()?;
+        
+
         if info.file_type.is_dir() {
             // FIXME: Create custom "printit" to handle unicode
             if flags.output == OutputType::File {
