@@ -1,6 +1,3 @@
-# /treecraft/LICENSE
-
-
 MIT License
 
 Copyright (c) 2023 allaboutevemirolive
