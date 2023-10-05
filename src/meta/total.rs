@@ -1,6 +1,6 @@
 #[derive(Debug, Default)]
 pub struct Totals {
-    pub dirs: usize,
+    pub directories: usize,
     pub files: usize,
     pub size: u64,
 }

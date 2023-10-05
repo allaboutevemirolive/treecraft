@@ -23,7 +23,6 @@ pub fn process_args() -> Result<(), Box<dyn std::error::Error>> {
     if flags.help {
         let stdout = io::stdout();
         let mut handle = stdout.lock();
-
         writeln!(&mut handle, "{}", HELP_TEXT)?;
         std::process::exit(0);
     }

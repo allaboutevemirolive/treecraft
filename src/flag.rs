@@ -1,4 +1,4 @@
-use crate::file::file::OutputType;
+use crate::file::file::PrintLocation;
 use crate::sort::sort::SortType;
 use std::path::{Path, PathBuf};
 
@@ -73,7 +73,7 @@ pub struct Flags {
     // nolinks: bool,          // --nolinks: Turn off hyperlinks in HTML output.
     // hintro: Option<String>, // --hintro X: Use file X as the HTML intro.
     // houtro: Option<String>, // --houtro X: Use file X as the HTML outro.
-    pub output: OutputType,
+    pub output: PrintLocation,
 
     // // Input options
     // fromfile: bool,         // --fromfile: Reads paths from files (.=stdin)
@@ -97,7 +97,7 @@ impl Default for Flags {
         Flags {
             dirname: ".".to_string(),
             sorttype: SortType::ByFileName,
-            output: OutputType::Stdout,
+            output: PrintLocation::Stdout,
             help: false,
         }
     }
@@ -113,7 +113,7 @@ impl Flags {
 
         // // Set default values
         // self.dirname = ".".to_string();
-        // self.output = OutputType::Stdout;
+        // self.output = PrintLocation::Stdout;
 
         // Debugging purpose
         // let mut default_sort_type = SortType::default();
@@ -165,7 +165,7 @@ impl Flags {
                     // "--git-ignore" => self.gitignore = true,
 
                     // Output options
-                    "-tf" => self.output = OutputType::File,
+                    "-tf" => self.output = PrintLocation::File,
 
                     // Sort
                     "-st-fn-lc" => self.sorttype = SortType::default(),
