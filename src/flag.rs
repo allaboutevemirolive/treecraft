@@ -87,8 +87,8 @@ pub struct Flags {
 
     // // Miscellaneous options
     // version: bool,              // --version: Print version and exit.
-    pub help: bool, // --help: Print usage and this help message and exit.
-                    // terminator: bool,           // --: Options processing terminator.
+    pub help: bool,                // --help: Print usage and this help message and exit.
+    // terminator: bool,           // --: Options processing terminator.
 }
 
 // Explicit default
