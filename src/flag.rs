@@ -87,8 +87,8 @@ pub struct Flags {
 
     // // Miscellaneous options
     // version: bool,              // --version: Print version and exit.
-    pub help: bool,                // --help: Print usage and this help message and exit.
-    // terminator: bool,           // --: Options processing terminator.
+    pub help: bool, // --help: Print usage and this help message and exit.
+                    // terminator: bool,           // --: Options processing terminator.
 }
 
 // Explicit default
@@ -96,7 +96,7 @@ impl Default for Flags {
     fn default() -> Self {
         Flags {
             dirname: ".".to_string(),
-            sorttype: SortType::ByFileName, 
+            sorttype: SortType::ByFileName,
             output: OutputType::Stdout,
             help: false,
         }
@@ -109,7 +109,7 @@ impl Flags {
     }
 
     pub fn processing_args(&mut self, args: Vec<String>) {
-        let mut iter = args.iter().skip(1); 
+        let mut iter = args.iter().skip(1);
 
         // // Set default values
         // self.dirname = ".".to_string();

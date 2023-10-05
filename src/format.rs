@@ -1,9 +1,8 @@
+use crate::file::file::OutputHandle;
 use std::io::{self, Write};
 
-use crate::file::file::OutputHandle;
-
-// Instead of using `String` for string literals, 
-// we use the `&str` type to save memory, 
+// Instead of using `String` for string literals,
+// we use the `&str` type to save memory,
 // since we have many instances of `TreeStructureFormatter`
 pub struct TreeStructureFormatter {
     branch_end: &'static str,
@@ -28,6 +27,7 @@ impl TreeStructureFormatter {
         Default::default()
     }
 
+    /// Generate branch with current modified vector
     pub fn print_directory_structure(
         &self,
         dynamic_places: &[i32],
