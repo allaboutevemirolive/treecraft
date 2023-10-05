@@ -28,7 +28,7 @@ impl TreeStructureFormatter {
     }
 
     /// Generate branch with current modified vector
-    pub fn print_directory_structure(
+    pub fn print_tree(
         &self,
         dynamic_places: &[i32],
         maxlevel: usize,

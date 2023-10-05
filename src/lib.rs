@@ -22,7 +22,7 @@ fn walk_directories(
     dynamic_places: &mut Vec<i32>,
     depth: &i32,
     totals: &mut Totals,
-    treestructureformatter: &TreeStructureFormatter,
+    formatter: &TreeStructureFormatter,
     output: &mut OutputHandle,
     sort_type: &SortType,
     flags: &Flags,
@@ -40,7 +40,7 @@ fn walk_directories(
             dynamic_places.push(2);
         };
 
-        treestructureformatter.print_directory_structure(
+        formatter.print_tree(
             dynamic_places,
             dynamic_places.len() - 1,
             output,
@@ -64,7 +64,7 @@ fn walk_directories(
                 dynamic_places,
                 &(depth + 1),
                 totals,
-                treestructureformatter,
+                formatter,
                 output,
                 &sort_type,
                 &flags,
