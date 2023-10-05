@@ -1,13 +1,13 @@
 use std::fs;
 use std::fs::DirEntry;
+use std::fs::FileType;
 use std::io;
 use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
-use std::fs::FileType;
 
 /*
 FIXME
-Apply lazy evaluation where the default info we only need is the 
+Apply lazy evaluation where the default info we only need is the
 - files name
 - files size
 
@@ -34,15 +34,19 @@ pub struct FileInfo {
 }
 
 impl FileInfo {
+    /// Collect information for each file/folder
     pub fn new(entry: &DirEntry, depth: &i32) -> io::Result<Self> {
-        
         let full_path = entry.path();
         let metadata = fs::symlink_metadata(&full_path)?;
         let file_type = entry.file_type()?;
         let (is_symlink, symlink_target) = FileInfo::get_symlink_info(&full_path, &file_type);
 
         Ok(FileInfo {
-            name: full_path.file_name().and_then(|os_str| os_str.to_str()).unwrap_or("Invalid full-path").to_string(),
+            name: full_path
+                .file_name()
+                .and_then(|os_str| os_str.to_str())
+                .unwrap_or("Invalid full-path")
+                .to_string(),
             path: full_path.clone(),
             depth: *depth,
             file_type,
@@ -63,9 +67,10 @@ impl FileInfo {
 
     fn get_symlink_info(path: &Path, file_type: &FileType) -> (bool, Option<String>) {
         if file_type.is_symlink() {
-            match fs::read_link(path) {
-                Ok(target) => (true, Some(target.to_string_lossy().into_owned())),
-                Err(_) => (false, None),
+            if let Ok(target) = fs::read_link(path) {
+                (true, Some(target.to_string_lossy().into_owned()))
+            } else {
+                (false, None)
             }
         } else {
             (false, None)

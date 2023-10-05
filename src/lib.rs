@@ -1,8 +1,8 @@
 pub mod file;
 pub mod flag;
 pub mod format;
+pub mod init;
 pub mod meta;
-pub mod output;
 pub mod sort;
 use crate::{flag::*, format::*};
 use colored::*;
@@ -10,40 +10,14 @@ use file::file::OutputHandle;
 use file::file::OutputType;
 use meta::metada::FileInfo;
 use meta::total::Totals;
-use output::*;
 use sort::sort::*;
-use std::env;
 use std::fs;
-use std::io;
 use std::io::Write;
 use std::path::Path;
 
-const HELP_TEXT: &str = "\
--tf                         Print output in a text file
--st-fn-lc                   Sort filename with case insensitive or lowercase
--st-fn                      Sort filename
--st-no                      No sort
--help                       Print usage and exit";
-
-pub fn run() -> Result<(), Box<dyn std::error::Error>> {
-    let args: Vec<String> = env::args().collect();
-    let mut flags = Flags::new();
-    flags.processing_args(args);
-
-    if flags.help {
-        let stdout = io::stdout();
-        let mut handle = stdout.lock(); 
-
-        writeln!(&mut handle, "{}", HELP_TEXT)?;
-        std::process::exit(0);
-    }
-
-    run_main(&flags)?;
-
-    Ok(())
-}
-
-fn read_directory_recursive(
+/// Recursively traverse nested directories while
+/// gathering information about each folder.
+fn walk_directories(
     path: &Path,
     dynamic_places: &mut Vec<i32>,
     depth: &i32,
@@ -54,15 +28,12 @@ fn read_directory_recursive(
     flags: &Flags,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut entries: Vec<_> = fs::read_dir(path).unwrap().collect();
-
     sort_entries(&mut entries, &sort_type);
 
     for (index, entry) in entries.iter().enumerate() {
-        
-        // Collect information for each file/folder
         let info = FileInfo::new(&entry.as_ref().unwrap(), depth)?;
 
-        // Manipulate vector for branches creation
+        // Marking current vector to generate branch
         if index < entries.len() - 1 {
             dynamic_places.push(1);
         } else {
@@ -74,11 +45,12 @@ fn read_directory_recursive(
             dynamic_places.len() - 1,
             output,
         )?;
-
         // output.flush()?;
-
         if info.file_type.is_dir() {
-            // FIXME: Create custom "printit" to handle unicode
+            // FIXME:
+            // Check if Rust can handle different unicode
+            // in different OS. If cannot,
+            // create custom "printit" to handle unicode
             if flags.output == OutputType::File {
                 writeln!(output, "{}", info.name)?;
             } else {
@@ -87,7 +59,7 @@ fn read_directory_recursive(
 
             totals.dirs += 1;
 
-            read_directory_recursive(
+            walk_directories(
                 &info.path,
                 dynamic_places,
                 &(depth + 1),
@@ -103,8 +75,6 @@ fn read_directory_recursive(
         }
 
         totals.size += info.size;
-
-        // Pop the last element to backtrack
         dynamic_places.pop();
     }
 
