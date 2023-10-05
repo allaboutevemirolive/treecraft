@@ -2,25 +2,34 @@ use std::io::{self, Write};
 
 use crate::file::file::OutputHandle;
 
+// Instead of using `String` for string literals, 
+// we can use the `&str` type. It's more efficient 
+// for string literals that won't be changed. This 
+// can save memory, especially if we have many 
+// instances of `TreeStructureFormatter`. To do this, 
+// we change the field types from `String` to `&'static str` 
+// and use string literals directly.
 pub struct TreeStructureFormatter {
-    // "└── "
-    branch_end: String,
-    // "├── "
-    branch_mid: String,
-    // "    "
-    indent: String,
-    // "│   "
-    vertical_bar: String,
+    branch_end: &'static str,
+    branch_mid: &'static str,
+    indent: &'static str,
+    vertical_bar: &'static str,
+}
+
+impl Default for TreeStructureFormatter {
+    fn default() -> Self {
+        TreeStructureFormatter {
+            branch_end: "└── ",
+            branch_mid: "├── ",
+            indent: "    ",
+            vertical_bar: "│   ",
+        }
+    }
 }
 
 impl TreeStructureFormatter {
     pub fn new() -> Self {
-        Self {
-            branch_end: String::from("└── "),
-            branch_mid: String::from("├── "),
-            indent: String::from("    "),
-            vertical_bar: String::from("│   "),
-        }
+        Default::default()
     }
 
     pub fn print_directory_structure(
