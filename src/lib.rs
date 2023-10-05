@@ -6,8 +6,8 @@ pub mod meta;
 pub mod sort;
 use crate::{flag::*, format::*};
 use colored::*;
-use file::file::OutputHandle;
-use file::file::OutputType;
+use file::file::OutputHandler;
+use file::file::PrintLocation;
 use meta::metada::FileInfo;
 use meta::total::Totals;
 use sort::sort::*;
@@ -23,7 +23,7 @@ fn walk_directories(
     depth: &i32,
     totals: &mut Totals,
     formatter: &TreeStructureFormatter,
-    output: &mut OutputHandle,
+    output_handler: &mut OutputHandler,
     sort_type: &SortType,
     flags: &Flags,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -43,21 +43,21 @@ fn walk_directories(
         formatter.print_tree(
             dynamic_places,
             dynamic_places.len() - 1,
-            output,
+            output_handler,
         )?;
-        // output.flush()?;
+        // output_handler.flush()?;
         if info.file_type.is_dir() {
             // FIXME:
             // Check if Rust can handle different unicode
             // in different OS. If cannot,
             // create custom "printit" to handle unicode
-            if flags.output == OutputType::File {
-                writeln!(output, "{}", info.name)?;
+            if flags.output == PrintLocation::File {
+                writeln!(output_handler, "{}", info.name)?;
             } else {
-                writeln!(output, "{}", info.name.color(Color::BrightGreen))?;
+                writeln!(output_handler, "{}", info.name.color(Color::BrightGreen))?;
             }
 
-            totals.dirs += 1;
+            totals.directories += 1;
 
             walk_directories(
                 &info.path,
@@ -65,12 +65,12 @@ fn walk_directories(
                 &(depth + 1),
                 totals,
                 formatter,
-                output,
+                output_handler,
                 &sort_type,
                 &flags,
             )?;
         } else {
-            writeln!(output, "{}", info.name,)?;
+            writeln!(output_handler, "{}", info.name,)?;
             totals.files += 1;
         }
 

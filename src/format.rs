@@ -1,4 +1,4 @@
-use crate::file::file::OutputHandle;
+use crate::file::file::OutputHandler;
 use std::io::{self, Write};
 
 // Instead of using `String` for string literals,
@@ -32,25 +32,25 @@ impl TreeStructureFormatter {
         &self,
         dynamic_places: &[i32],
         maxlevel: usize,
-        outfile: &mut OutputHandle,
+        output_handler: &mut OutputHandler,
     ) -> io::Result<()> {
         for i in 0..=maxlevel {
             if let Some(dir) = dynamic_places.get(i) {
                 if dynamic_places.get(i + 1).is_some() {
                     if *dir == 1 {
                         // "│   "
-                        write!(outfile, "{}", self.vertical_bar)?;
+                        write!(output_handler, "{}", self.vertical_bar)?;
                     } else {
                         // "    "
-                        write!(outfile, "{}", self.indent)?;
+                        write!(output_handler, "{}", self.indent)?;
                     }
                 } else {
                     if *dir == 1 {
                         // "├── "
-                        write!(outfile, "{}", self.branch_mid)?;
+                        write!(output_handler, "{}", self.branch_mid)?;
                     } else {
                         // "└── "
-                        write!(outfile, "{}", self.branch_end)?;
+                        write!(output_handler, "{}", self.branch_end)?;
                     }
                 }
             }

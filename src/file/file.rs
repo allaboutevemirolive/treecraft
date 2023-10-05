@@ -3,16 +3,16 @@ use std::io::{self, Write};
 use std::rc::Rc;
 
 #[derive(Debug, PartialEq)]
-pub enum OutputType {
+pub enum PrintLocation {
     /// Print in text file
     File,
     /// Print in terminal
     Stdout,
 }
 
-impl Default for OutputType {
+impl Default for PrintLocation {
     fn default() -> Self {
-        OutputType::Stdout
+        PrintLocation::Stdout
     }
 }
 
@@ -21,17 +21,17 @@ impl Default for OutputType {
 /// including `files`, `Stdout`, `TCP streams`, `memory buffers`, 
 /// 
 /// `databases`, `JSON`, `HTML`, `XML`, and more.
-pub struct OutputHandle {
+pub struct OutputHandler {
     inner: Rc<RefCell<dyn Write>>,
 }
 
-impl OutputHandle {
+impl OutputHandler {
     pub fn new(inner: Rc<RefCell<dyn Write>>) -> Self {
-        OutputHandle { inner }
+        OutputHandler { inner }
     }
 }
 
-impl Write for OutputHandle {
+impl Write for OutputHandler {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         self.inner.borrow_mut().write(buf)
     }

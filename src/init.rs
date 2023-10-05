@@ -1,4 +1,4 @@
-use crate::file::file::{OutputHandle, OutputType};
+use crate::file::file::{OutputHandler, PrintLocation};
 use crate::flag::Flags;
 use crate::format::TreeStructureFormatter;
 use crate::meta::total::Totals;
@@ -20,7 +20,7 @@ pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
     let mut totals = Totals::new();
     let treestructureformatter = TreeStructureFormatter::new();
 
-    let mut handle = output_writer(&flags.output)?;
+    let mut output_handler = output_writer(&flags.output)?;
 
     let start_time = Instant::now();
 
@@ -30,17 +30,17 @@ pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
         &depth,
         &mut totals,
         &treestructureformatter,
-        &mut handle,
+        &mut output_handler,
         &sort_type,
         &flags,
     )
     .unwrap_or_default();
 
-    handle.flush()?;
+    output_handler.flush()?;
 
-    // Since `Instant` implements the `Copy` trait, we
+    // `Instant` implements the `Copy` trait, so we
     // can pass it by value without cloning or using reference '&'
-    log_metrics(&mut handle, &totals, start_time)?;
+    log_metrics(&mut output_handler, &totals, start_time)?;
 
     Ok(())
 }
@@ -48,25 +48,25 @@ pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
 /// Choose the output type based on the provided flag.
 ///
 /// Etc. `terminal` or `textfile`
-fn output_writer(output_type: &OutputType) -> Result<OutputHandle, Box<dyn std::error::Error>> {
-    match output_type {
-        OutputType::File => {
+fn output_writer(print_location: &PrintLocation) -> Result<OutputHandler, Box<dyn std::error::Error>> {
+    match print_location {
+        PrintLocation::File => {
             let output_file = File::create("Output.txt")?;
             let file_writer = BufWriter::new(output_file);
             let file_writer_refcell = Rc::new(RefCell::new(file_writer));
-            Ok(OutputHandle::new(file_writer_refcell))
+            Ok(OutputHandler::new(file_writer_refcell))
         }
-        OutputType::Stdout => {
+        PrintLocation::Stdout => {
             let stdout = io::stdout();
             let stdout_writer = BufWriter::new(stdout.lock());
             let stdout_writer_refcell = Rc::new(RefCell::new(stdout_writer));
-            Ok(OutputHandle::new(stdout_writer_refcell))
+            Ok(OutputHandler::new(stdout_writer_refcell))
         }
     }
 }
 
 fn log_metrics(
-    handle: &mut OutputHandle,
+    output_handler: &mut OutputHandler,
     totals: &Totals,
     start_time: Instant,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -75,17 +75,17 @@ fn log_metrics(
 
     let gigabytes = totals.size as f64 / 1_073_741_824.0;
 
-    writeln!(handle)?;
-    writeln!(handle, "Times Processing  : {:?}s", seconds)?;
-    writeln!(handle, "Total Folders     : {}", totals.dirs)?;
-    writeln!(handle, "Total Files       : {}", totals.files)?;
-    writeln!(handle, "Total Items       : {}", totals.files + totals.dirs)?;
+    writeln!(output_handler)?;
+    writeln!(output_handler, "Times Processing  : {:?}s", seconds)?;
+    writeln!(output_handler, "Total Directories : {}", totals.directories)?;
+    writeln!(output_handler, "Total Files       : {}", totals.files)?;
+    writeln!(output_handler, "Total Items       : {}", totals.files + totals.directories)?;
     writeln!(
-        handle,
+        output_handler,
         "Total Size        : {:.2} GB or {} bytes",
         gigabytes, totals.size
     )?;
-    writeln!(handle)?;
+    writeln!(output_handler)?;
 
     Ok(())
 }
