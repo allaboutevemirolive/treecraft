@@ -3,12 +3,8 @@ use std::io::{self, Write};
 use crate::file::file::OutputHandle;
 
 // Instead of using `String` for string literals, 
-// we can use the `&str` type. It's more efficient 
-// for string literals that won't be changed. This 
-// can save memory, especially if we have many 
-// instances of `TreeStructureFormatter`. To do this, 
-// we change the field types from `String` to `&'static str` 
-// and use string literals directly.
+// we use the `&str` type to save memory, 
+// since we have many instances of `TreeStructureFormatter`
 pub struct TreeStructureFormatter {
     branch_end: &'static str,
     branch_mid: &'static str,
