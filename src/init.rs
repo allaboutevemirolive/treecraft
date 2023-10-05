@@ -15,7 +15,8 @@ pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
     let sort_type = &flags.sorttype;
 
     // Main place to determine the structure of branch
-    let mut dynamic_places: Vec<i32> = Vec::with_capacity(1);
+    let mut dynamic_places: Vec<i32> = Vec::with_capacity(5000);
+
     let depth = 1;
     let mut totals = Totals::new();
     let treestructureformatter = TreeStructureFormatter::new();
