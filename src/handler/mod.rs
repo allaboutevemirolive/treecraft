@@ -16,10 +16,10 @@ impl Default for PrintLocation {
     }
 }
 
-/// This struct supports various data sources and formats, 
-/// 
-/// including `files`, `Stdout`, `TCP streams`, `memory buffers`, 
-/// 
+/// This struct supports various data sources and formats,
+///
+/// including `files`, `Stdout`, `TCP streams`, `memory buffers`,
+///
 /// `databases`, `JSON`, `HTML`, `XML`, and more.
 pub struct OutputHandler {
     inner: Rc<RefCell<dyn Write>>,
