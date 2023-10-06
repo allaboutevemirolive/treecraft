@@ -1,7 +1,13 @@
+pub mod flag;
+pub mod fmt;
+pub mod handler;
+pub mod init;
+pub mod meta;
+pub mod sort;
+use flag::Flags;
+use init::initializer;
 use std::env;
 use std::io::{self, Write};
-use treecraft::flag::Flags;
-use treecraft::init::initializer;
 
 const HELP_TEXT: &str = "\
 -tf                         Print output in a text file

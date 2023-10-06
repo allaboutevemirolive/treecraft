@@ -1,5 +1,5 @@
-use crate::file::file::PrintLocation;
-use crate::sort::sort::SortType;
+use crate::handler::PrintLocation;
+use crate::sort::SortType;
 use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
@@ -46,6 +46,7 @@ pub struct Flags {
     // Fflag: bool,            // -F: Appends '/', '=', '*', '@', '|' or '>' as per ls -F.
     // inodes: bool,           // --inodes: Print the inode number of each file.
     // device: bool,           // --device: Print the device ID number to which each file belongs.
+    pub allinfos: bool,
 
     // // Sorting options
     // vflag: bool,            // -v: Sort files alphanumerically by version.
@@ -87,8 +88,8 @@ pub struct Flags {
 
     // // Miscellaneous options
     // version: bool,              // --version: Print version and exit.
-    pub help: bool,                // --help: Print usage and this help message and exit.
-    // terminator: bool,           // --: Options processing terminator.
+    pub help: bool, // --help: Print usage and this help message and exit.
+                    // terminator: bool,           // --: Options processing terminator.
 }
 
 // Explicit default
@@ -96,6 +97,7 @@ impl Default for Flags {
     fn default() -> Self {
         Flags {
             dirname: ".".to_string(),
+            allinfos: false,
             sorttype: SortType::ByFileName,
             output: PrintLocation::Stdout,
             help: false,
@@ -163,6 +165,9 @@ impl Flags {
                     // "--prune" => self.pruneflag = true,
                     // "--meta-first" => self.metafirst = true,
                     // "--git-ignore" => self.gitignore = true,
+
+                    // File options
+                    "-infos" => self.allinfos = true,
 
                     // Output options
                     "-tf" => self.output = PrintLocation::File,

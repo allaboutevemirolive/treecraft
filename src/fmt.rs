@@ -1,4 +1,4 @@
-use crate::file::file::OutputHandler;
+use crate::handler::OutputHandler;
 use std::io::{self, Write};
 
 // Instead of using `String` for string literals,
