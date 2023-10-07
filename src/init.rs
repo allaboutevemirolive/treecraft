@@ -21,6 +21,7 @@ pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
 
     // Main place to determine the structure of branch
     let mut dynamic_places: Vec<i32> = Vec::with_capacity(5000);
+    let mut my_vector: Vec<i32> = vec![0; 100];
 
     let depth = 1;
     let mut totals = Totals::new();
@@ -39,6 +40,7 @@ pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
         &mut output_handler,
         &sort_type,
         &flags,
+        &mut my_vector,
     )
     .unwrap_or_default();
 
@@ -62,6 +64,7 @@ fn walk_directories(
     output_handler: &mut OutputHandler,
     sort_type: &SortType,
     flags: &Flags,
+    my_vector: &mut Vec<i32>, 
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut entries: Vec<_> = fs::read_dir(path).unwrap().collect();
     sort_entries(&mut entries, &sort_type);
@@ -76,7 +79,17 @@ fn walk_directories(
             dynamic_places.push(2);
         };
 
-        formatter.print_tree(dynamic_places, dynamic_places.len() - 1, output_handler)?;
+
+        // my_vector
+        if index < entries.len() - 1 {
+            my_vector[*depth as usize] = 1;
+        } else {
+            my_vector[*depth as usize] = 2;
+        }
+
+
+
+        formatter.print_tree(dynamic_places, dynamic_places.len() - 1, output_handler, my_vector, depth)?;
         // output_handler.flush()?;
         if info.file_type.is_dir() {
             // FIXME:
@@ -100,6 +113,7 @@ fn walk_directories(
                 output_handler,
                 &sort_type,
                 &flags,
+                my_vector,
             )?;
         } else {
             writeln!(output_handler, "{}", info.name,)?;

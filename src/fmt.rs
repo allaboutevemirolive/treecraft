@@ -33,11 +33,13 @@ impl TreeStructureFormatter {
         dynamic_places: &[i32],
         maxlevel: usize,
         output_handler: &mut OutputHandler,
+        my_vector: &[i32],
+        depth: &i32
     ) -> io::Result<()> {
         for i in 0..=maxlevel {
-            if let Some(dir) = dynamic_places.get(i) {
-                if dynamic_places.get(i + 1).is_some() {
-                    if *dir == 1 {
+            if let Some(dir) = &my_vector[1..*depth as usize + 1].get(i) {
+                if my_vector[1..*depth as usize + 1].get(i + 1).is_some() {
+                    if *dir == &1 {
                         // "│   "
                         write!(output_handler, "{}", self.vertical_bar)?;
                     } else {
@@ -45,7 +47,7 @@ impl TreeStructureFormatter {
                         write!(output_handler, "{}", self.indent)?;
                     }
                 } else {
-                    if *dir == 1 {
+                    if *dir == &1 {
                         // "├── "
                         write!(output_handler, "{}", self.branch_mid)?;
                     } else {
