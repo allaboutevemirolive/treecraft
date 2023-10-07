@@ -121,6 +121,10 @@ fn output_writer(
 ) -> Result<OutputHandler, Box<dyn std::error::Error>> {
     match print_location {
         PrintLocation::File => {
+            // FIXME
+            // Let user define the output file
+            // If no output where defined, by default
+            // use 'Output.txt'
             let output_file = File::create("Output.txt")?;
             let file_writer = BufWriter::new(output_file);
             let file_writer_refcell = Rc::new(RefCell::new(file_writer));
