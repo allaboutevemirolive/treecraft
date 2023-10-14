@@ -22,9 +22,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 pub fn process_args() -> Result<(), Box<dyn std::error::Error>> {
-    let args: Vec<String> = env::args().collect();
     let mut flags = Flags::new();
-    flags.processing_args(args);
+    flags.processing_args(env::args().collect());
 
     if flags.help {
         let stdout = io::stdout();

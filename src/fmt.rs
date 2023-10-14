@@ -30,13 +30,16 @@ impl TreeStructureFormatter {
     /// Generate branch with current modified vector
     pub fn print_tree(
         &self,
-        dynamic_places: &[i32],
+        node_links: &[i32],
         maxlevel: usize,
         output_handler: &mut OutputHandler,
     ) -> io::Result<()> {
-        for i in 0..=maxlevel {
-            if let Some(dir) = dynamic_places.get(i) {
-                if dynamic_places.get(i + 1).is_some() {
+
+        // Use 'maxlevel' instead of direct 'node_links.len() - 1'
+        // can avoid recalculation
+        for i in 0..= maxlevel {
+            if let Some(dir) = node_links.get(i) {
+                if node_links.get(i + 1).is_some() {
                     if *dir == 1 {
                         // "│   "
                         write!(output_handler, "{}", self.vertical_bar)?;
