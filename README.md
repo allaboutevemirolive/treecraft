@@ -1,4 +1,4 @@
-# TreeCraft v0.2.0
+# TreeCraft v0.2.1 (13 October 2023)
 
 TreeCraft is a command-line utility written in pure Rust that helps you visualize directory structures in ASCII format on your terminal or save them to a text file.
 
@@ -16,7 +16,7 @@ You can use these options to customize TreeCraft's behavior according to your pr
 
 ## Recommended Usage
 
-### 1. Compile with `cargo build --release`
+### 1. Compile with `cargo build --release` (Recommended)
 
 To ensure optimal performance, compile TreeCraft with the following command, which generates highly efficient code tailored to your platform:
 
