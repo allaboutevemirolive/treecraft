@@ -1,4 +1,4 @@
-# TreeCraft v0.2.1 (13 October 2023)
+# TreeCraft v0.2.2 (13 October 2023)
 
 TreeCraft is a command-line utility written in pure Rust that helps you visualize directory structures in ASCII format on your terminal or save them to a text file.
 
