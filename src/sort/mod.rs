@@ -2,26 +2,37 @@ use std::fs::DirEntry;
 use std::io;
 
 #[derive(Debug)]
-pub enum SortType {
-    /// `-st-lc` Sort by file's name with case insensitive
-    ByLowerCaseFileName,
+pub enum Sort {
+    /// `-ci` Sort file's name with case-Insensitive
+    CaseInsensitive,
 
-    /// `-st-fn` Sort by file's name only
-    ByFileName,
+    /// `-cs` Sort file's name with case-Sensitive
+    CaseSensitive,
 
-    /// `-st-no` No sort
-    NoSort,
+    /// `-n` No sort
+    None,
+
+    // Size
+    // Time
+    // Version
+
+    /// `-xt` sort based on file's extension
+    Extension,
 }
 
-impl Default for SortType {
+impl Default for Sort {
     fn default() -> Self {
-        SortType::ByLowerCaseFileName
+        // The default sort in GNU ls is case-sensitive
+        Sort::CaseSensitive
     }
 }
 
-pub fn sort_entries(entries: &mut Vec<Result<DirEntry, io::Error>>, sort_type: &SortType) {
+#[allow(clippy::cognitive_complexity)]
+#[cfg(any(unix, windows))]
+#[inline(always)]
+pub fn sort_entries(entries: &mut Vec<Result<DirEntry, io::Error>>, sort_type: &Sort) {
     match sort_type {
-        SortType::ByLowerCaseFileName => {
+        Sort::CaseInsensitive => {
             entries.sort_unstable_by(|a, b| {
                 let a_name = a.as_ref().unwrap().file_name();
                 let b_name = b.as_ref().unwrap().file_name();
@@ -30,9 +41,24 @@ pub fn sort_entries(entries: &mut Vec<Result<DirEntry, io::Error>>, sort_type: &
                     .cmp(&b_name.to_ascii_lowercase())
             });
         }
-        SortType::ByFileName => {
+        // The default sort in GNU ls is case-sensitive
+        Sort::CaseSensitive => {
             entries.sort_unstable_by_key(|entry| entry.as_ref().unwrap().file_name());
         }
-        SortType::NoSort => {}
+        Sort::Extension => entries.sort_by(|a, b| {
+            a.as_ref()
+                .unwrap()
+                .path()
+                .extension()
+                .cmp(&b.as_ref().unwrap().path().extension())
+                .then(
+                    a.as_ref()
+                        .unwrap()
+                        .path()
+                        .file_stem()
+                        .cmp(&b.as_ref().unwrap().path().file_stem()),
+                )
+        }),
+        Sort::None => {}
     }
 }

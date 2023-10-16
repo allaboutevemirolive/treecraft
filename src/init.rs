@@ -1,10 +1,11 @@
 use crate::flag::Flags;
 use crate::fmt::TreeStructureFormatter;
 use crate::handler::{OutputHandler, PrintLocation};
-use crate::meta::total::Totals;
-use crate::meta::FileInfo;
-use crate::sort::{sort_entries, SortType};
-use colored::*;
+use crate::config::total::Totals;
+use crate::config::Config;
+use crate::config::DisplayOsString;
+use crate::config::DisplayBrightGreen;
+use crate::sort::{sort_entries, Sort};
 use std::cell::RefCell;
 use std::fs;
 use std::fs::File;
@@ -15,13 +16,16 @@ use std::time::Instant;
 
 // Fixme
 // Create custom error message
+#[allow(clippy::cognitive_complexity)]
+#[cfg(any(unix, windows))]
 pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
     let mut totals = Totals::new();
     let mut output_handler = output_writer(&flags.output)?;
     let start_time = Instant::now();
 
     walk_dirs(
-        Path::new(&flags.dirname.to_string()),
+        Path::new(&flags.dirname.to_string_lossy().into_owned()),
+        // TODO: Need more explanation how this works
         // Main place to determine the structure of branch
         &mut Vec::with_capacity(5_000),
         &1,
@@ -43,6 +47,9 @@ pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
 
 /// Recursively traverse nested directories while
 /// gathering information about each folder.
+#[cfg(any(unix, windows))]
+#[allow(clippy::cognitive_complexity)]
+#[inline(always)]
 fn walk_dirs(
     path: &Path,
     node_links: &mut Vec<i32>,
@@ -50,15 +57,21 @@ fn walk_dirs(
     totals: &mut Totals,
     fmt: &TreeStructureFormatter,
     output_handler: &mut OutputHandler,
-    sort_type: &SortType,
+    sort_type: &Sort,
     output_location: &PrintLocation,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut entries: Vec<_> = fs::read_dir(path)?.collect();
+
     sort_entries(&mut entries, &sort_type);
 
     for (index, entry) in entries.iter().enumerate() {
-        let info = FileInfo::new(&entry.as_ref().unwrap(), depth)?;
 
+        // DEBUG:
+        // println!("entry: {:?}", entry.as_ref());
+
+        let info = Config::new(&entry.as_ref().unwrap(), depth)?;
+
+        // TODO: More explanation how this works
         // Marking current vector to generate branch
         if index < entries.len() - 1 {
             node_links.push(1);
@@ -68,17 +81,18 @@ fn walk_dirs(
 
         // FIXME
         fmt.print_tree(node_links, node_links.len() - 1, output_handler)?;
+
+        // DEBUG
         // output_handler.flush()?;
 
         if info.file_type.is_dir() {
-            // FIXME:
-            // Check if Rust can handle different unicode
-            // in different OS. If cannot,
-            // create custom "printit" to handle unicode
+
+            // If print in file, avoid ansi color
+            // if print on terminal, include ansi
             if output_location == &PrintLocation::File {
-                writeln!(output_handler, "{}", info.name)?;
+                writeln!(output_handler, "{}", DisplayOsString(info.name))?;
             } else {
-                writeln!(output_handler, "{}", info.name.color(Color::BrightGreen))?;
+                writeln!(output_handler, "{}", DisplayBrightGreen(info.name))?;
             }
 
             totals.directories += 1;
@@ -93,7 +107,7 @@ fn walk_dirs(
                 &output_location,
             )?;
         } else {
-            writeln!(output_handler, "{}", info.name,)?;
+            writeln!(output_handler, "{}", DisplayOsString(info.name))?;
             totals.files += 1;
         }
 
