@@ -1,4 +1,4 @@
-# TreeCraft v0.2.2 (13 October 2023)
+# TreeCraft v0.2.3 (16 October 2023)
 
 TreeCraft is a command-line utility written in pure Rust that helps you visualize directory structures in ASCII format on your terminal or save them to a text file.
 
@@ -7,12 +7,12 @@ TreeCraft is a command-line utility written in pure Rust that helps you visualiz
 TreeCraft offers several command line options:
 
 - `-tf`: Output the tree view to a text file.
-- `-st-fn-lc`: Sort filenames with case insensitivity or lowercase.
-- `-st-fn`: Sort filenames.
-- `-st-no`: Do not sort.
+- `-ci`: Sort filenames with case insensitivity or lowercase.
+- `-cs`: Sort filenames.
+- `-no`: Do not sort.
+- `-xt`: Sort based on file's extension.
 - `-help`: Display usage information and exit.
 
-You can use these options to customize TreeCraft's behavior according to your preferences.
 
 ## Recommended Usage
 
@@ -48,8 +48,6 @@ cargo build --release
    cargo run /home/nemesis/Documents/Github/Focus/lang -tf
    ```
 
-5. You can now contribute to the project or modify it to suit your needs.
-
 ### 3. Usage of the `treecraft` Binary
 
 Download the [treecraft binary](https://github.com/allaboutevemirolive/treecraft/releases/tag/treecraft) and follow these steps:
@@ -75,7 +73,6 @@ Download the [treecraft binary](https://github.com/allaboutevemirolive/treecraft
    ```
 
    Replace `"filepath"` with the path to the directory you want to visualize.
-
 
 
 # Examples of TreeCraft Usage

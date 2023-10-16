@@ -1,11 +1,12 @@
 use crate::handler::PrintLocation;
-use crate::sort::SortType;
+use crate::sort::Sort;
 use std::path::{Path, PathBuf};
+use std::ffi::OsString;
 
 #[derive(Debug)]
 pub struct Flags {
     // Folder's name
-    pub dirname: String,
+    pub dirname: OsString,
 
     // // Listing options
     // aflag: bool,            // -a: All files are listed.
@@ -57,7 +58,7 @@ pub struct Flags {
     // dirsfirst: bool,        // --dirsfirst: List directories before files (-U disables).
     // filesfirst: bool,       // --filesfirst: List files before directories (-U disables).
     // sort: Option<String>,   // --sort X: Select sort: name, version, size, mtime, ctime.
-    pub sorttype: SortType,
+    pub sorttype: Sort,
 
     // // Graphics options
     // i: bool,                // -i: Don't print indentation lines.
@@ -88,17 +89,20 @@ pub struct Flags {
 
     // // Miscellaneous options
     // version: bool,              // --version: Print version and exit.
-    pub help: bool, // --help: Print usage and this help message and exit.
-                    // terminator: bool,           // --: Options processing terminator.
+    pub help: bool,                // --help: Print usage and this help message and exit.
+    // terminator: bool,           // --: Options processing terminator.
 }
 
 // Explicit default
 impl Default for Flags {
     fn default() -> Self {
         Flags {
-            dirname: ".".to_string(),
+            // Dot "." is widely supported across different 
+            // operating systems for relative path references
+            dirname: OsString::from("."),
+            // FIXME
             allinfos: false,
-            sorttype: SortType::ByFileName,
+            sorttype: Sort::CaseSensitive,
             output: PrintLocation::Stdout,
             help: false,
         }
@@ -111,11 +115,8 @@ impl Flags {
     }
 
     pub fn processing_args(&mut self, args: Vec<String>) {
+        // Skip first arg
         let mut iter = args.iter().skip(1);
-
-        // // Set default values
-        // self.dirname = ".".to_string();
-        // self.output = PrintLocation::Stdout;
 
         // Debugging purpose
         // let mut default_sort_type = SortType::default();
@@ -126,7 +127,9 @@ impl Flags {
 
         for arg in &mut iter {
             if let Some(path) = valid_path(arg) {
-                self.dirname = path.to_str().unwrap_or_default().to_string();
+                // self.dirname = path.to_str().unwrap_or_default().to_string();
+                // self.dirname = path.to_os_string();
+                self.dirname = path.into_os_string();
             } else {
                 match arg.as_str() {
                     // "-a" => self.aflag = true,
@@ -173,9 +176,11 @@ impl Flags {
                     "-tf" => self.output = PrintLocation::File,
 
                     // Sort
-                    "-st-fn-lc" => self.sorttype = SortType::default(),
-                    "-st-fn" => self.sorttype = SortType::ByFileName,
-                    "-st-no" => self.sorttype = SortType::NoSort,
+                    "-def" => self.sorttype = Sort::default(),
+                    "-cs" => self.sorttype = Sort::CaseSensitive,
+                    "-ci" => self.sorttype = Sort::CaseInsensitive,
+                    "-n" => self.sorttype = Sort::None,
+                    "-xt" => self.sorttype = Sort::Extension,
 
                     // Miscellaneous options
                     "-help" => self.help = true,

@@ -2,7 +2,7 @@ pub mod flag;
 pub mod fmt;
 pub mod handler;
 pub mod init;
-pub mod meta;
+pub mod config;
 pub mod sort;
 use flag::Flags;
 use init::initializer;

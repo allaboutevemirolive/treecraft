@@ -22,11 +22,14 @@ impl Default for TreeStructureFormatter {
     }
 }
 
+#[cfg(any(unix, windows))]
+#[allow(clippy::cognitive_complexity)]
 impl TreeStructureFormatter {
     pub fn new() -> Self {
         Default::default()
     }
 
+    #[inline(always)]
     /// Generate branch with current modified vector
     pub fn print_tree(
         &self,
