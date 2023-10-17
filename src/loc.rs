@@ -1,6 +1,6 @@
 #[derive(Debug, PartialEq)]
 pub enum PrintLocation {
-    /// Print in text file
+    /// Print in textfile
     File,
     /// Print in terminal
     Stdout,

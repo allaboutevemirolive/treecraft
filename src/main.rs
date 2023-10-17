@@ -12,11 +12,12 @@ use std::env;
 use std::io::{self, Write};
 
 const HELP_TEXT: &str = "\
--tf                         Print output in a text file
--st-fn-lc                   Sort filename with case insensitive or lowercase
--st-fn                      Sort filename
--st-no                      No sort
--help                       Print usage and exit";
+-tf                         Output the tree view to a text file.
+-ci                         Sort filenames with case-insensitive.
+-cs                         Sort filenames with case-sensitive.
+-no                         Do not sort.
+-xt                         Sort based on file's extension.
+-help                       Display usage information and exit.";
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     process_args()?;

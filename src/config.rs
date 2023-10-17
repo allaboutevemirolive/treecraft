@@ -19,21 +19,16 @@ impl Default for Config {
     }
 }
 
-/// Wrapper to return different types
-/// We want to return default fields instead of
-/// calculating everything
+/// This wrapper enables the return of different types.
+/// 
+/// It's used to provide default fields without recalculating everything.
 #[derive(Debug)]
 pub enum ConfigInfo {
     All(ConfigAll),
+    /// Gather basic information
     Default(ConfigDefault),
 }
 
-// FIXME
-// Apply lazy evaluation where the default info we only need is the:
-// - files name
-// - files size
-//
-// Others is optional.
 #[derive(Debug)]
 pub struct ConfigAll {
     pub name: OsString,
@@ -62,20 +57,26 @@ impl fmt::Display for DisplayOsString {
     }
 }
 
-/// Intended for terminal output with `ANSI`
+/// Meant for output in a terminal with ANSI support
 pub struct DisplayBrightGreen(pub OsString);
 
 impl fmt::Display for DisplayBrightGreen {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // Format the string with the bright green color,
-        // insert OsString, then reset color to none
-        write!(f, "{}{}{}", "\x1b[32m", self.0.to_string_lossy(), "\x1b[0m")
+        // Apply bright green color formatting to the string, 
+        // insert the OsString, and reset the color to default
+        write!(
+            f,
+            "{}{}{}",
+            "\x1b[1;32m",
+            self.0.to_string_lossy(),
+            "\x1b[0m"
+        )
     }
 }
 
 impl ConfigAll {
     #[inline(always)]
-    /// Collect information for each file/folder
+    /// Gather data for each file or folder
     pub fn new(entry: &DirEntry, depth: &i32) -> io::Result<Self> {
         let full_path = entry.path();
         let metadata = fs::symlink_metadata(&full_path)?;
@@ -109,7 +110,7 @@ impl ConfigAll {
     }
 
     #[inline(always)]
-    // FIXME: Check if we need to convert this into OsString
+    // FIXME: Verify if converting this to an OsString is necessary.
     fn get_symlink_info(path: &Path, file_type: &FileType) -> (bool, Option<String>) {
         if file_type.is_symlink() {
             match fs::read_link(path) {
