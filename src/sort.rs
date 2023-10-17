@@ -15,7 +15,7 @@ pub enum Sort {
     // Size
     // Time
     // Version
-
+    
     /// `-xt` sort based on file's extension
     Extension,
 }

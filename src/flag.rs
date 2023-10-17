@@ -96,12 +96,11 @@ pub struct Flags {
     // terminator: bool,           // --: Options processing terminator.
 }
 
-// Explicit default
 impl Default for Flags {
     fn default() -> Self {
         Flags {
-            // Dot "." is widely supported across different
-            // operating systems for relative path references
+            // The dot "." is universally recognized by various
+            // operating systems for referring to relative path locations.
             dirname: OsString::from("."),
             config: Config::Default,
             // FIXME
@@ -119,15 +118,8 @@ impl Flags {
     }
 
     pub fn processing_args(&mut self, args: Vec<String>) {
-        // Skip first arg
+
         let mut iter = args.iter().skip(1);
-
-        // Debugging purpose
-        // let mut default_sort_type = SortType::default();
-        // println!("Default SortType: {:?}", default_sort_type);
-
-        // default_sort_type = SortType::ByFileName;
-        // println!("Default SortType: {:?}", default_sort_type);
 
         for arg in &mut iter {
             if let Some(path) = valid_path(arg) {
