@@ -1,4 +1,4 @@
-use crate::handler::OutputHandler;
+use crate::handle::OutputHandler;
 use std::io::{self, Write};
 
 // Instead of using `String` for string literals,
@@ -37,13 +37,12 @@ impl TreeStructureFormatter {
         maxlevel: usize,
         output_handler: &mut OutputHandler,
     ) -> io::Result<()> {
-
         // Use 'maxlevel' instead of direct 'node_links.len() - 1'
-        // can avoid recalculation
-        for i in 0..= maxlevel {
-            if let Some(dir) = node_links.get(i) {
+        // to avoid recalculation
+        for i in 0..=maxlevel {
+            if let Some(marker) = node_links.get(i) {
                 if node_links.get(i + 1).is_some() {
-                    if *dir == 1 {
+                    if marker == &1 {
                         // "│   "
                         write!(output_handler, "{}", self.vertical_bar)?;
                     } else {
@@ -51,7 +50,7 @@ impl TreeStructureFormatter {
                         write!(output_handler, "{}", self.indent)?;
                     }
                 } else {
-                    if *dir == 1 {
+                    if marker == &1 {
                         // "├── "
                         write!(output_handler, "{}", self.branch_mid)?;
                     } else {

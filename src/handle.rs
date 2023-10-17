@@ -2,20 +2,6 @@ use std::cell::RefCell;
 use std::io::{self, Write};
 use std::rc::Rc;
 
-#[derive(Debug, PartialEq)]
-pub enum PrintLocation {
-    /// Print in text file
-    File,
-    /// Print in terminal
-    Stdout,
-}
-
-impl Default for PrintLocation {
-    fn default() -> Self {
-        PrintLocation::Stdout
-    }
-}
-
 /// This struct supports various data sources and formats,
 ///
 /// including `files`, `Stdout`, `TCP streams`, `memory buffers`,

@@ -1,11 +1,13 @@
+use crate::config::Config;
+use crate::config::ConfigInfo;
+use crate::config::DisplayBrightGreen;
+use crate::config::DisplayOsString;
 use crate::flag::Flags;
 use crate::fmt::TreeStructureFormatter;
-use crate::handler::{OutputHandler, PrintLocation};
-use crate::config::total::Totals;
-use crate::config::Config;
-use crate::config::DisplayOsString;
-use crate::config::DisplayBrightGreen;
+use crate::handle::OutputHandler;
+use crate::loc::PrintLocation;
 use crate::sort::{sort_entries, Sort};
+use crate::total::Totals;
 use std::cell::RefCell;
 use std::fs;
 use std::fs::File;
@@ -14,7 +16,7 @@ use std::path::Path;
 use std::rc::Rc;
 use std::time::Instant;
 
-// Fixme
+// TODO
 // Create custom error message
 #[allow(clippy::cognitive_complexity)]
 #[cfg(any(unix, windows))]
@@ -26,7 +28,7 @@ pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
     walk_dirs(
         Path::new(&flags.dirname.to_string_lossy().into_owned()),
         // TODO: Need more explanation how this works
-        // Main place to determine the structure of branch
+        // Main place to determine the branch's structure
         &mut Vec::with_capacity(5_000),
         &1,
         &mut totals,
@@ -34,10 +36,12 @@ pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
         &mut output_handler,
         &flags.sorttype,
         &flags.output,
+        &flags.config,
     )?;
 
     output_handler.flush()?;
 
+    // INFO
     // `Instant` implements the `Copy` trait, so we
     // can pass it by value without cloning or using reference '&'
     log_metrics(&mut output_handler, &totals, start_time)?;
@@ -59,17 +63,17 @@ fn walk_dirs(
     output_handler: &mut OutputHandler,
     sort_type: &Sort,
     output_location: &PrintLocation,
+    set_config: &Config,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    use crate::config::{ConfigAll, ConfigDefault};
+
     let mut entries: Vec<_> = fs::read_dir(path)?.collect();
 
     sort_entries(&mut entries, &sort_type);
 
     for (index, entry) in entries.iter().enumerate() {
-
         // DEBUG:
         // println!("entry: {:?}", entry.as_ref());
-
-        let info = Config::new(&entry.as_ref().unwrap(), depth)?;
 
         // TODO: More explanation how this works
         // Marking current vector to generate branch
@@ -79,39 +83,120 @@ fn walk_dirs(
             node_links.push(2);
         };
 
-        // FIXME
+        // TODO
         fmt.print_tree(node_links, node_links.len() - 1, output_handler)?;
 
         // DEBUG
         // output_handler.flush()?;
 
-        if info.file_type.is_dir() {
+        // INFO
+        // All types in matching pattern must be same
+        // That's why we use wrapper to solve "struct ConfigAll"
+        // and "struct ConfigDefault"
+        #[rustfmt::skip]
+        let info = match set_config {
+            Config::All => ConfigInfo::All(
+                ConfigAll::new(&entry.as_ref().unwrap(), depth)?
+            ),
+            Config::Default => ConfigInfo::Default(
+                ConfigDefault::new(&entry.as_ref().unwrap(), depth)?
+            ),
+        };
 
-            // If print in file, avoid ansi color
-            // if print on terminal, include ansi
-            if output_location == &PrintLocation::File {
-                writeln!(output_handler, "{}", DisplayOsString(info.name))?;
-            } else {
-                writeln!(output_handler, "{}", DisplayBrightGreen(info.name))?;
+        // FIXME:
+        // Need to re-consider if this match pat need
+        // to be extract in a new function or not
+        match info {
+            ConfigInfo::All(info) => {
+                if info.file_type.is_dir() {
+                    // If print in file, avoid ANSI color
+                    // if print on terminal, include ANSI
+                    if output_location == &PrintLocation::File {
+                        writeln!(output_handler, "{}", DisplayOsString(info.name))?;
+                    } else {
+                        writeln!(output_handler, "{}", DisplayBrightGreen(info.name))?;
+                    }
+
+                    totals.directories += 1;
+                    walk_dirs(
+                        &info.path,
+                        node_links,
+                        &(depth + 1),
+                        totals,
+                        fmt,
+                        output_handler,
+                        &sort_type,
+                        &output_location,
+                        &set_config,
+                    )?;
+                } else {
+                    writeln!(output_handler, "{}", DisplayOsString(info.name))?;
+                    totals.files += 1;
+                }
+
+                totals.size += info.size;
             }
+            ConfigInfo::Default(info) => {
+                if info.file_type.is_dir() {
+                    // If print in file, avoid ANSI color
+                    // if print on terminal, include ANSI
+                    if output_location == &PrintLocation::File {
+                        writeln!(output_handler, "{}", DisplayOsString(info.name))?;
+                    } else {
+                        writeln!(output_handler, "{}", DisplayBrightGreen(info.name))?;
+                    }
 
-            totals.directories += 1;
-            walk_dirs(
-                &info.path,
-                node_links,
-                &(depth + 1),
-                totals,
-                fmt,
-                output_handler,
-                &sort_type,
-                &output_location,
-            )?;
-        } else {
-            writeln!(output_handler, "{}", DisplayOsString(info.name))?;
-            totals.files += 1;
+                    totals.directories += 1;
+                    walk_dirs(
+                        &info.path,
+                        node_links,
+                        &(depth + 1),
+                        totals,
+                        fmt,
+                        output_handler,
+                        &sort_type,
+                        &output_location,
+                        &set_config,
+                    )?;
+                } else {
+                    writeln!(output_handler, "{}", DisplayOsString(info.name))?;
+                    totals.files += 1;
+                }
+
+                totals.size += info.size;
+            }
         }
 
-        totals.size += info.size;
+        // DEBUG
+        //
+        // if info.file_type.is_dir() {
+        //     // If print in file, avoid ANSI color
+        //     // if print on terminal, include ANSI
+        //     if output_location == &PrintLocation::File {
+        //         writeln!(output_handler, "{}", DisplayOsString(info.name))?;
+        //     } else {
+        //         writeln!(output_handler, "{}", DisplayBrightGreen(info.name))?;
+        //     }
+        //
+        //     totals.directories += 1;
+        //     walk_dirs(
+        //         &info.path,
+        //         node_links,
+        //         &(depth + 1),
+        //         totals,
+        //         fmt,
+        //         output_handler,
+        //         &sort_type,
+        //         &output_location,
+        //         &set_config,
+        //     )?;
+        // } else {
+        //     writeln!(output_handler, "{}", DisplayOsString(info.name))?;
+        //     totals.files += 1;
+        // }
+        //
+        // totals.size += info.size;
+
         node_links.pop();
     }
 

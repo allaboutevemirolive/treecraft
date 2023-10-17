@@ -1,4 +1,3 @@
-pub mod total;
 use std::ffi::OsString;
 use std::fmt;
 use std::fs;
@@ -8,14 +7,35 @@ use std::io;
 use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
+#[derive(Debug)]
+pub enum Config {
+    All,
+    Default,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Config::Default
+    }
+}
+
+/// Wrapper to return different types
+/// We want to return default fields instead of
+/// calculating everything
+#[derive(Debug)]
+pub enum ConfigInfo {
+    All(ConfigAll),
+    Default(ConfigDefault),
+}
+
 // FIXME
 // Apply lazy evaluation where the default info we only need is the:
 // - files name
 // - files size
 //
 // Others is optional.
-#[derive()]
-pub struct Config {
+#[derive(Debug)]
+pub struct ConfigAll {
     pub name: OsString,
     pub path: PathBuf,
     pub depth: i32,
@@ -49,17 +69,11 @@ impl fmt::Display for DisplayBrightGreen {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // Format the string with the bright green color,
         // insert OsString, then reset color to none
-        write!(
-            f,
-            "{}{}{}",
-            "\x1b[32m",
-            self.0.to_string_lossy(),
-            "\x1b[0m"
-        )
+        write!(f, "{}{}{}", "\x1b[32m", self.0.to_string_lossy(), "\x1b[0m")
     }
 }
 
-impl Config {
+impl ConfigAll {
     #[inline(always)]
     /// Collect information for each file/folder
     pub fn new(entry: &DirEntry, depth: &i32) -> io::Result<Self> {
@@ -67,14 +81,10 @@ impl Config {
         let metadata = fs::symlink_metadata(&full_path)?;
         let file_type = entry.file_type()?;
 
-        let (is_symlink, symlink_target) = Config::get_symlink_info(&full_path, &file_type);
+        let (is_symlink, symlink_target) = ConfigAll::get_symlink_info(&full_path, &file_type);
 
-        Ok(Config {
+        Ok(ConfigAll {
             name: full_path
-                // .file_name()
-                // .and_then(|os_str| os_str.to_str())
-                // .unwrap_or("Invalid full-path")
-                // .to_string().into(),
                 .file_name()
                 .map(|os_str| os_str.to_os_string())
                 .unwrap_or_else(|| "Invalid full-path".into()),
@@ -109,5 +119,34 @@ impl Config {
         } else {
             (false, None)
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct ConfigDefault {
+    pub name: OsString,
+    pub path: PathBuf,
+    pub depth: i32,
+    pub file_type: FileType,
+    pub size: u64,
+}
+
+impl ConfigDefault {
+    #[inline(always)]
+    pub fn new(entry: &DirEntry, depth: &i32) -> io::Result<Self> {
+        let full_path = entry.path();
+        let metadata = fs::symlink_metadata(&full_path)?;
+        let file_type = entry.file_type()?;
+
+        Ok(ConfigDefault {
+            name: full_path
+                .file_name()
+                .map(|os_str| os_str.to_os_string())
+                .unwrap_or_else(|| "Invalid full-path".into()),
+            path: full_path.clone(),
+            depth: *depth,
+            file_type,
+            size: metadata.len(),
+        })
     }
 }
