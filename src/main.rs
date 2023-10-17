@@ -1,9 +1,11 @@
+pub mod config;
 pub mod flag;
 pub mod fmt;
-pub mod handler;
+pub mod handle;
 pub mod init;
-pub mod config;
+pub mod loc;
 pub mod sort;
+pub mod total;
 use flag::Flags;
 use init::initializer;
 use std::env;

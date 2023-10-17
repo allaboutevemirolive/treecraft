@@ -1,7 +1,8 @@
-use crate::handler::PrintLocation;
+use crate::config::Config;
+use crate::loc::PrintLocation;
 use crate::sort::Sort;
-use std::path::{Path, PathBuf};
 use std::ffi::OsString;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
 pub struct Flags {
@@ -47,6 +48,7 @@ pub struct Flags {
     // Fflag: bool,            // -F: Appends '/', '=', '*', '@', '|' or '>' as per ls -F.
     // inodes: bool,           // --inodes: Print the inode number of each file.
     // device: bool,           // --device: Print the device ID number to which each file belongs.
+    pub config: Config,
     pub allinfos: bool,
 
     // // Sorting options
@@ -89,17 +91,18 @@ pub struct Flags {
 
     // // Miscellaneous options
     // version: bool,              // --version: Print version and exit.
-    pub help: bool,                // --help: Print usage and this help message and exit.
-    // terminator: bool,           // --: Options processing terminator.
+    pub help: bool, // --help: Print usage and this help message and exit.
+                    // terminator: bool,           // --: Options processing terminator.
 }
 
 // Explicit default
 impl Default for Flags {
     fn default() -> Self {
         Flags {
-            // Dot "." is widely supported across different 
+            // Dot "." is widely supported across different
             // operating systems for relative path references
             dirname: OsString::from("."),
+            config: Config::Default,
             // FIXME
             allinfos: false,
             sorttype: Sort::CaseSensitive,
@@ -170,6 +173,7 @@ impl Flags {
                     // "--git-ignore" => self.gitignore = true,
 
                     // File options
+                    "-confall" => self.config = Config::All,
                     "-infos" => self.allinfos = true,
 
                     // Output options
