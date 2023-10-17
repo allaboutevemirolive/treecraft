@@ -4,6 +4,7 @@ use crate::sort::Sort;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
+#[rustfmt::skip]
 #[derive(Debug)]
 pub struct Flags {
     // Folder's name
@@ -91,8 +92,8 @@ pub struct Flags {
 
     // // Miscellaneous options
     // version: bool,              // --version: Print version and exit.
-    pub help: bool, // --help: Print usage and this help message and exit.
-                    // terminator: bool,           // --: Options processing terminator.
+    pub help: bool,                // --help: Print usage and this help message and exit.
+    // terminator: bool,           // --: Options processing terminator.
 }
 
 // Explicit default
@@ -130,8 +131,6 @@ impl Flags {
 
         for arg in &mut iter {
             if let Some(path) = valid_path(arg) {
-                // self.dirname = path.to_str().unwrap_or_default().to_string();
-                // self.dirname = path.to_os_string();
                 self.dirname = path.into_os_string();
             } else {
                 match arg.as_str() {

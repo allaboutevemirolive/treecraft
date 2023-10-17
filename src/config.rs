@@ -85,10 +85,6 @@ impl ConfigAll {
 
         Ok(ConfigAll {
             name: full_path
-                // .file_name()
-                // .and_then(|os_str| os_str.to_str())
-                // .unwrap_or("Invalid full-path")
-                // .to_string().into(),
                 .file_name()
                 .map(|os_str| os_str.to_os_string())
                 .unwrap_or_else(|| "Invalid full-path".into()),
@@ -134,18 +130,6 @@ pub struct ConfigDefault {
     pub file_type: FileType,
     pub size: u64,
 }
-
-// impl Default for ConfigDefault {
-//     fn default() -> Self {
-//         ConfigDefault {
-//             name: OsString::from(""),
-//             path: todo!(),
-//             depth: todo!(),
-//             file_type: todo!(),
-//             size: todo!(),
-//         }
-//     }
-// }
 
 impl ConfigDefault {
     #[inline(always)]
