@@ -20,7 +20,7 @@ impl Default for Config {
 }
 
 /// This wrapper enables the return of different types.
-/// 
+///
 /// It's used to provide default fields without recalculating everything.
 #[derive(Debug)]
 pub enum ConfigInfo {
@@ -62,7 +62,7 @@ pub struct DisplayBrightGreen(pub OsString);
 
 impl fmt::Display for DisplayBrightGreen {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // Apply bright green color formatting to the string, 
+        // Apply bright green color formatting to the string,
         // insert the OsString, and reset the color to default
         write!(
             f,
