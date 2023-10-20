@@ -118,7 +118,6 @@ impl Flags {
     }
 
     pub fn processing_args(&mut self, args: Vec<String>) {
-
         let mut iter = args.iter().skip(1);
 
         for arg in &mut iter {
