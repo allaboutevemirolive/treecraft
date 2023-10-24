@@ -9,3 +9,9 @@
 4. Implement option to printout `branch only`
 
 5. Implement option to avoid file that start with `.`
+
+6. Convert output to ".md" file then to ".html"
+
+    Output -> .md -> .html
+
+    Probably we can directly convert output to ".html"
