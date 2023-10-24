@@ -2,6 +2,10 @@
 
 TreeCraft is a command-line utility written in pure Rust that helps you visualize directory structures in ASCII format on your terminal or save them to a text file.
 
+<div>
+  <img src="https://github.com/allaboutevemirolive/treecraft/blob/main/treecraft.png" width="45%" />
+</div>
+
 ## Command Line Options
 
 TreeCraft offers several command line options:
@@ -129,21 +133,39 @@ TreeCraft will then display the tree-view on your terminal screen, allowing you 
 
 Example Output:
 ```
-    │   │   │   └── main.zig
-    │   │   ├── windows_spawn
-    │   │   │   ├── build.zig
-    │   │   │   ├── hello.zig
-    │   │   │   └── main.zig
-    │   │   └── zerolength_check
-    │   │       ├── build.zig
-    │   │       └── src
-    │   │           └── main.zig
-    │   ├── standalone.zig
-    │   ├── tests.zig
-    │   └── translate_c.zig
-    └── tools
-        ├── crc
-        │   └── catalog.txt
+nemesis@nemesis:~/Documents/Github/Focus/util/treecraft/target/release$ ./treecraft
+
+Current Directory: /home/nemesis/Documents/Github/Focus/util/treecraft/target/release
+Target Directory : /home/nemesis/Documents/Github/Focus/util/treecraft/target/release
+
+Target Directory Structure:
+
+release
+-------
+├── .cargo-lock
+├── .fingerprint
+│   └── treecraft-52fb4a3e910503fe
+│       ├── bin-treecraft
+│       ├── bin-treecraft.json
+│       ├── dep-bin-treecraft
+│       └── invoked.timestamp
+├── Output.txt
+├── build
+├── deps
+│   ├── treecraft-52fb4a3e910503fe
+│   └── treecraft-52fb4a3e910503fe.d
+├── examples
+├── incremental
+├── treecraft
+└── treecraft.d
+
+Statistics:
+
+Processing Time   : 0.000660894 seconds
+Total Directories : 6
+Total Files       : 10
+Total Items       : 16
+Total Size        : 0.01 GB (9,571,573 bytes)
 ```
 
 
