@@ -1,6 +1,4 @@
 
-
-
 ## 2023-10-23
 
 1. If use default path ".", check for the literal syntax for full path
