@@ -1,7 +1,11 @@
 use crate::config::Config;
+use crate::config::ConfigAll;
+use crate::config::ConfigDefault;
 use crate::config::ConfigInfo;
 use crate::config::DisplayBrightGreen;
+use crate::config::DisplayBrightYellow;
 use crate::config::DisplayOsString;
+use crate::flag::get_absolute_current_dir;
 use crate::flag::Flags;
 use crate::fmt::TreeStructureFormatter;
 use crate::handle::OutputHandler;
@@ -9,13 +13,13 @@ use crate::loc::PrintLocation;
 use crate::sort::{sort_entries, Sort};
 use crate::total::Totals;
 use std::cell::RefCell;
+use std::ffi::OsString;
 use std::fs;
 use std::fs::File;
 use std::io::{self, BufWriter, Write};
 use std::path::Path;
 use std::rc::Rc;
 use std::time::Instant;
-
 // TODO
 // Create custom error message
 #[allow(clippy::cognitive_complexity)]
@@ -24,6 +28,12 @@ pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
     let mut totals = Totals::new();
     let mut output_handler = output_writer(&flags.output)?;
     let start_time = Instant::now();
+
+    header_info(flags, &mut output_handler).unwrap_or_default();
+
+    write!(output_handler, "\nTarget Directory Structure:\n\n",)?;
+
+    dir_info(flags, &mut output_handler).unwrap_or_default();
 
     walk_dirs(
         Path::new(&flags.dirname.to_string_lossy().into_owned()),
@@ -61,11 +71,9 @@ fn walk_dirs(
     output_location: &PrintLocation,
     set_config: &Config,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    use crate::config::{ConfigAll, ConfigDefault};
-
     let mut entries: Vec<_> = fs::read_dir(path)?.collect();
 
-    sort_entries(&mut entries, &sort_type);
+    sort_entries(&mut entries, sort_type);
 
     for (index, entry) in entries.iter().enumerate() {
         // Modifying the current vector for generating tree branch
@@ -80,14 +88,14 @@ fn walk_dirs(
         #[rustfmt::skip]
         let info = match set_config {
             Config::All => ConfigInfo::All(
-                ConfigAll::new(&entry.as_ref().unwrap(), depth)?
+                ConfigAll::new(entry.as_ref().unwrap(), depth)?
             ),
             Config::Default => ConfigInfo::Default(
-                ConfigDefault::new(&entry.as_ref().unwrap(), depth)?
+                ConfigDefault::new(entry.as_ref().unwrap(), depth)?
             ),
         };
 
-        handle_info(
+        visitor(
             info,
             totals,
             fmt,
@@ -107,7 +115,7 @@ fn walk_dirs(
 
 #[allow(clippy::cognitive_complexity)]
 #[inline(always)]
-fn handle_info(
+fn visitor(
     info: ConfigInfo,
     totals: &mut Totals,
     fmt: &TreeStructureFormatter,
@@ -124,9 +132,9 @@ fn handle_info(
                 // Avoid ANSI color if printing in a file,
                 // but include ANSI when printing to the terminal.
                 if output_location == &PrintLocation::File {
-                    writeln!(output_handler, "{}", DisplayOsString(info.name))?;
+                    writeln!(output_handler, "{}", DisplayOsString(&info.name))?;
                 } else {
-                    writeln!(output_handler, "{}", DisplayBrightGreen(info.name))?;
+                    writeln!(output_handler, "{}", DisplayBrightGreen(&info.name))?;
                 }
 
                 totals.directories += 1;
@@ -137,12 +145,12 @@ fn handle_info(
                     totals,
                     fmt,
                     output_handler,
-                    &sort_type,
-                    &output_location,
-                    &set_config,
+                    sort_type,
+                    output_location,
+                    set_config,
                 )?;
             } else {
-                writeln!(output_handler, "{}", DisplayOsString(info.name))?;
+                writeln!(output_handler, "{}", DisplayOsString(&info.name))?;
                 totals.files += 1;
             }
 
@@ -153,9 +161,9 @@ fn handle_info(
                 // Avoid ANSI color if printing in a file,
                 // but include ANSI when printing to the terminal.
                 if output_location == &PrintLocation::File {
-                    writeln!(output_handler, "{}", DisplayOsString(info.name))?;
+                    writeln!(output_handler, "{}", DisplayOsString(&info.name))?;
                 } else {
-                    writeln!(output_handler, "{}", DisplayBrightGreen(info.name))?;
+                    writeln!(output_handler, "{}", DisplayBrightGreen(&info.name))?;
                 }
 
                 totals.directories += 1;
@@ -166,18 +174,69 @@ fn handle_info(
                     totals,
                     fmt,
                     output_handler,
-                    &sort_type,
-                    &output_location,
-                    &set_config,
+                    sort_type,
+                    output_location,
+                    set_config,
                 )?;
             } else {
-                writeln!(output_handler, "{}", DisplayOsString(info.name))?;
+                writeln!(output_handler, "{}", DisplayOsString(&info.name))?;
                 totals.files += 1;
             }
 
             totals.size += info.size;
         }
     }
+
+    Ok(())
+}
+
+/// Print-out current and target directory
+fn header_info(
+    flags: &Flags,
+    output_handler: &mut OutputHandler,
+) -> Result<(), Box<dyn std::error::Error>> {
+    match &flags.output {
+        PrintLocation::File => {
+            write!(
+                output_handler,
+                "\nCurrent Directory: {}\n",
+                DisplayOsString(&OsString::from(get_absolute_current_dir()))
+            )?;
+
+            write!(
+                output_handler,
+                "\nTarget Directory : {}\n",
+                DisplayOsString(&flags.dirname),
+            )?;
+        }
+        PrintLocation::Stdout => {
+            write!(
+                output_handler,
+                "\nCurrent Directory: {}",
+                DisplayBrightYellow(&OsString::from(get_absolute_current_dir())),
+            )?;
+
+            write!(
+                output_handler,
+                "\nTarget Directory : {}\n",
+                DisplayBrightYellow(&flags.dirname),
+            )?;
+        }
+    }
+    Ok(())
+}
+
+/// Print-out dir's name and separator
+fn dir_info(
+    flags: &Flags,
+    output_handler: &mut OutputHandler,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let dir_name = Path::new(&flags.dirname);
+    let binding = dir_name.file_name().unwrap_or_default();
+    let curr_path = &binding.to_string_lossy();
+    let separator = "-".repeat(curr_path.len());
+
+    write!(output_handler, "{}\n{} \n", curr_path, separator)?;
 
     Ok(())
 }
@@ -218,7 +277,9 @@ fn log_metrics(
     let gigabytes = totals.size as f64 / 1_073_741_824.0;
 
     writeln!(output_handler)?;
-    writeln!(output_handler, "Times Processing  : {:?}s", seconds)?;
+    writeln!(output_handler, "Statistics:")?;
+    writeln!(output_handler)?;
+    writeln!(output_handler, "Processing Time   : {:?} seconds", seconds)?;
     writeln!(output_handler, "Total Directories : {}", totals.directories)?;
     writeln!(output_handler, "Total Files       : {}", totals.files)?;
     writeln!(
@@ -228,10 +289,25 @@ fn log_metrics(
     )?;
     writeln!(
         output_handler,
-        "Total Size        : {:.2} GB or {} bytes",
-        gigabytes, totals.size
+        "Total Size        : {:.2} GB ({} bytes)",
+        gigabytes,
+        format_with_commas(totals.size)
     )?;
     writeln!(output_handler)?;
 
     Ok(())
+}
+
+fn format_with_commas(num: u64) -> String {
+    let mut formatted = String::new();
+    let num_str = num.to_string();
+
+    for (i, c) in num_str.chars().rev().enumerate() {
+        if i > 0 && i % 3 == 0 {
+            formatted.insert(0, ',');
+        }
+        formatted.insert(0, c);
+    }
+
+    formatted
 }

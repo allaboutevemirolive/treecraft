@@ -7,16 +7,11 @@ use std::io;
 use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub enum Config {
     All,
+    #[default]
     Default,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Config::Default
-    }
 }
 
 /// This wrapper enables the return of different types.
@@ -49,28 +44,32 @@ pub struct ConfigAll {
     pub modification_time: i64,
 }
 
-pub struct DisplayOsString(pub OsString);
+pub struct DisplayOsString<'a>(pub &'a OsString);
 
-impl fmt::Display for DisplayOsString {
+impl<'a> fmt::Display for DisplayOsString<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.0.to_string_lossy())
     }
 }
 
 /// Meant for output in a terminal with ANSI support
-pub struct DisplayBrightGreen(pub OsString);
+pub struct DisplayBrightGreen<'a>(pub &'a OsString);
 
-impl fmt::Display for DisplayBrightGreen {
+impl<'a> fmt::Display for DisplayBrightGreen<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // Apply bright green color formatting to the string,
         // insert the OsString, and reset the color to default
-        write!(
-            f,
-            "{}{}{}",
-            "\x1b[1;32m",
-            self.0.to_string_lossy(),
-            "\x1b[0m"
-        )
+        write!(f, "\x1b[1;32m{}\x1b[0m", self.0.to_string_lossy(),)
+    }
+}
+
+pub struct DisplayBrightYellow<'a>(pub &'a OsString);
+
+impl<'a> fmt::Display for DisplayBrightYellow<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Apply bright green color formatting to the string,
+        // insert the OsString, and reset the color to default
+        write!(f, "\x1b[1;33m{}\x1b[0m", self.0.to_string_lossy(),)
     }
 }
 

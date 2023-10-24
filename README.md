@@ -1,4 +1,4 @@
-# TreeCraft v0.2.3 (16 October 2023)
+# TreeCraft v0.2.4 (23 October 2023)
 
 TreeCraft is a command-line utility written in pure Rust that helps you visualize directory structures in ASCII format on your terminal or save them to a text file.
 
@@ -14,7 +14,7 @@ TreeCraft offers several command line options:
 - `-help`: Display usage information and exit.
 
 
-## Recommended Usage
+# Recommended Usage
 
 ### 1. Compile with `cargo build --release` (Recommended)
 
@@ -74,6 +74,34 @@ Download the [treecraft binary](https://github.com/allaboutevemirolive/treecraft
 
    Replace `"filepath"` with the path to the directory you want to visualize.
 
+
+# Set it as `alias` in Linux (Tested in Debian)
+
+Here's how you can add the alias for your Rust binary at the end of your `.bashrc` file:
+
+1. Open your `.bashrc` file for editing:
+
+```bash
+nano ~/.bashrc
+```
+
+2. Scroll to the end of the file and add the following line:
+
+```bash
+alias trie="/path/to/your/project/target/release/your_binary_name"
+```
+
+Replace "/path/to/your/project" with the actual path to your project directory and "your_binary_name" with the name of your Rust binary.
+
+3. Save and exit the text editor (for nano, press Ctrl+O, then Enter to save, and Ctrl+X to exit).
+
+4. After saving the changes, apply the changes to your current terminal session by running:
+
+```bash
+source ~/.bashrc
+```
+
+Now, when you open a new terminal session, you should be able to use the "trie" alias to execute your Rust binary.
 
 # Examples of TreeCraft Usage
 

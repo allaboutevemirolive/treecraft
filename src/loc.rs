@@ -1,13 +1,8 @@
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Default)]
 pub enum PrintLocation {
     /// Print in textfile
     File,
     /// Print in terminal
+    #[default]
     Stdout,
-}
-
-impl Default for PrintLocation {
-    fn default() -> Self {
-        PrintLocation::Stdout
-    }
 }
