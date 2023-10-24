@@ -1,6 +1,7 @@
 use crate::config::Config;
 use crate::loc::PrintLocation;
 use crate::sort::Sort;
+use std::env;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
@@ -99,9 +100,7 @@ pub struct Flags {
 impl Default for Flags {
     fn default() -> Self {
         Flags {
-            // The dot "." is universally recognized by various
-            // operating systems for referring to relative path locations.
-            dirname: OsString::from("."),
+            dirname: OsString::from(get_absolute_current_dir()),
             config: Config::Default,
             // FIXME
             allinfos: false,
@@ -195,4 +194,12 @@ fn valid_path(arg: &str) -> Option<PathBuf> {
     } else {
         None
     }
+}
+
+pub fn get_absolute_current_dir() -> String {
+    env::current_dir()
+        .expect("Failed to get current directory")
+        .to_str()
+        .expect("Failed to convert path to str")
+        .to_string()
 }

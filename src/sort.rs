@@ -1,12 +1,13 @@
 use std::fs::DirEntry;
 use std::io;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub enum Sort {
     /// `-ci` Sort file's name with case-Insensitive
     CaseInsensitive,
 
     /// `-cs` Sort file's name with case-Sensitive
+    #[default]
     CaseSensitive,
 
     /// `-n` No sort
@@ -19,17 +20,10 @@ pub enum Sort {
     Extension,
 }
 
-impl Default for Sort {
-    fn default() -> Self {
-        // The default sort in GNU ls is case-sensitive
-        Sort::CaseSensitive
-    }
-}
-
 #[allow(clippy::cognitive_complexity)]
 #[cfg(any(unix, windows))]
 #[inline(always)]
-pub fn sort_entries(entries: &mut Vec<Result<DirEntry, io::Error>>, sort_type: &Sort) {
+pub fn sort_entries(entries: &mut [Result<DirEntry, io::Error>], sort_type: &Sort) {
     match sort_type {
         Sort::CaseInsensitive => {
             entries.sort_unstable_by(|a, b| {

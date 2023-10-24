@@ -4,6 +4,16 @@ use std::io::{self, Write};
 // Instead of using `String` for string literals,
 // we use the `&str` type to save memory,
 // since we have many instances of `TreeStructureFormatter`
+//
+// INFO
+// Rust compiler optimize code more aggressively around structs
+// compared to using direct initialization of static variables.
+// This is because structs provide more information to the compiler
+// about the layout of data in memory, which allows the compiler to
+// make more informed decisions about how to optimize the code.
+//
+// REF
+// https://camlorn.net/posts/April%202017/rust-struct-field-reordering/
 pub struct TreeStructureFormatter {
     branch_end: &'static str,
     branch_mid: &'static str,
@@ -49,14 +59,12 @@ impl TreeStructureFormatter {
                         // "    "
                         write!(output_handler, "{}", self.indent)?;
                     }
+                } else if marker == &1 {
+                    // "├── "
+                    write!(output_handler, "{}", self.branch_mid)?;
                 } else {
-                    if marker == &1 {
-                        // "├── "
-                        write!(output_handler, "{}", self.branch_mid)?;
-                    } else {
-                        // "└── "
-                        write!(output_handler, "{}", self.branch_end)?;
-                    }
+                    // "└── "
+                    write!(output_handler, "{}", self.branch_end)?;
                 }
             }
         }
