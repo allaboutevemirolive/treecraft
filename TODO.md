@@ -14,4 +14,4 @@
 
     Output -> .md -> .html
 
-    Probably we can directly conver output to ".html"
+    Probably we can directly convert output to ".html"
