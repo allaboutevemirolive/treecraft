@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::loc::PrintLocation;
+use crate::init::PrintLocation;
 use crate::sort::Sort;
 use std::env;
 use std::ffi::OsString;

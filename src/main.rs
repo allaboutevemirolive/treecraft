@@ -3,7 +3,6 @@ pub mod flag;
 pub mod fmt;
 pub mod handle;
 pub mod init;
-pub mod loc;
 pub mod sort;
 pub mod total;
 use flag::Flags;
