@@ -23,8 +23,8 @@ pub enum Sort {
 #[allow(clippy::cognitive_complexity)]
 #[cfg(any(unix, windows))]
 #[inline(always)]
-pub fn sort_entries(entries: &mut [Result<DirEntry, io::Error>], sort_type: &Sort) {
-    match sort_type {
+pub fn sort_entries(entries: &mut [Result<DirEntry, io::Error>], sorter: &Sort) {
+    match sorter {
         Sort::CaseInsensitive => {
             entries.sort_unstable_by(|a, b| {
                 let a_name = a.as_ref().unwrap().file_name();

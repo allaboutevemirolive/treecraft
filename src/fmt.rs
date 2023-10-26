@@ -9,7 +9,7 @@ use std::io::{self, Write};
 // Rust compiler optimize code more aggressively around structs
 // compared to using direct initialization of static variables.
 // This is because structs provide more information to the compiler
-// about the layout of data in memory, which allows the compiler to
+// about the 'layout of data in memory', which allows the compiler to
 // make more informed decisions about how to optimize the code.
 //
 // REF
@@ -43,28 +43,28 @@ impl TreeStructureFormatter {
     /// Generate branch with current modified vector
     pub fn print_tree(
         &self,
-        node_links: &[i32],
+        nodes: &[i32],
         maxlevel: usize,
-        output_handler: &mut OutputHandler,
+        handler: &mut OutputHandler,
     ) -> io::Result<()> {
-        // Use 'maxlevel' instead of direct 'node_links.len() - 1'
+        // Use 'maxlevel' instead of direct 'nodes.len() - 1'
         // to avoid recalculation
         for i in 0..=maxlevel {
-            if let Some(marker) = node_links.get(i) {
-                if node_links.get(i + 1).is_some() {
+            if let Some(marker) = nodes.get(i) {
+                if nodes.get(i + 1).is_some() {
                     if marker == &1 {
                         // "│   "
-                        write!(output_handler, "{}", self.vertical_bar)?;
+                        write!(handler, "{}", self.vertical_bar)?;
                     } else {
                         // "    "
-                        write!(output_handler, "{}", self.indent)?;
+                        write!(handler, "{}", self.indent)?;
                     }
                 } else if marker == &1 {
                     // "├── "
-                    write!(output_handler, "{}", self.branch_mid)?;
+                    write!(handler, "{}", self.branch_mid)?;
                 } else {
                     // "└── "
-                    write!(output_handler, "{}", self.branch_end)?;
+                    write!(handler, "{}", self.branch_end)?;
                 }
             }
         }

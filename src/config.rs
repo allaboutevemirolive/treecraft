@@ -67,7 +67,7 @@ pub struct DisplayBrightYellow<'a>(pub &'a OsString);
 
 impl<'a> fmt::Display for DisplayBrightYellow<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // Apply bright green color formatting to the string,
+        // Apply bright yellow color formatting to the string,
         // insert the OsString, and reset the color to default
         write!(f, "\x1b[1;33m{}\x1b[0m", self.0.to_string_lossy(),)
     }

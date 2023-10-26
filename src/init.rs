@@ -5,35 +5,40 @@ use crate::config::ConfigInfo;
 use crate::config::DisplayBrightGreen;
 use crate::config::DisplayBrightYellow;
 use crate::config::DisplayOsString;
-use crate::flag::get_absolute_current_dir;
 use crate::flag::Flags;
 use crate::fmt::TreeStructureFormatter;
 use crate::handle::OutputHandler;
-use crate::loc::PrintLocation;
 use crate::sort::{sort_entries, Sort};
 use crate::total::Totals;
 use std::cell::RefCell;
-use std::ffi::OsString;
 use std::fs;
 use std::fs::File;
 use std::io::{self, BufWriter, Write};
 use std::path::Path;
 use std::rc::Rc;
 use std::time::Instant;
+
+#[derive(Debug, PartialEq, Default)]
+pub enum PrintLocation {
+    /// Print in textfile
+    File,
+    /// Print in terminal
+    #[default]
+    Stdout,
+}
+
 // TODO
 // Create custom error message
 #[allow(clippy::cognitive_complexity)]
 #[cfg(any(unix, windows))]
 pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
     let mut totals = Totals::new();
-    let mut output_handler = output_writer(&flags.output)?;
+    let mut handler = output_writer(&flags.output)?;
     let start_time = Instant::now();
 
-    header_info(flags, &mut output_handler).unwrap_or_default();
+    header_info(flags, &mut handler).unwrap_or_default();
 
-    write!(output_handler, "\nTarget Directory Structure:\n\n",)?;
-
-    dir_info(flags, &mut output_handler).unwrap_or_default();
+    dir_info(flags, &mut handler).unwrap_or_default();
 
     walk_dirs(
         Path::new(&flags.dirname.to_string_lossy().into_owned()),
@@ -42,15 +47,15 @@ pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
         &1,
         &mut totals,
         &TreeStructureFormatter::new(),
-        &mut output_handler,
+        &mut handler,
         &flags.sorttype,
         &flags.output,
         &flags.config,
     )?;
 
-    output_handler.flush()?;
+    handler.flush()?;
 
-    log_metrics(&mut output_handler, &totals, start_time)?;
+    stats(&mut handler, &totals, start_time)?;
 
     Ok(())
 }
@@ -62,31 +67,31 @@ pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
 #[inline(always)]
 fn walk_dirs(
     path: &Path,
-    node_links: &mut Vec<i32>,
+    nodes: &mut Vec<i32>,
     depth: &i32,
     totals: &mut Totals,
     fmt: &TreeStructureFormatter,
-    output_handler: &mut OutputHandler,
-    sort_type: &Sort,
-    output_location: &PrintLocation,
-    set_config: &Config,
+    handler: &mut OutputHandler,
+    sorter: &Sort,
+    loc: &PrintLocation,
+    config: &Config,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut entries: Vec<_> = fs::read_dir(path)?.collect();
 
-    sort_entries(&mut entries, sort_type);
+    sort_entries(&mut entries, sorter);
 
     for (index, entry) in entries.iter().enumerate() {
         // Modifying the current vector for generating tree branch
         if index < entries.len() - 1 {
-            node_links.push(1);
+            nodes.push(1);
         } else {
-            node_links.push(2);
+            nodes.push(2);
         };
 
-        fmt.print_tree(node_links, node_links.len() - 1, output_handler)?;
+        fmt.print_tree(nodes, nodes.len() - 1, handler)?;
 
         #[rustfmt::skip]
-        let info = match set_config {
+        let info = match config {
             Config::All => ConfigInfo::All(
                 ConfigAll::new(entry.as_ref().unwrap(), depth)?
             ),
@@ -96,18 +101,10 @@ fn walk_dirs(
         };
 
         visitor(
-            info,
-            totals,
-            fmt,
-            output_handler,
-            output_location,
-            node_links,
-            depth,
-            sort_type,
-            set_config,
+            info, totals, fmt, handler, loc, nodes, depth, sorter, config,
         )?;
 
-        node_links.pop();
+        nodes.pop();
     }
 
     Ok(())
@@ -119,38 +116,38 @@ fn visitor(
     info: ConfigInfo,
     totals: &mut Totals,
     fmt: &TreeStructureFormatter,
-    output_handler: &mut OutputHandler,
-    output_location: &PrintLocation,
-    node_links: &mut Vec<i32>,
+    handler: &mut OutputHandler,
+    loc: &PrintLocation,
+    nodes: &mut Vec<i32>,
     depth: &i32,
-    sort_type: &Sort,
-    set_config: &Config,
+    sorter: &Sort,
+    config: &Config,
 ) -> Result<(), Box<dyn std::error::Error>> {
     match info {
         ConfigInfo::All(info) => {
             if info.file_type.is_dir() {
                 // Avoid ANSI color if printing in a file,
                 // but include ANSI when printing to the terminal.
-                if output_location == &PrintLocation::File {
-                    writeln!(output_handler, "{}", DisplayOsString(&info.name))?;
+                if loc == &PrintLocation::File {
+                    writeln!(handler, "{}", DisplayOsString(&info.name))?;
                 } else {
-                    writeln!(output_handler, "{}", DisplayBrightGreen(&info.name))?;
+                    writeln!(handler, "{}", DisplayBrightGreen(&info.name))?;
                 }
 
                 totals.directories += 1;
                 walk_dirs(
                     &info.path,
-                    node_links,
+                    nodes,
                     &(depth + 1),
                     totals,
                     fmt,
-                    output_handler,
-                    sort_type,
-                    output_location,
-                    set_config,
+                    handler,
+                    sorter,
+                    loc,
+                    config,
                 )?;
             } else {
-                writeln!(output_handler, "{}", DisplayOsString(&info.name))?;
+                writeln!(handler, "{}", DisplayOsString(&info.name))?;
                 totals.files += 1;
             }
 
@@ -160,26 +157,26 @@ fn visitor(
             if info.file_type.is_dir() {
                 // Avoid ANSI color if printing in a file,
                 // but include ANSI when printing to the terminal.
-                if output_location == &PrintLocation::File {
-                    writeln!(output_handler, "{}", DisplayOsString(&info.name))?;
+                if loc == &PrintLocation::File {
+                    writeln!(handler, "{}", DisplayOsString(&info.name))?;
                 } else {
-                    writeln!(output_handler, "{}", DisplayBrightGreen(&info.name))?;
+                    writeln!(handler, "{}", DisplayBrightGreen(&info.name))?;
                 }
 
                 totals.directories += 1;
                 walk_dirs(
                     &info.path,
-                    node_links,
+                    nodes,
                     &(depth + 1),
                     totals,
                     fmt,
-                    output_handler,
-                    sort_type,
-                    output_location,
-                    set_config,
+                    handler,
+                    sorter,
+                    loc,
+                    config,
                 )?;
             } else {
-                writeln!(output_handler, "{}", DisplayOsString(&info.name))?;
+                writeln!(handler, "{}", DisplayOsString(&info.name))?;
                 totals.files += 1;
             }
 
@@ -193,32 +190,20 @@ fn visitor(
 /// Print-out current and target directory
 fn header_info(
     flags: &Flags,
-    output_handler: &mut OutputHandler,
+    handler: &mut OutputHandler,
 ) -> Result<(), Box<dyn std::error::Error>> {
     match &flags.output {
         PrintLocation::File => {
             write!(
-                output_handler,
-                "\nCurrent Directory: {}\n",
-                DisplayOsString(&OsString::from(get_absolute_current_dir()))
-            )?;
-
-            write!(
-                output_handler,
-                "\nTarget Directory : {}\n",
+                handler,
+                "\nTarget Path: {}\n\n",
                 DisplayOsString(&flags.dirname),
             )?;
         }
         PrintLocation::Stdout => {
             write!(
-                output_handler,
-                "\nCurrent Directory: {}",
-                DisplayBrightYellow(&OsString::from(get_absolute_current_dir())),
-            )?;
-
-            write!(
-                output_handler,
-                "\nTarget Directory : {}\n",
+                handler,
+                "\nTarget Path: {}\n\n",
                 DisplayBrightYellow(&flags.dirname),
             )?;
         }
@@ -227,16 +212,13 @@ fn header_info(
 }
 
 /// Print-out dir's name and separator
-fn dir_info(
-    flags: &Flags,
-    output_handler: &mut OutputHandler,
-) -> Result<(), Box<dyn std::error::Error>> {
+fn dir_info(flags: &Flags, handler: &mut OutputHandler) -> Result<(), Box<dyn std::error::Error>> {
     let dir_name = Path::new(&flags.dirname);
     let binding = dir_name.file_name().unwrap_or_default();
     let curr_path = &binding.to_string_lossy();
     let separator = "-".repeat(curr_path.len());
 
-    write!(output_handler, "{}\n{} \n", curr_path, separator)?;
+    write!(handler, "{}\n{} \n", curr_path, separator)?;
 
     Ok(())
 }
@@ -266,8 +248,8 @@ fn output_writer(
     }
 }
 
-fn log_metrics(
-    output_handler: &mut OutputHandler,
+fn stats(
+    handler: &mut OutputHandler,
     totals: &Totals,
     start_time: Instant,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -276,24 +258,24 @@ fn log_metrics(
 
     let gigabytes = totals.size as f64 / 1_073_741_824.0;
 
-    writeln!(output_handler)?;
-    writeln!(output_handler, "Statistics:")?;
-    writeln!(output_handler)?;
-    writeln!(output_handler, "Processing Time   : {:?} seconds", seconds)?;
-    writeln!(output_handler, "Total Directories : {}", totals.directories)?;
-    writeln!(output_handler, "Total Files       : {}", totals.files)?;
+    writeln!(handler)?;
+    writeln!(handler, "\nStatistics:")?;
+    writeln!(handler, "-----------")?;
+    writeln!(handler, "Processing Time   : {:?} seconds", seconds)?;
+    writeln!(handler, "Total Directories : {}", totals.directories)?;
+    writeln!(handler, "Total Files       : {}", totals.files)?;
     writeln!(
-        output_handler,
+        handler,
         "Total Items       : {}",
         totals.files + totals.directories
     )?;
     writeln!(
-        output_handler,
+        handler,
         "Total Size        : {:.2} GB ({} bytes)",
         gigabytes,
         format_with_commas(totals.size)
     )?;
-    writeln!(output_handler)?;
+    writeln!(handler)?;
 
     Ok(())
 }

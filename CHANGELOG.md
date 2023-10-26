@@ -9,7 +9,7 @@
 
 ```rs
 write!(
-    output_handler,
+    handler,
     "\nCurrent Directory: {}{}{}\n\n",
     "\x1b[1;33m",
     flags.dirname.to_string_lossy(),
