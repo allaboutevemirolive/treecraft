@@ -3,7 +3,7 @@
 TreeCraft is a command-line utility written in pure Rust that helps you visualize directory structures in ASCII format on your terminal or save them to a text file.
 
 <div>
-  <img src="https://github.com/allaboutevemirolive/treecraft/blob/v14/icon/image_v1.png.png" width="80%" />
+  <img src="https://github.com/allaboutevemirolive/treecraft/blob/main/icon/image_v1.png.png" width="80%" />
 </div>
 
 ## Command Line Options
