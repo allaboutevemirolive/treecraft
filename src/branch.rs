@@ -14,6 +14,7 @@ use std::io::{self, Write};
 //
 // REF
 // https://camlorn.net/posts/April%202017/rust-struct-field-reordering/
+#[derive(Debug)]
 pub struct TreeStructureFormatter {
     branch_end: &'static str,
     branch_mid: &'static str,

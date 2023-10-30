@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::fmt;
 use std::io::{self, Write};
 use std::rc::Rc;
 
@@ -9,6 +10,12 @@ use std::rc::Rc;
 /// `databases`, `JSON`, `HTML`, `XML`, and more.
 pub struct OutputHandler {
     inner: Rc<RefCell<dyn Write>>,
+}
+
+impl fmt::Debug for OutputHandler {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "OutputHandler {{ inner: ... }}")
+    }
 }
 
 impl OutputHandler {
