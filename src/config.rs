@@ -63,13 +63,33 @@ impl<'a> fmt::Display for DisplayBrightGreen<'a> {
     }
 }
 
-pub struct DisplayBrightYellow<'a>(pub &'a OsString);
+// pub struct DisplayBrightYellow<'a>(pub &'a OsString);
 
-impl<'a> fmt::Display for DisplayBrightYellow<'a> {
+// impl<'a> fmt::Display for DisplayBrightYellow<'a> {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         write!(f, "\x1b[1;33m{}\x1b[0m", self.0.to_string_lossy(),)
+//     }
+// }
+
+// pub struct DisplayBlue<'a>(pub &'a OsString);
+
+// impl<'a> fmt::Display for DisplayBlue<'a> {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         write!(f, "\x1b[34m{}\x1b[0m", self.0.to_string_lossy(),)
+//     }
+// }
+
+pub struct DisplayNamePath<'a>(pub &'a OsString, pub &'a PathBuf);
+
+// DisplayNamePath(&info.name, &info.path)
+impl<'a> fmt::Display for DisplayNamePath<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // Apply bright yellow color formatting to the string,
-        // insert the OsString, and reset the color to default
-        write!(f, "\x1b[1;33m{}\x1b[0m", self.0.to_string_lossy(),)
+        write!(
+            f,
+            "{} ({})",
+            self.0.to_string_lossy(),
+            self.1.to_string_lossy()
+        )
     }
 }
 

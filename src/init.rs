@@ -4,7 +4,6 @@ use crate::config::ConfigAll;
 use crate::config::ConfigDefault;
 use crate::config::ConfigInfo;
 use crate::config::DisplayBrightGreen;
-use crate::config::DisplayBrightYellow;
 use crate::config::DisplayOsString;
 use crate::flag::Flags;
 use crate::handle::OutputHandler;
@@ -89,13 +88,17 @@ impl<'a> WalkDirs<'a> {
             // Choose the way we collecting metada
             // FIXME
             // This code add unnecessary complexity.
-            // #[rustfmt::skip]
+            #[rustfmt::skip]
             let info = match self.flags.config {
                 Config::All => {
-                    ConfigInfo::All(ConfigAll::new(entry.as_ref().unwrap(), self.depth)?)
+                    ConfigInfo::All(
+                        ConfigAll::new(entry.as_ref().unwrap(), self.depth)?
+                    )
                 }
                 Config::Default => {
-                    ConfigInfo::Default(ConfigDefault::new(entry.as_ref().unwrap(), self.depth)?)
+                    ConfigInfo::Default(
+                        ConfigDefault::new(entry.as_ref().unwrap(), self.depth)?
+                    )
                 }
             };
 
@@ -249,31 +252,18 @@ impl<'a> Header<'a> {
 
     #[inline(always)]
     pub(crate) fn print_header(self) -> Result<(), Box<dyn std::error::Error>> {
-        let dir_name = Path::new(&self.flags.dirname);
+        let dir_name = Path::new(&self.flags.dir_path);
         let binding = dir_name.file_name().unwrap_or_default();
         let curr_path = &binding.to_string_lossy();
         let separator = "-".repeat(curr_path.len());
 
-        match &self.flags.output {
-            PrintLocation::File => {
-                write!(
-                    self.handler,
-                    "\n{} ({})\n{} \n",
-                    curr_path,
-                    DisplayOsString(&self.flags.dirname),
-                    separator
-                )?;
-            }
-            PrintLocation::Stdout => {
-                write!(
-                    self.handler,
-                    "\n{} ({})\n{} \n",
-                    curr_path,
-                    DisplayBrightYellow(&self.flags.dirname),
-                    separator
-                )?;
-            }
-        }
+        write!(
+            self.handler,
+            "\n{} ({})\n{} \n",
+            curr_path,
+            DisplayOsString(&self.flags.dir_path),
+            separator
+        )?;
 
         Ok(())
     }
@@ -292,7 +282,10 @@ pub(crate) fn output_writer(
             // If no output is defined, the default is 'Output.txt'.
             let output_file = File::create("Output.txt")?;
             let file_writer = BufWriter::new(output_file);
-            let file_writer_refcell = Rc::new(RefCell::new(file_writer));
+            #[rustfmt::skip]
+            let file_writer_refcell = Rc::new(
+                RefCell::new(file_writer)
+            );
             Ok(OutputHandler::new(file_writer_refcell))
         }
         PrintLocation::Stdout => {

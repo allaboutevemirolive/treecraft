@@ -12,7 +12,17 @@ write!(
     handler,
     "\nCurrent Directory: {}{}{}\n\n",
     "\x1b[1;33m",
-    flags.dirname.to_string_lossy(),
+    flags.dir_path.to_string_lossy(),
     "\x1b[0m"
 )?;
 ```
+
+## 2023-10-30
+
+1. Applied more idiomatic rust
+
+2. Minimalist output interface
+
+3. Code refactoring
+
+4. Bug fixed

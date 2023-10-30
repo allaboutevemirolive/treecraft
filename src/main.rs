@@ -16,13 +16,13 @@ use std::io::{self, Write};
 use std::path::Path;
 use std::time::Instant;
 
-const HELP_TEXT: &str = "\
--tf                         Output the tree view to a text file.
+const HELP_TEXT: &str = "
+-out                        Output the tree view to a text file.
 -ci                         Sort filenames with case-insensitive.
 -cs                         Sort filenames with case-sensitive.
 -no                         Do not sort.
 -xt                         Sort based on file's extension.
--help                       Display usage information and exit.";
+-help                       Display usage information and exit.\n";
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     process_args()?;
@@ -31,6 +31,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 pub fn process_args() -> Result<(), Box<dyn std::error::Error>> {
     let mut flags = Flags::new();
+
     flags.processing_args(env::args().collect());
 
     if flags.help {
@@ -60,7 +61,7 @@ pub fn initializer(flags: &Flags) -> Result<(), Box<dyn std::error::Error>> {
         eprintln!("{}", err);
     }
 
-    let dir_name = flags.dirname.to_string_lossy().into_owned();
+    let dir_name = flags.dir_path.to_string_lossy().into_owned();
     let path = Path::new(&dir_name);
     let mut nodes = Vec::with_capacity(5_000);
     let fmt = TreeStructureFormatter::new();

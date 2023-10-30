@@ -8,8 +8,8 @@ use std::path::{Path, PathBuf};
 #[rustfmt::skip]
 #[derive(Debug)]
 pub struct Flags {
-    // Folder's name
-    pub dirname: OsString,
+    // Folder's path
+    pub dir_path: OsString,
 
     // // Listing options
     // aflag: bool,            // -a: All files are listed.
@@ -100,7 +100,7 @@ pub struct Flags {
 impl Default for Flags {
     fn default() -> Self {
         Flags {
-            dirname: OsString::from(get_absolute_current_dir()),
+            dir_path: OsString::from(get_absolute_current_dir()),
             config: Config::Default,
             // FIXME
             allinfos: false,
@@ -121,7 +121,7 @@ impl Flags {
 
         for arg in &mut iter {
             if let Some(path) = valid_path(arg) {
-                self.dirname = path.into_os_string();
+                self.dir_path = path.into_os_string();
             } else {
                 match arg.as_str() {
                     // "-a" => self.aflag = true,
@@ -166,7 +166,9 @@ impl Flags {
                     "-infos" => self.allinfos = true,
 
                     // Output options
-                    "-tf" => self.output = PrintLocation::File,
+                    "-out" => self.output = PrintLocation::File,
+
+                    // "-out--filename--filepath"
 
                     // Sort
                     "-def" => self.sorttype = Sort::default(),

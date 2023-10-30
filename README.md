@@ -1,20 +1,20 @@
-# TreeCraft v0.2.5 (26 October 2023)
+# TreeCraft v0.3.0 (30 October 2023)
 
 TreeCraft is a command-line utility written in pure Rust that helps you visualize directory structures in ASCII format on your terminal or save them to a text file.
 
 <div>
-  <img src="https://github.com/allaboutevemirolive/treecraft/blob/main/icon/image_v1.png" width="80%" />
+  <img src="https://github.com/allaboutevemirolive/treecraft/blob/main/icon/treecraft.png" width="80%" />
 </div>
 
 ## Command Line Options
 
 TreeCraft offers several command line options:
 
-- `-tf`: Output the tree view to a text file.
-- `-ci`: Sort filenames with case insensitivity or lowercase.
-- `-cs`: Sort filenames.
-- `-no`: Do not sort.
-- `-xt`: Sort based on file's extension.
+- `-out` : Output the tree view to a text file.
+- `-ci`  : Sort filenames with case insensitivity or lowercase.
+- `-cs`  : Sort filenames.
+- `-no`  : Do not sort.
+- `-xt`  : Sort based on file's extension.
 - `-help`: Display usage information and exit.
 
 
@@ -127,7 +127,7 @@ This will generate an `output.txt` file in the same directory as your specified 
 For an ASCII tree-view directly on the terminal, use this command:
 
 ```bash
-./treecraft /home/nemesis/Documents/Github/Focus/lang
+./treecraft /home/nemesis/Documents/Github/Focus/util/treecraft/target/release
 ```
 
 TreeCraft will then display the tree-view on your terminal screen, allowing you to conveniently explore your directory structure.
@@ -136,21 +136,8 @@ Example Output:
 ```
 nemesis@nemesis:~/Documents/Github/Focus/util/treecraft/target/release$ ./treecraft
 
-Current Directory: /home/nemesis/Documents/Github/Focus/util/treecraft/target/release
-Target Directory : /home/nemesis/Documents/Github/Focus/util/treecraft/target/release
-
-Target Directory Structure:
-
-release
+release (/home/nemesis/Documents/Github/Focus/util/treecraft/target/release)
 -------
-├── .cargo-lock
-├── .fingerprint
-│   └── treecraft-52fb4a3e910503fe
-│       ├── bin-treecraft
-│       ├── bin-treecraft.json
-│       ├── dep-bin-treecraft
-│       └── invoked.timestamp
-├── Output.txt
 ├── build
 ├── deps
 │   ├── treecraft-52fb4a3e910503fe
@@ -160,16 +147,20 @@ release
 ├── treecraft
 └── treecraft.d
 
-Statistics:
 
-Processing Time   : 0.000660894 seconds
-Total Directories : 6
-Total Files       : 10
-Total Items       : 16
-Total Size        : 0.01 GB (9,571,573 bytes)
+Statistics:
+ - Processing Time   : 0.00038557 seconds
+ - Total Directories : 4
+ - Total Files       : 4
+ - Hidden Files      : 2
+ - Total Items       : 8
+ - Total Size        : 0.01 GB (9,564,798 bytes)
 ```
 
+## Contributing
+
+See [CONTRIBUTING.md](https://github.com/rust-lang/rust/blob/master/CONTRIBUTING.md).
 
 ## Licensing
 
-TreeCraft is released under the [MIT License](LICENSE). You are free to use, modify, and distribute this software in accordance with the terms of the license.
+TreeCraft is released under the [MIT License](https://github.com/allaboutevemirolive/treecraft/blob/main/LICENSE.md). You are free to use, modify, and distribute this software in accordance with the terms of the license.
