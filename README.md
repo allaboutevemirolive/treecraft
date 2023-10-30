@@ -159,7 +159,7 @@ Statistics:
 
 ## Contributing
 
-See [CONTRIBUTING.md](https://github.com/rust-lang/rust/blob/master/CONTRIBUTING.md).
+See [CONTRIBUTING.md](https://github.com/allaboutevemirolive/treecraft/blob/main/CONTRIBUTING.md).
 
 ## Licensing
 
