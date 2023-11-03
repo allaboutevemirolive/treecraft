@@ -15,3 +15,5 @@
     Output -> .md -> .html
 
     Probably we can directly convert output to ".html"
+
+7. The design for this repo is still in early development. Major changes should be made to improve the 'walk' performance.

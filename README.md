@@ -1,10 +1,33 @@
-# TreeCraft v0.3.0 (30 October 2023)
+# TreeCraft v0.3.1 (3 November 2023)
 
 TreeCraft is a command-line utility written in pure Rust that helps you visualize directory structures in ASCII format on your terminal or save them to a text file.
 
-<div>
-  <img src="https://github.com/allaboutevemirolive/treecraft/blob/main/icon/treecraft.png" width="80%" />
-</div>
+Example output:
+
+```
+nemesis@nemesis:~/Documents/Github/Focus/util/treecraft/target/release$ ./treecraft
+
+┌─> release (/home/nemesis/Documents/Github/Focus/util/treecraft/target/release)
+│
+├── build
+├── deps
+│   ├── treecraft-52fb4a3e910503fe
+│   └── treecraft-52fb4a3e910503fe.d
+├── examples
+├── incremental
+├── treecraft
+└── treecraft.d
+
+
+┌─> Insights:
+│
+├── Processing Time   : 0.000398138 seconds
+├── Total Directories : 4
+├── Total Files       : 4
+├── Hidden Files      : 2
+├── Total Items       : 8
+└── Total Size        : 0.01 GB (9,593,768 bytes)
+```
 
 ## Command Line Options
 
@@ -131,31 +154,6 @@ For an ASCII tree-view directly on the terminal, use this command:
 ```
 
 TreeCraft will then display the tree-view on your terminal screen, allowing you to conveniently explore your directory structure.
-
-Example Output:
-```
-nemesis@nemesis:~/Documents/Github/Focus/util/treecraft/target/release$ ./treecraft
-
-release (/home/nemesis/Documents/Github/Focus/util/treecraft/target/release)
--------
-├── build
-├── deps
-│   ├── treecraft-52fb4a3e910503fe
-│   └── treecraft-52fb4a3e910503fe.d
-├── examples
-├── incremental
-├── treecraft
-└── treecraft.d
-
-
-Statistics:
- - Processing Time   : 0.00038557 seconds
- - Total Directories : 4
- - Total Files       : 4
- - Hidden Files      : 2
- - Total Items       : 8
- - Total Size        : 0.01 GB (9,564,798 bytes)
-```
 
 ## Contributing
 

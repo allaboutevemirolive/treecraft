@@ -28,31 +28,31 @@ impl Totals {
         let gigabytes = self.size as f64 / 1_073_741_824.0;
 
         writeln!(handler)?;
-        writeln!(handler, "\nStatistics:")?;
-        writeln!(handler, " - Processing Time   : {:?} seconds", seconds)?;
+        writeln!(handler, "\n┌─> Insights:\n│")?;
+        writeln!(handler, "├── Processing Time   : {:?} seconds", seconds)?;
         writeln!(
             handler,
-            " - Total Directories : {}",
+            "├── Total Directories : {}",
             format_with_commas(self.directories)
         )?;
         writeln!(
             handler,
-            " - Total Files       : {}",
+            "├── Total Files       : {}",
             format_with_commas(self.files)
         )?;
         writeln!(
             handler,
-            " - Hidden Files      : {}",
+            "├── Hidden Files      : {}",
             format_with_commas(self.hidden_file)
         )?;
         writeln!(
             handler,
-            " - Total Items       : {}",
+            "├── Total Items       : {}",
             format_with_commas(self.files + self.directories)
         )?;
         writeln!(
             handler,
-            " - Total Size        : {:.2} GB ({} bytes)",
+            "└── Total Size        : {:.2} GB ({} bytes)",
             gigabytes,
             format_with_commas(self.size)
         )?;
