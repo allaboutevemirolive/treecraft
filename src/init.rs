@@ -1,10 +1,5 @@
 use crate::branch::TreeStructureFormatter;
-use crate::config::Config;
-use crate::config::ConfigAll;
-use crate::config::ConfigDefault;
-use crate::config::ConfigInfo;
-use crate::config::DisplayBrightGreen;
-use crate::config::DisplayOsString;
+use crate::config::{ConfigInfo, DisplayOsString};
 use crate::flag::Flags;
 use crate::handle::OutputHandler;
 use crate::sort::sort_entries;
@@ -25,6 +20,8 @@ pub enum PrintLocation {
     Stdout,
 }
 
+// TODO
+// Sort the list
 pub struct WalkDirs<'a> {
     path: &'a Path,
     nodes: &'a mut Vec<i32>,
@@ -57,6 +54,7 @@ impl<'a> WalkDirs<'a> {
         }
     }
 
+    /// Recursively explore file directories
     #[inline(always)]
     pub(crate) fn walk_dirs(self) -> Result<(), Box<dyn std::error::Error>> {
         let mut entries: Vec<_> = fs::read_dir(self.path)?.collect();
@@ -85,22 +83,8 @@ impl<'a> WalkDirs<'a> {
             self.fmt
                 .print_tree(self.nodes, self.nodes.len() - 1, self.handler)?;
 
-            // Choose the way we collecting metada
-            // FIXME
-            // This code add unnecessary complexity.
-            #[rustfmt::skip]
-            let info = match self.flags.config {
-                Config::All => {
-                    ConfigInfo::All(
-                        ConfigAll::new(entry.as_ref().unwrap(), self.depth)?
-                    )
-                }
-                Config::Default => {
-                    ConfigInfo::Default(
-                        ConfigDefault::new(entry.as_ref().unwrap(), self.depth)?
-                    )
-                }
-            };
+            // Configure the ways we collect metada
+            let info = ConfigInfo::new(entry.as_ref().unwrap(), self.depth, &self.flags.config)?;
 
             let visitor = Visitor::new(
                 info,
@@ -112,8 +96,9 @@ impl<'a> WalkDirs<'a> {
                 self.flags,
             );
 
+            // FIXME
             if let Err(err) = visitor.visitor() {
-                eprintln!("Error: {}", err);
+                eprintln!("Invocation of the visitor function failed: {}", err);
             }
 
             self.nodes.pop();
@@ -131,19 +116,21 @@ impl<'a> WalkDirs<'a> {
 }
 
 pub struct Visitor<'a> {
-    info: ConfigInfo,
-    totals: &'a mut Totals,
-    fmt: &'a TreeStructureFormatter,
-    handler: &'a mut OutputHandler,
-    nodes: &'a mut Vec<i32>,
-    depth: &'a i32,
-    flags: &'a Flags,
+    pub info: ConfigInfo,
+    // info: ConfigDefault,
+    pub totals: &'a mut Totals,
+    pub fmt: &'a TreeStructureFormatter,
+    pub handler: &'a mut OutputHandler,
+    pub nodes: &'a mut Vec<i32>,
+    pub depth: &'a i32,
+    pub flags: &'a Flags,
 }
 
 impl<'a> Visitor<'a> {
     #[inline(always)]
     fn new(
         info: ConfigInfo,
+        // info: ConfigDefault,
         totals: &'a mut Totals,
         fmt: &'a TreeStructureFormatter,
         handler: &'a mut OutputHandler,
@@ -162,76 +149,40 @@ impl<'a> Visitor<'a> {
         }
     }
 
+    // FIXME
+    // Use struct to handle different output instead of enum
+    // Bad design?
     #[inline(always)]
     fn visitor(self) -> Result<(), Box<dyn std::error::Error>> {
         match self.info {
-            ConfigInfo::All(info) => {
-                if info.file_type.is_dir() {
-                    // Avoid ANSI color if printing in a file,
-                    // but include ANSI when printing to the terminal.
-                    if self.flags.output == PrintLocation::File {
-                        writeln!(self.handler, "{}", DisplayOsString(&info.name))?;
-                    } else {
-                        writeln!(self.handler, "{}", DisplayBrightGreen(&info.name))?;
-                    }
-
-                    self.totals.directories += 1;
-
-                    let next_depth = self.depth + 1;
-
-                    let walker = WalkDirs::new(
-                        &info.path,
-                        self.nodes,
-                        &next_depth,
-                        self.totals,
-                        self.fmt,
-                        self.handler,
-                        self.flags,
-                    );
-
-                    if let Err(err) = walker.walk_dirs() {
-                        eprintln!("Error: {}", err);
-                    }
-                } else {
-                    writeln!(self.handler, "{}", DisplayOsString(&info.name))?;
-                    self.totals.files += 1;
+            ConfigInfo::All(ref info) => {
+                if let Err(err) = info.all_visitor(
+                    self.flags,
+                    self.handler,
+                    self.totals,
+                    self.nodes,
+                    self.fmt,
+                    self.depth,
+                ) {
+                    eprintln!("Invocation of the 'all_visitor' function failed: {}", err);
                 }
-
-                self.totals.size += info.size;
             }
-            ConfigInfo::Default(info) => {
-                if info.file_type.is_dir() {
-                    // Avoid ANSI color if printing in a file,
-                    // but include ANSI when printing to the terminal.
-                    if self.flags.output == PrintLocation::File {
-                        writeln!(self.handler, "{}", DisplayOsString(&info.name))?;
-                    } else {
-                        writeln!(self.handler, "{}", DisplayBrightGreen(&info.name))?;
-                    }
-
-                    self.totals.directories += 1;
-
-                    let next_depth = self.depth + 1;
-
-                    let walker = WalkDirs::new(
-                        &info.path,
-                        self.nodes,
-                        &next_depth,
-                        self.totals,
-                        self.fmt,
-                        self.handler,
-                        self.flags,
+            ConfigInfo::Default(ref info) => {
+                // TODO
+                // Make sure it same as Visitor struct
+                if let Err(err) = info.default_visitor(
+                    self.flags,
+                    self.handler,
+                    self.totals,
+                    self.nodes,
+                    self.fmt,
+                    self.depth,
+                ) {
+                    eprintln!(
+                        "Invocation of the 'default_visitor' function failed: {}",
+                        err
                     );
-
-                    if let Err(err) = walker.walk_dirs() {
-                        eprintln!("Error: {}", err);
-                    }
-                } else {
-                    writeln!(self.handler, "{}", DisplayOsString(&info.name))?;
-                    self.totals.files += 1;
                 }
-
-                self.totals.size += info.size;
             }
         }
 
@@ -255,14 +206,14 @@ impl<'a> Header<'a> {
         let dir_name = Path::new(&self.flags.dir_path);
         let binding = dir_name.file_name().unwrap_or_default();
         let curr_path = &binding.to_string_lossy();
-        let separator = "-".repeat(curr_path.len());
+        // let separator = "-".repeat(curr_path.len());
 
         write!(
             self.handler,
-            "\n{} ({})\n{} \n",
+            "\n┌─> {} ({})\n│\n",
             curr_path,
             DisplayOsString(&self.flags.dir_path),
-            separator
+            // separator
         )?;
 
         Ok(())
