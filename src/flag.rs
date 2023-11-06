@@ -1,9 +1,10 @@
-use crate::config::Config;
-use crate::init::PrintLocation;
-use crate::sort::Sort;
 use std::env;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
+
+use crate::config::Config;
+use crate::init::PrintLocation;
+use crate::sort::Sort;
 
 #[rustfmt::skip]
 #[derive(Debug)]

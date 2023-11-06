@@ -1,15 +1,16 @@
-use crate::branch::TreeStructureFormatter;
-use crate::config::{ConfigInfo, DisplayOsString};
-use crate::flag::Flags;
-use crate::handle::OutputHandler;
-use crate::sort::sort_entries;
-use crate::total::Totals;
 use std::cell::RefCell;
 use std::fs;
 use std::fs::File;
 use std::io::{self, BufWriter, Write};
 use std::path::Path;
 use std::rc::Rc;
+
+use crate::branch::TreeStructureFormatter;
+use crate::config::ConfigInfo;
+use crate::flag::Flags;
+use crate::handle::OutputHandler;
+use crate::sort::sort_entries;
+use crate::total::Totals;
 
 #[derive(Debug, PartialEq, Default)]
 pub enum PrintLocation {
@@ -21,7 +22,7 @@ pub enum PrintLocation {
 }
 
 // TODO
-// Sort the list
+// Sort the fields
 pub struct WalkDirs<'a> {
     path: &'a Path,
     nodes: &'a mut Vec<i32>,
@@ -63,13 +64,16 @@ impl<'a> WalkDirs<'a> {
 
         for (index, entry) in entries.iter().enumerate() {
             // Check hidden file start with '.'
-            if let Ok(entry) = entry.as_ref() {
-                if Self::check_hidden_file(entry) {
-                    self.totals.hidden_file += 1;
-                    continue;
+            match entry.as_ref() {
+                Ok(entry) => {
+                    if Self::check_hidden_file(entry) {
+                        self.totals.hidden_file += 1;
+                        continue;
+                    }
                 }
-            } else {
-                eprintln!("Error while retrieving a dot file entry");
+                Err(err) => {
+                    eprintln!("Error while retrieving hidden file (files/dirs's name start with '.') entry: {}", err);
+                }
             }
 
             // Modifying the current vector for generating tree branch
@@ -98,7 +102,7 @@ impl<'a> WalkDirs<'a> {
 
             // FIXME
             if let Err(err) = visitor.visitor() {
-                eprintln!("Invocation of the visitor function failed: {}", err);
+                eprintln!("Invocation of the 'visitor' function failed: {}", err);
             }
 
             self.nodes.pop();
@@ -117,7 +121,6 @@ impl<'a> WalkDirs<'a> {
 
 pub struct Visitor<'a> {
     pub info: ConfigInfo,
-    // info: ConfigDefault,
     pub totals: &'a mut Totals,
     pub fmt: &'a TreeStructureFormatter,
     pub handler: &'a mut OutputHandler,
@@ -130,7 +133,6 @@ impl<'a> Visitor<'a> {
     #[inline(always)]
     fn new(
         info: ConfigInfo,
-        // info: ConfigDefault,
         totals: &'a mut Totals,
         fmt: &'a TreeStructureFormatter,
         handler: &'a mut OutputHandler,
@@ -151,6 +153,7 @@ impl<'a> Visitor<'a> {
 
     // FIXME
     // Use struct to handle different output instead of enum
+    // TODO
     // Bad design?
     #[inline(always)]
     fn visitor(self) -> Result<(), Box<dyn std::error::Error>> {
@@ -201,20 +204,42 @@ impl<'a> Header<'a> {
         Header { flags, handler }
     }
 
+    /// Print the name and full path of the target directory
+    /// (or the current dir if none is specified...).
     #[inline(always)]
     pub(crate) fn print_header(self) -> Result<(), Box<dyn std::error::Error>> {
         let dir_name = Path::new(&self.flags.dir_path);
         let binding = dir_name.file_name().unwrap_or_default();
-        let curr_path = &binding.to_string_lossy();
-        // let separator = "-".repeat(curr_path.len());
+        let curr_dir = &binding.to_string_lossy();
 
-        write!(
-            self.handler,
-            "\n┌─> {} ({})\n│\n",
-            curr_path,
-            DisplayOsString(&self.flags.dir_path),
-            // separator
-        )?;
+        /*
+
+        EXAMPLE:
+
+         release (/home/nemesis/Documents/Github/Focus/util/treecraft/target/release)
+            .
+            │
+            ├── Output.txt
+
+         */
+        // write!(
+        //     self.handler,
+        //     "\n {} ({})\n    .\n    │\n",
+        //     curr_dir,
+        //     DisplayOsString(&self.flags.dir_path),
+        // )?;
+
+        /*
+
+        EXAMPLE:
+
+         release
+            .
+            │
+            ├── Output.txt
+
+         */
+        write!(self.handler, "\n {}\n    .\n    │\n", curr_dir,)?;
 
         Ok(())
     }

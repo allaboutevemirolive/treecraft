@@ -1,5 +1,6 @@
-use crate::handle::OutputHandler;
 use std::io::{self, Write};
+
+use crate::handle::OutputHandler;
 
 // Instead of using `String` for string literals,
 // we use the `&str` type to save memory,
@@ -16,10 +17,14 @@ use std::io::{self, Write};
 // https://camlorn.net/posts/April%202017/rust-struct-field-reordering/
 #[derive(Debug)]
 pub struct TreeStructureFormatter {
-    branch_end: &'static str,
-    branch_mid: &'static str,
-    indent: &'static str,
-    vertical_bar: &'static str,
+    /// "└── "
+    pub branch_end: &'static str,
+    /// "├── "
+    pub branch_mid: &'static str,
+    /// "    "
+    pub indent: &'static str,
+    /// "│   "
+    pub vertical_bar: &'static str,
 }
 
 impl Default for TreeStructureFormatter {
@@ -48,8 +53,14 @@ impl TreeStructureFormatter {
         maxlevel: usize,
         handler: &mut OutputHandler,
     ) -> io::Result<()> {
+        // Insert 4 spacebar for alignment purposes
+        write!(handler, "    ")?;
+
+        // TODO
+        // Explain how this branch works.
+        // INFO
         // Use 'maxlevel' instead of direct 'nodes.len() - 1'
-        // to avoid recalculation
+        // to avoid recalculation.
         for i in 0..=maxlevel {
             if let Some(marker) = nodes.get(i) {
                 if nodes.get(i + 1).is_some() {

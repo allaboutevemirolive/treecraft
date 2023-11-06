@@ -20,6 +20,8 @@ pub enum Sort {
     Extension,
 }
 
+// TODO
+// Add more sort option.
 #[allow(clippy::cognitive_complexity)]
 #[cfg(any(unix, windows))]
 #[inline(always)]
