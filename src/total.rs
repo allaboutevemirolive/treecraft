@@ -1,9 +1,9 @@
+use crate::branch::TreeStructureFormatter;
+use crate::handle::OutputHandler;
+
 use std::fmt::Display;
 use std::io::Write;
 use std::time::Instant;
-
-use crate::branch::TreeStructureFormatter;
-use crate::handle::OutputHandler;
 
 #[derive(Debug, Default)]
 pub struct Totals {
@@ -32,7 +32,7 @@ impl Totals {
         let gigabytes = self.size as f64 / 1_073_741_824.0;
 
         writeln!(handler)?;
-        writeln!(handler, "\n Insights:\n    .\n    │")?;
+        writeln!(handler, "\n Insights:\n    .")?;
         writeln!(
             handler,
             "    {}Processing Time      : {:?} seconds",
@@ -40,7 +40,7 @@ impl Totals {
         )?;
         writeln!(
             handler,
-            "    {}Total Dirs           : {}",
+            "    {}Visible Dirs         : {}",
             fmt.branch_mid,
             format_with_commas(self.directories)
         )?;

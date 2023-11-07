@@ -6,17 +6,17 @@ pub mod init;
 pub mod sort;
 pub mod total;
 
-use flag::Flags;
-use std::env;
-use std::io::{self, Write};
-use std::path::Path;
-use std::time::Instant;
-
 use crate::branch::TreeStructureFormatter;
 use crate::init::output_writer;
 use crate::init::Header;
 use crate::init::WalkDirs;
 use crate::total::Totals;
+
+use flag::Flags;
+use std::env;
+use std::io::{self, Write};
+use std::path::Path;
+use std::time::Instant;
 
 const HELP_TEXT: &str = "
 -out                        Output the tree view to a text file.
