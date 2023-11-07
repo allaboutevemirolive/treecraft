@@ -1,16 +1,16 @@
-use std::cell::RefCell;
-use std::fs;
-use std::fs::File;
-use std::io::{self, BufWriter, Write};
-use std::path::Path;
-use std::rc::Rc;
-
 use crate::branch::TreeStructureFormatter;
 use crate::config::ConfigInfo;
 use crate::flag::Flags;
 use crate::handle::OutputHandler;
 use crate::sort::sort_entries;
 use crate::total::Totals;
+
+use std::cell::RefCell;
+use std::fs;
+use std::fs::File;
+use std::io::{self, BufWriter, Write};
+use std::path::Path;
+use std::rc::Rc;
 
 #[derive(Debug, PartialEq, Default)]
 pub enum PrintLocation {
@@ -205,41 +205,24 @@ impl<'a> Header<'a> {
     }
 
     /// Print the name and full path of the target directory
-    /// (or the current dir if none is specified...).
+    /// or the current dir if none is specified.
     #[inline(always)]
     pub(crate) fn print_header(self) -> Result<(), Box<dyn std::error::Error>> {
         let dir_name = Path::new(&self.flags.dir_path);
-        let binding = dir_name.file_name().unwrap_or_default();
-        let curr_dir = &binding.to_string_lossy();
+        let dir_name_os = dir_name.file_name().unwrap_or_default();
+        let curr_dir = &dir_name_os.to_string_lossy();
 
-        /*
+        //
+        // release
+        //    .
+        //    ├── build
+        //    ├── deps
+        //
 
-        EXAMPLE:
-
-         release (/home/nemesis/Documents/Github/Focus/util/treecraft/target/release)
-            .
-            │
-            ├── Output.txt
-
-         */
-        // write!(
-        //     self.handler,
-        //     "\n {} ({})\n    .\n    │\n",
-        //     curr_dir,
-        //     DisplayOsString(&self.flags.dir_path),
-        // )?;
-
-        /*
-
-        EXAMPLE:
-
-         release
-            .
-            │
-            ├── Output.txt
-
-         */
-        write!(self.handler, "\n {}\n    .\n    │\n", curr_dir,)?;
+        // TODO
+        // We need to make sure the 'self.handler' is at the center of 'dot'
+        // Calculate the middle of 'self.handler', then alignt it with 'dot'
+        write!(self.handler, "\n {}\n    .\n", curr_dir,)?;
 
         Ok(())
     }

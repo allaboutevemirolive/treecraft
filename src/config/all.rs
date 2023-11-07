@@ -1,12 +1,4 @@
 // Collect all metada
-use std::ffi::OsString;
-use std::fs;
-use std::fs::DirEntry;
-use std::fs::FileType;
-use std::io;
-use std::io::Write;
-use std::os::unix::fs::MetadataExt;
-use std::path::{Path, PathBuf};
 
 use crate::branch::TreeStructureFormatter;
 use crate::flag::Flags;
@@ -17,6 +9,15 @@ use crate::total::Totals;
 
 use super::DisplayBrightGreen;
 use super::DisplayOsString;
+
+use std::ffi::OsString;
+use std::fs;
+use std::fs::DirEntry;
+use std::fs::FileType;
+use std::io;
+use std::io::Write;
+use std::os::unix::fs::MetadataExt;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
 pub struct ConfigAll {

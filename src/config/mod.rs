@@ -1,13 +1,13 @@
 pub mod all;
 pub mod default;
 
+use self::all::ConfigAll;
+use self::default::ConfigDefault;
+
 use std::ffi::OsString;
 use std::fmt;
 use std::fs::DirEntry;
 use std::path::PathBuf;
-
-use self::all::ConfigAll;
-use self::default::ConfigDefault;
 
 #[derive(Debug, Default)]
 pub enum Config {

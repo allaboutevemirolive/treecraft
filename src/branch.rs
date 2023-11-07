@@ -1,7 +1,8 @@
-use std::io::{self, Write};
-
 use crate::handle::OutputHandler;
 
+use std::io::{self, Write};
+
+// INFO
 // Instead of using `String` for string literals,
 // we use the `&str` type to save memory,
 // since we have many instances of `TreeStructureFormatter`
@@ -15,6 +16,7 @@ use crate::handle::OutputHandler;
 //
 // REF
 // https://camlorn.net/posts/April%202017/rust-struct-field-reordering/
+// https://lwn.net/Articles/250967/
 #[derive(Debug)]
 pub struct TreeStructureFormatter {
     /// "└── "
