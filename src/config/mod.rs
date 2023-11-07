@@ -1,13 +1,13 @@
-pub mod configall;
-pub mod configdef;
+pub mod all;
+pub mod default;
 
 use std::ffi::OsString;
 use std::fmt;
 use std::fs::DirEntry;
 use std::path::PathBuf;
 
-use self::configall::ConfigAll;
-use self::configdef::ConfigDefault;
+use self::all::ConfigAll;
+use self::default::ConfigDefault;
 
 #[derive(Debug, Default)]
 pub enum Config {
@@ -17,29 +17,36 @@ pub enum Config {
 }
 
 /// This wrapper enables the return of different types.
+/// 1. `Default`: Collect minimal metada and improve.
+/// 2. `All`: Collect all metadata.
 ///
-/// It's used to provide default fields without recalculating everything.
+/// ### INFO
 ///
-/// ### NOTE
-///
-/// Enum variants in Rust should have the same type, thus we need enum wrapper
+/// Enum variants in Rust should have the same type,
+/// thus we need enum wrapper.
 #[derive(Debug)]
 pub enum ConfigInfo {
+    /// Collect all metada
     All(ConfigAll),
-    /// Gather basic information
+    /// Collect default metada
     Default(ConfigDefault),
 }
 
 // FIXME
 impl ConfigInfo {
+    #[rustfmt::skip]
     pub fn new(
         entry: &DirEntry,
         depth: &i32,
         config: &Config,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         match config {
-            Config::All => Ok(ConfigInfo::All(ConfigAll::new(entry, depth)?)),
-            Config::Default => Ok(ConfigInfo::Default(ConfigDefault::new(entry, depth)?)),
+            Config::All => Ok(
+                ConfigInfo::All(ConfigAll::new(entry, depth)?)
+            ),
+            Config::Default => Ok(
+                ConfigInfo::Default(ConfigDefault::new(entry, depth)?)
+            ),
         }
     }
 }
