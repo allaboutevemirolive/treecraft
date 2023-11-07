@@ -19,30 +19,27 @@ What shouldn't you expect?
 Example output:
 
 ```
-nemesis@nemesis:~/Documents/Github/Focus/util/treecraft/target/release$ ./treecraft
+nemesis@nemesis:~/Documents/Github/Focus/util/treecraft/target/release$ trie
 
- release (/home/nemesis/Documents/Github/Focus/util/treecraft/target/release)
+ release
     .
-    │
     ├── build
     ├── deps
     │   ├── treecraft-52fb4a3e910503fe
     │   └── treecraft-52fb4a3e910503fe.d
     ├── examples
     ├── incremental
-    ├── treecraft
     └── treecraft.d
 
 
  Insights:
     .
-    │
-    ├── Processing Time      : 0.000477684 seconds
-    ├── Total Dirs           : 4
-    ├── Visible Files        : 4
+    ├── Processing Time      : 0.00037471 seconds
+    ├── Visible Dirs         : 4
+    ├── Visible Files        : 3
     ├── *Hidden Dirs/Files   : 2
-    ├── Total Items(excl.*)  : 8
-    └── Total Size           : 0.01 GB (9,602,104 bytes)
+    ├── Total Items(excl.*)  : 7
+    └── Total Size           : 0.00 GB (4,809,968 bytes)
 ```
 
 ## Command Line Options
