@@ -1,6 +1,6 @@
 // Collect default metadata
 
-use crate::branch::TreeStructureFormatter;
+use crate::branch::TreeFormatter;
 use crate::flag::Flags;
 use crate::handle::OutputHandler;
 use crate::init::PrintLocation;
@@ -52,7 +52,7 @@ impl ConfigDefault {
         handler: &mut OutputHandler,
         totals: &mut Totals,
         nodes: &mut Vec<i32>,
-        fmt: &TreeStructureFormatter,
+        tree_formatter: &TreeFormatter,
         depth: &i32,
     ) -> Result<(), Box<dyn std::error::Error>> {
         if self.file_type.is_dir() {
@@ -68,7 +68,15 @@ impl ConfigDefault {
 
             let next_depth = depth + 1;
 
-            let walker = WalkDirs::new(&self.path, nodes, &next_depth, totals, fmt, handler, flags);
+            let walker = WalkDirs::new(
+                &self.path,
+                nodes,
+                &next_depth,
+                totals,
+                tree_formatter,
+                handler,
+                flags,
+            );
 
             if let Err(err) = walker.walk_dirs() {
                 eprintln!("Error: {}", err);

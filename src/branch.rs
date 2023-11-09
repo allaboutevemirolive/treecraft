@@ -5,7 +5,7 @@ use std::io::{self, Write};
 // INFO
 // Instead of using `String` for string literals,
 // we use the `&str` type to save memory,
-// since we have many instances of `TreeStructureFormatter`
+// since we have many instances of `TreeFormatter`
 //
 // INFO
 // Rust compiler optimize code more aggressively around structs
@@ -18,7 +18,7 @@ use std::io::{self, Write};
 // https://camlorn.net/posts/April%202017/rust-struct-field-reordering/
 // https://lwn.net/Articles/250967/
 #[derive(Debug)]
-pub struct TreeStructureFormatter {
+pub struct TreeFormatter {
     /// "└── "
     pub branch_end: &'static str,
     /// "├── "
@@ -29,9 +29,9 @@ pub struct TreeStructureFormatter {
     pub vertical_bar: &'static str,
 }
 
-impl Default for TreeStructureFormatter {
+impl Default for TreeFormatter {
     fn default() -> Self {
-        TreeStructureFormatter {
+        TreeFormatter {
             branch_end: "└── ",
             branch_mid: "├── ",
             indent: "    ",
@@ -42,7 +42,7 @@ impl Default for TreeStructureFormatter {
 
 #[cfg(any(unix, windows))]
 #[allow(clippy::cognitive_complexity)]
-impl TreeStructureFormatter {
+impl TreeFormatter {
     pub fn new() -> Self {
         Default::default()
     }
