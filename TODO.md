@@ -26,6 +26,7 @@
 
 7. The design for this repo is still in early development. Major changes should be made to improve the 'walk' performance.
 
+8. Do performance comparison with no cache, cold cache and hot cache.
 
 ## DONE
 

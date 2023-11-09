@@ -1,4 +1,4 @@
-use crate::branch::TreeStructureFormatter;
+use crate::branch::TreeFormatter;
 use crate::config::ConfigInfo;
 use crate::flag::Flags;
 use crate::handle::OutputHandler;
@@ -28,7 +28,7 @@ pub struct WalkDirs<'a> {
     nodes: &'a mut Vec<i32>,
     depth: &'a i32,
     totals: &'a mut Totals,
-    fmt: &'a TreeStructureFormatter,
+    tree_formatter: &'a TreeFormatter,
     handler: &'a mut OutputHandler,
     flags: &'a Flags,
 }
@@ -40,7 +40,7 @@ impl<'a> WalkDirs<'a> {
         nodes: &'a mut Vec<i32>,
         depth: &'a i32,
         totals: &'a mut Totals,
-        fmt: &'a TreeStructureFormatter,
+        tree_formatter: &'a TreeFormatter,
         handler: &'a mut OutputHandler,
         flags: &'a Flags,
     ) -> Self {
@@ -49,7 +49,7 @@ impl<'a> WalkDirs<'a> {
             nodes,
             depth,
             totals,
-            fmt,
+            tree_formatter,
             handler,
             flags,
         }
@@ -84,7 +84,7 @@ impl<'a> WalkDirs<'a> {
             };
 
             // Print branch
-            self.fmt
+            self.tree_formatter
                 .print_tree(self.nodes, self.nodes.len() - 1, self.handler)?;
 
             // Configure the ways we collect metada
@@ -93,7 +93,7 @@ impl<'a> WalkDirs<'a> {
             let visitor = Visitor::new(
                 info,
                 self.totals,
-                self.fmt,
+                self.tree_formatter,
                 self.handler,
                 self.nodes,
                 self.depth,
@@ -122,7 +122,7 @@ impl<'a> WalkDirs<'a> {
 pub struct Visitor<'a> {
     pub info: ConfigInfo,
     pub totals: &'a mut Totals,
-    pub fmt: &'a TreeStructureFormatter,
+    pub tree_formatter: &'a TreeFormatter,
     pub handler: &'a mut OutputHandler,
     pub nodes: &'a mut Vec<i32>,
     pub depth: &'a i32,
@@ -134,7 +134,7 @@ impl<'a> Visitor<'a> {
     fn new(
         info: ConfigInfo,
         totals: &'a mut Totals,
-        fmt: &'a TreeStructureFormatter,
+        tree_formatter: &'a TreeFormatter,
         handler: &'a mut OutputHandler,
         nodes: &'a mut Vec<i32>,
         depth: &'a i32,
@@ -143,7 +143,7 @@ impl<'a> Visitor<'a> {
         Visitor {
             info,
             totals,
-            fmt,
+            tree_formatter,
             handler,
             nodes,
             depth,
@@ -164,7 +164,7 @@ impl<'a> Visitor<'a> {
                     self.handler,
                     self.totals,
                     self.nodes,
-                    self.fmt,
+                    self.tree_formatter,
                     self.depth,
                 ) {
                     eprintln!("Invocation of the 'all_visitor' function failed: {}", err);
@@ -178,7 +178,7 @@ impl<'a> Visitor<'a> {
                     self.handler,
                     self.totals,
                     self.nodes,
-                    self.fmt,
+                    self.tree_formatter,
                     self.depth,
                 ) {
                     eprintln!(

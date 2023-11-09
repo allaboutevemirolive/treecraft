@@ -1,4 +1,4 @@
-use crate::branch::TreeStructureFormatter;
+use crate::branch::TreeFormatter;
 use crate::handle::OutputHandler;
 
 use std::fmt::Display;
@@ -22,7 +22,7 @@ impl Totals {
         self,
         handler: &mut OutputHandler,
         start_time: Instant,
-        fmt: TreeStructureFormatter,
+        tree_formatter: TreeFormatter,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // Convert nanoseconds to seconds
         let seconds = (start_time.elapsed()).as_secs() as f64
@@ -36,36 +36,36 @@ impl Totals {
         writeln!(
             handler,
             "    {}Processing Time      : {:?} seconds",
-            fmt.branch_mid, seconds
+            tree_formatter.branch_mid, seconds
         )?;
         writeln!(
             handler,
             "    {}Visible Dirs         : {}",
-            fmt.branch_mid,
+            tree_formatter.branch_mid,
             format_with_commas(self.directories)
         )?;
         writeln!(
             handler,
             "    {}Visible Files        : {}",
-            fmt.branch_mid,
+            tree_formatter.branch_mid,
             format_with_commas(self.files)
         )?;
         writeln!(
             handler,
             "    {}*Hidden Dirs/Files   : {}",
-            fmt.branch_mid,
+            tree_formatter.branch_mid,
             format_with_commas(self.hidden_file)
         )?;
         writeln!(
             handler,
             "    {}Total Items(excl.*)  : {}",
-            fmt.branch_mid,
+            tree_formatter.branch_mid,
             format_with_commas(self.files + self.directories)
         )?;
         writeln!(
             handler,
             "    {}Total Size           : {:.2} GB ({} bytes)",
-            fmt.branch_end,
+            tree_formatter.branch_end,
             gigabytes,
             format_with_commas(self.size)
         )?;
