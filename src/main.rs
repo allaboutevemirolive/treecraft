@@ -32,7 +32,10 @@ const HELP_TEXT: &str = "
 // Generally, it is a good practice.
 //
 // REF
+// Question:
 // https://www.reddit.com/r/JavaFX/comments/k7aa9q/javafx_error_error_javafx_runtime_components_are/
+// Solution:
+// https://www.reddit.com/r/JavaFX/comments/k7aa9q/comment/gexontj/?utm_source=share&utm_medium=web2x&context=3
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     process_args()?;
     Ok(())
