@@ -83,7 +83,7 @@ pub fn process_args() -> Result<(), Box<dyn std::error::Error>> {
         let dir_name = flags.dir_path.to_string_lossy().into_owned();
         let path = Path::new(&dir_name);
         // TODO
-        // Make documentation how this vecto works.
+        // Make documentation how this vector works.
         // Primary location to determine the structure of the branch.
         let mut nodes = Vec::with_capacity(5_000);
         let tree_formatter = TreeFormatter::new();
