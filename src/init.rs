@@ -219,10 +219,41 @@ impl<'a> Header<'a> {
         //    ├── deps
         //
 
-        // TODO
-        // We need to make sure the 'self.handler' is at the center of 'dot'
-        // Calculate the middle of 'self.handler', then alignt it with 'dot'
-        write!(self.handler, "\n {}\n    .\n", curr_dir,)?;
+        //
+        // Problem if 'go' is not long enough
+        //
+        // go
+        //    .
+        //    ├── build
+        //    ├── deps
+        //
+
+        // What we want
+        //
+        //   go
+        //    .
+        //    ├── build
+        //    ├── deps
+        //
+
+        // Calculate the number of spaces needed to center the text
+        let total_spaces = 4;
+        let curr_dir_len = curr_dir.len();
+        let remaining_spaces = if curr_dir_len < total_spaces {
+            total_spaces - curr_dir_len
+        } else {
+            0
+        };
+
+        // Create a string `indented_curr_dir` where `curr_dir` 
+        // is right-aligned and padded with spaces on the left to 
+        // achieve a minimum width specified by `remaining_spaces`. 
+        // This helps in aligning the text properly
+        // Add remaining spaces in front of curr_dir
+        let indented_curr_dir = format!("{:width$}{}", "", curr_dir, width = remaining_spaces);
+
+        // Print header
+        write!(self.handler, "\n {}\n    .\n", indented_curr_dir)?;
 
         Ok(())
     }
