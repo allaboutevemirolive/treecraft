@@ -3,5 +3,9 @@
 version = 3
 
 [[package]]
+name = "tree_rs"
+version = "0.1.0"
+
+[[package]]
 name = "treecraft"
 version = "0.1.0"
