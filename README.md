@@ -1,32 +1,45 @@
-# TreeCraft v0.3.1 (3 November 2023)
+# TreeCraft
 
-TreeCraft is a command-line utility written in pure Rust that helps you visualize directory structures in ASCII format on your terminal or save them to a text file.
+TreeCraft is a pure Rust command-line utility that allows user to see directory structures in ASCII format on terminal or save them to a text file. This project is meant to be a `drop-in replacement` for [tree](https://github.com/Old-Man-Programmer/tree.git) (see the link) that is written in the C language. This project aims to be non-bloated and more functional than the existing [tree](https://github.com/Old-Man-Programmer/tree.git).
+
+
+What should you expect?
+
+- A `drop-in replacement` for [tree](https://github.com/Old-Man-Programmer/tree.git).
+- Fast and efficient for most platforms.
+- Respect `.gitignore` and handle hidden files gracefully. (plan)
+- Minimalist and more functional than the existing [tree](https://github.com/Old-Man-Programmer/tree.git).
+
+
+What shouldn't you expect?
+
+- You shouldn't expect to see any other existing [GNU utilities's related](https://github.com/coreutils/coreutils.git), as they already fit for their purpose and didn't fit for this project.
+
 
 Example output:
 
 ```
-nemesis@nemesis:~/Documents/Github/Focus/util/treecraft/target/release$ ./treecraft
+nemesis@nemesis:~/Documents/Github/Focus/util/treecraft/target/release$ trie
 
-┌─> release (/home/nemesis/Documents/Github/Focus/util/treecraft/target/release)
-│
-├── build
-├── deps
-│   ├── treecraft-52fb4a3e910503fe
-│   └── treecraft-52fb4a3e910503fe.d
-├── examples
-├── incremental
-├── treecraft
-└── treecraft.d
+ release
+    .
+    ├── build
+    ├── deps
+    │   ├── treecraft-52fb4a3e910503fe
+    │   └── treecraft-52fb4a3e910503fe.d
+    ├── examples
+    ├── incremental
+    └── treecraft.d
 
 
-┌─> Insights:
-│
-├── Processing Time   : 0.000398138 seconds
-├── Total Directories : 4
-├── Total Files       : 4
-├── Hidden Files      : 2
-├── Total Items       : 8
-└── Total Size        : 0.01 GB (9,593,768 bytes)
+ Insights:
+    .
+    ├── Processing Time      : 0.00037471 seconds
+    ├── Visible Dirs         : 4
+    ├── Visible Files        : 3
+    ├── *Hidden Dirs/Files   : 2
+    ├── Total Items(excl.*)  : 7
+    └── Total Size           : 0.00 GB (4,809,968 bytes)
 ```
 
 ## Command Line Options
@@ -77,7 +90,7 @@ cargo build --release
 
 ### 3. Usage of the `treecraft` Binary
 
-Download the [treecraft binary](https://github.com/allaboutevemirolive/treecraft/releases/tag/treecraft) and follow these steps:
+Download the treecraft binary and follow these steps:
 
 1. Place the `treecraft` binary in the directory where you want to generate a tree view.
 
@@ -103,8 +116,6 @@ Download the [treecraft binary](https://github.com/allaboutevemirolive/treecraft
 
 
 # Create a Linux alias (tested in Debian).
-
-Here's how to create an alias for your Rust binary in Linux (tested in Debian):
 
 1. Open your `.bashrc` file for editing by running this command:
 
