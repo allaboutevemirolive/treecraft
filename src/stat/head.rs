@@ -3,7 +3,6 @@ use crate::OutputHandler;
 use std::io::Write;
 use std::path::Path;
 
-//#[derive(Clone)]
 pub struct Header<'a> {
     flags: &'a Flags,
     handler: &'a mut OutputHandler,
@@ -18,7 +17,7 @@ impl<'a> Header<'a> {
     /// Print the name and full path of the target directory
     /// or the current dir if none is specified.
     #[inline(always)]
-    pub(crate) fn print_header(mut self) {
+    pub(crate) fn print_header(self) {
         let dir_name = Path::new(&self.flags.dir_path);
         let dir_name_os = dir_name.file_name().unwrap_or_default();
         let curr_dir = &dir_name_os.to_string_lossy();

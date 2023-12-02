@@ -1,14 +1,9 @@
-pub fn tree() {
-    println!("This is tree!");
-}
 
-/*
-Primary components of a tree's structure:
-1. Root System
-2. Stem/Trunk
-3. Branches
-4. Leaves, Flowers, and Fruits
-*/
+// Primary components of a tree's structure:
+// 1. Root System
+// 2. Stem/Trunk
+// 3. Branches
+// 4. Leaves, Flowers, and Fruits
 
 use crate::OutputHandler;
 use std::io::{self, Write};
@@ -19,12 +14,12 @@ pub struct Tree {
     pub nodes: Vec<i32>,
     /// Represent how far/depth a branch extends
     /// horizontally from the main stem
-    pub reach: i32,
+    pub reach: u32,
     pub branch: Branch,
 }
 
 impl Tree {
-    pub fn new(nodes: Vec<i32>, reach: i32, branch: Branch) -> Tree {
+    pub fn new(nodes: Vec<i32>, reach: u32, branch: Branch) -> Tree {
         Tree {
             nodes,
             reach,
@@ -34,8 +29,6 @@ impl Tree {
 
     pub fn print_tree(&self, handle: &mut OutputHandler) -> io::Result<()> {
         write!(handle, "    ")?;
-
-        // println!("Reach: {}", self.reach);
 
         // Use usize type for indexing slices, arrays, and vectors.
         for i in 0..=self.reach as usize {

@@ -1,7 +1,3 @@
-pub fn stat() {
-    println!("This is Totals!");
-}
-
 use crate::Branch;
 use crate::OutputHandler;
 use std::fmt::Display;

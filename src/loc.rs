@@ -1,7 +1,3 @@
-pub fn location() {
-    println!("This is location!");
-}
-
 use crate::OutputHandler;
 use std::cell::RefCell;
 use std::fs::File;

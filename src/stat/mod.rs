@@ -3,7 +3,6 @@ use self::{head::Header, total::Totals};
 pub mod head;
 pub mod total;
 
-
 pub struct Stat<'a> {
     pub header: Header<'a>,
     pub total: Totals,
@@ -11,9 +10,6 @@ pub struct Stat<'a> {
 
 impl<'a> Stat<'a> {
     pub fn new(header: Header<'a>, total: Totals) -> Stat {
-        Stat {
-            header,
-            total,
-        }
+        Stat { header, total }
     }
 }

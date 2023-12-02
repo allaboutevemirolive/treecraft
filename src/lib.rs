@@ -8,7 +8,6 @@ pub mod stat;
 pub mod tree;
 
 use stat::head::Header;
-use stat::Stat;
 
 use crate::flag::*;
 use crate::handle::*;
@@ -33,15 +32,6 @@ const HELP_TEXT: &str = "
 -help                       Display usage information and exit.\n";
 
 pub fn arg_builder() {
-    // hello();
-    // stat();
-    // sort();
-    // handle();
-    // tree();
-    // flag();
-    // location();
-    // init_();
-
     let mut flags = Flags::new();
 
     flags.processing_args(env::args().collect());
@@ -56,21 +46,14 @@ pub fn arg_builder() {
     initializer(&flags);
 }
 
-fn hello() {
-    println!("Hello World!")
-}
-
 pub fn initializer(flags: &Flags) {
-    let mut handler = (&flags.loc).output_writer().unwrap();
+    let mut handler = (flags.loc).output_writer().unwrap();
 
     let mut totals = Totals::new();
     let header = Header::new(flags, &mut handler);
 
-    // let mut stat = Stat::new(header, totals);
-
     let start_time = Instant::now();
 
-    // let temp_stat = stat.header;
     header.print_header();
 
     let dir_name = flags.dir_path.to_string_lossy().into_owned();
@@ -81,8 +64,6 @@ pub fn initializer(flags: &Flags) {
     let mut walker = WalkDirs::new(&mut tree, path, &mut totals, &mut handler, flags);
 
     walker.walk_dirs();
-
-    // handler.flush();
 
     totals.stats(&mut handler, start_time, tree.branch).unwrap();
 }

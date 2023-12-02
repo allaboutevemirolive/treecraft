@@ -1,40 +1,34 @@
-// Collect default metadata
-
+use crate::item::DisplayBrightGreen;
+use crate::stat::total::Totals;
+use crate::WalkDirs;
 use std::ffi::OsString;
-use std::fs;
-use std::fs::DirEntry;
-use std::fs::FileType;
+use std::fs::{self, DirEntry, FileType};
 use std::io;
 use std::io::Write;
 use std::path::PathBuf;
 
-use crate::branch::TreeStructureFormatter;
 use crate::flag::Flags;
 use crate::handle::OutputHandler;
-use crate::init::PrintLocation;
-use crate::init::WalkDirs;
-use crate::total::Totals;
+use crate::loc::PrintLocation;
+use crate::tree::Tree;
 
-use super::DisplayBrightGreen;
 use super::DisplayOsString;
 
-#[derive(Debug)]
-pub struct ConfigDefault {
+pub struct ItemCollector {
     pub name: OsString,
     pub path: PathBuf,
-    pub depth: i32,
+    pub depth: u32,
     pub file_type: FileType,
     pub size: u64,
 }
 
-impl ConfigDefault {
-    #[inline(always)]
-    pub fn new(entry: &DirEntry, depth: &i32) -> io::Result<Self> {
+impl ItemCollector {
+    pub fn new(entry: &DirEntry, depth: &u32) -> io::Result<ItemCollector> {
         let full_path = entry.path();
         let metadata = fs::symlink_metadata(&full_path)?;
         let file_type = entry.file_type()?;
 
-        Ok(ConfigDefault {
+        Ok(ItemCollector {
             name: full_path
                 .file_name()
                 .map(|os_str| os_str.to_os_string())
@@ -46,41 +40,34 @@ impl ConfigDefault {
         })
     }
 
-    pub fn default_visitor(
+    pub fn get_item(
         &self,
-        // info: &Self,
         flags: &Flags,
         handler: &mut OutputHandler,
-        totals: &mut Totals,
-        nodes: &mut Vec<i32>,
-        fmt: &TreeStructureFormatter,
-        depth: &i32,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+        total: &mut Totals,
+        mut tree: Tree,
+    ) {
         if self.file_type.is_dir() {
             // Avoid ANSI color if printing in a file,
             // but include ANSI when printing to the terminal.
-            if flags.output == PrintLocation::File {
+            if flags.loc == PrintLocation::File {
                 writeln!(handler, "{}", DisplayOsString(&self.name)).unwrap_or_default();
             } else {
                 writeln!(handler, "{}", DisplayBrightGreen(&self.name)).unwrap_or_default();
             }
 
-            totals.directories += 1;
+            total.directories += 1;
 
-            let next_depth = depth + 1;
+            tree.reach += 1;
 
-            let walker = WalkDirs::new(&self.path, nodes, &next_depth, totals, fmt, handler, flags);
+            let mut walker = WalkDirs::new(&mut tree, &self.path, total, handler, flags);
 
-            if let Err(err) = walker.walk_dirs() {
-                eprintln!("Error: {}", err);
-            }
+            walker.walk_dirs();
         } else {
             writeln!(handler, "{}", DisplayOsString(&self.name)).unwrap_or_default();
-            totals.files += 1;
+            total.files += 1;
         }
 
-        totals.size += self.size;
-
-        Ok(())
+        total.size += self.size;
     }
 }
