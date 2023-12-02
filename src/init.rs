@@ -1,73 +1,45 @@
-use crate::branch::TreeFormatter;
-use crate::config::ConfigInfo;
-use crate::flag::Flags;
-use crate::handle::OutputHandler;
-use crate::sort::sort_entries;
-use crate::total::Totals;
+use std::{fs, path::Path};
 
-use std::cell::RefCell;
-use std::fs;
-use std::fs::File;
-use std::io::{self, BufWriter, Write};
-use std::path::Path;
-use std::rc::Rc;
+use crate::{
+    flag::Flags, handle::OutputHandler, item::default::*, sort::sort_ty, stat::total::Totals,
+    tree::Tree,
+};
 
-#[derive(Debug, PartialEq, Default)]
-pub enum PrintLocation {
-    /// Print in textfile
-    File,
-    /// Print in terminal
-    #[default]
-    Stdout,
-}
-
-// TODO
-// Sort the fields
 pub struct WalkDirs<'a> {
+    tree: &'a mut Tree,
     path: &'a Path,
-    nodes: &'a mut Vec<i32>,
-    depth: &'a i32,
-    totals: &'a mut Totals,
-    tree_formatter: &'a TreeFormatter,
+    total: &'a mut Totals,
     handler: &'a mut OutputHandler,
     flags: &'a Flags,
 }
 
 impl<'a> WalkDirs<'a> {
-    #[inline(always)]
     pub(crate) fn new(
+        tree: &'a mut Tree,
         path: &'a Path,
-        nodes: &'a mut Vec<i32>,
-        depth: &'a i32,
-        totals: &'a mut Totals,
-        tree_formatter: &'a TreeFormatter,
+        total: &'a mut Totals,
         handler: &'a mut OutputHandler,
         flags: &'a Flags,
-    ) -> Self {
+    ) -> WalkDirs<'a> {
         WalkDirs {
+            tree,
             path,
-            nodes,
-            depth,
-            totals,
-            tree_formatter,
+            total,
             handler,
             flags,
         }
     }
 
-    /// Recursively explore file directories
-    #[inline(always)]
-    pub(crate) fn walk_dirs(self) -> Result<(), Box<dyn std::error::Error>> {
-        let mut entries: Vec<_> = fs::read_dir(self.path)?.collect();
+    pub(crate) fn walk_dirs(&mut self) {
+        let mut entries: Vec<_> = fs::read_dir(self.path).expect("Error walking").collect();
 
-        sort_entries(&mut entries, &self.flags.sorttype);
+        sort_ty(&mut entries, &self.flags.sort_ty);
 
         for (index, entry) in entries.iter().enumerate() {
-            // Check hidden file start with '.'
             match entry.as_ref() {
                 Ok(entry) => {
-                    if Self::check_hidden_file(entry) {
-                        self.totals.hidden_file += 1;
+                    if WalkDirs::check_hidden_file(entry) {
+                        self.total.hidden_file += 1;
                         continue;
                     }
                 }
@@ -76,39 +48,24 @@ impl<'a> WalkDirs<'a> {
                 }
             }
 
-            // Modifying the current vector for generating tree branch
+            // Modify current vector for generating tree branch
             if index < entries.len() - 1 {
-                self.nodes.push(1);
+                self.tree.nodes.push(1);
             } else {
-                self.nodes.push(2);
+                self.tree.nodes.push(2);
             };
 
             // Print branch
-            self.tree_formatter
-                .print_tree(self.nodes, self.nodes.len() - 1, self.handler)?;
+            self.tree.print_tree(self.handler).unwrap();
 
-            // Configure the ways we collect metada
-            let info = ConfigInfo::new(entry.as_ref().unwrap(), self.depth, &self.flags.config)?;
+            let item = ItemCollector::new(entry.as_ref().unwrap(), &self.tree.reach).unwrap();
 
-            let visitor = Visitor::new(
-                info,
-                self.totals,
-                self.tree_formatter,
-                self.handler,
-                self.nodes,
-                self.depth,
-                self.flags,
-            );
+            let mut visitor = Visitor::new(&item, self.total, self.tree, self.handler, self.flags);
 
-            // FIXME
-            if let Err(err) = visitor.visitor() {
-                eprintln!("Invocation of the 'visitor' function failed: {}", err);
-            }
+            visitor.ty_visitor();
 
-            self.nodes.pop();
+            self.tree.nodes.pop();
         }
-
-        Ok(())
     }
 
     fn check_hidden_file(check_hidden: &fs::DirEntry) -> bool {
@@ -120,169 +77,32 @@ impl<'a> WalkDirs<'a> {
 }
 
 pub struct Visitor<'a> {
-    pub info: ConfigInfo,
-    pub totals: &'a mut Totals,
-    pub tree_formatter: &'a TreeFormatter,
+    pub item: &'a ItemCollector,
+    pub total: &'a mut Totals,
+    pub tree: &'a Tree,
     pub handler: &'a mut OutputHandler,
-    pub nodes: &'a mut Vec<i32>,
-    pub depth: &'a i32,
     pub flags: &'a Flags,
 }
 
 impl<'a> Visitor<'a> {
-    #[inline(always)]
-    fn new(
-        info: ConfigInfo,
-        totals: &'a mut Totals,
-        tree_formatter: &'a TreeFormatter,
+    pub fn new(
+        item: &'a ItemCollector,
+        total: &'a mut Totals,
+        tree: &'a Tree,
         handler: &'a mut OutputHandler,
-        nodes: &'a mut Vec<i32>,
-        depth: &'a i32,
         flags: &'a Flags,
-    ) -> Self {
+    ) -> Visitor<'a> {
         Visitor {
-            info,
-            totals,
-            tree_formatter,
+            item,
+            total,
+            tree,
             handler,
-            nodes,
-            depth,
             flags,
         }
     }
 
-    // FIXME
-    // Use struct to handle different output instead of enum
-    // TODO
-    // Bad design?
-    #[inline(always)]
-    fn visitor(self) -> Result<(), Box<dyn std::error::Error>> {
-        match self.info {
-            ConfigInfo::All(ref info) => {
-                if let Err(err) = info.all_visitor(
-                    self.flags,
-                    self.handler,
-                    self.totals,
-                    self.nodes,
-                    self.tree_formatter,
-                    self.depth,
-                ) {
-                    eprintln!("Invocation of the 'all_visitor' function failed: {}", err);
-                }
-            }
-            ConfigInfo::Default(ref info) => {
-                // TODO
-                // Make sure it same as Visitor struct
-                if let Err(err) = info.default_visitor(
-                    self.flags,
-                    self.handler,
-                    self.totals,
-                    self.nodes,
-                    self.tree_formatter,
-                    self.depth,
-                ) {
-                    eprintln!(
-                        "Invocation of the 'default_visitor' function failed: {}",
-                        err
-                    );
-                }
-            }
-        }
-
-        Ok(())
-    }
-}
-
-pub struct Header<'a> {
-    flags: &'a Flags,
-    handler: &'a mut OutputHandler,
-}
-
-impl<'a> Header<'a> {
-    #[inline(always)]
-    pub(crate) fn new(flags: &'a Flags, handler: &'a mut OutputHandler) -> Self {
-        Header { flags, handler }
-    }
-
-    /// Print the name and full path of the target directory
-    /// or the current dir if none is specified.
-    #[inline(always)]
-    pub(crate) fn print_header(self) -> Result<(), Box<dyn std::error::Error>> {
-        let dir_name = Path::new(&self.flags.dir_path);
-        let dir_name_os = dir_name.file_name().unwrap_or_default();
-        let curr_dir = &dir_name_os.to_string_lossy();
-
-        //
-        // release
-        //    .
-        //    ├── build
-        //    ├── deps
-        //
-
-        //
-        // Problem if 'go' is not long enough
-        //
-        // go
-        //    .
-        //    ├── build
-        //    ├── deps
-        //
-
-        // What we want
-        //
-        //   go
-        //    .
-        //    ├── build
-        //    ├── deps
-        //
-
-        // Calculate the number of spaces needed to center the text
-        let total_spaces = 4;
-        let curr_dir_len = curr_dir.len();
-        let remaining_spaces = if curr_dir_len < total_spaces {
-            total_spaces - curr_dir_len
-        } else {
-            0
-        };
-
-        // Create a string `indented_curr_dir` where `curr_dir` 
-        // is right-aligned and padded with spaces on the left to 
-        // achieve a minimum width specified by `remaining_spaces`. 
-        // This helps in aligning the text properly
-        // Add remaining spaces in front of curr_dir
-        let indented_curr_dir = format!("{:width$}{}", "", curr_dir, width = remaining_spaces);
-
-        // Print header
-        write!(self.handler, "\n {}\n    .\n", indented_curr_dir)?;
-
-        Ok(())
-    }
-}
-
-/// Select the output type based on the provided flag.
-///
-/// Options include 'terminal' or 'textfile'.
-pub(crate) fn output_writer(
-    print_location: &PrintLocation,
-) -> Result<OutputHandler, Box<dyn std::error::Error>> {
-    match print_location {
-        PrintLocation::File => {
-            // TODO:
-            // Allow the user to specify the output file.
-            // If no output is defined, the default is 'Output.txt'.
-            let output_file = File::create("Output.txt")?;
-            let file_writer = BufWriter::new(output_file);
-            #[rustfmt::skip]
-            let file_writer_refcell = Rc::new(
-                RefCell::new(file_writer)
-            );
-            Ok(OutputHandler::new(file_writer_refcell))
-        }
-        PrintLocation::Stdout => {
-            let stdout = io::stdout();
-            let stdout_writer = BufWriter::new(stdout.lock());
-            let stdout_writer_refcell = Rc::new(RefCell::new(stdout_writer));
-            Ok(OutputHandler::new(stdout_writer_refcell))
-        }
+    pub fn ty_visitor(&mut self) {
+        self.item
+            .get_item(self.flags, self.handler, self.total, self.tree.clone());
     }
 }

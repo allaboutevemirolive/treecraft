@@ -1,11 +1,10 @@
-use crate::branch::TreeFormatter;
-use crate::handle::OutputHandler;
-
+use crate::Branch;
+use crate::OutputHandler;
 use std::fmt::Display;
 use std::io::Write;
 use std::time::Instant;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct Totals {
     pub directories: usize,
     pub files: usize,
@@ -14,7 +13,7 @@ pub struct Totals {
 }
 
 impl Totals {
-    pub fn new() -> Self {
+    pub fn new() -> Totals {
         Default::default()
     }
 
@@ -22,7 +21,7 @@ impl Totals {
         self,
         handler: &mut OutputHandler,
         start_time: Instant,
-        tree_formatter: TreeFormatter,
+        branch: Branch,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // Convert nanoseconds to seconds
         let seconds = (start_time.elapsed()).as_secs() as f64
@@ -36,36 +35,36 @@ impl Totals {
         writeln!(
             handler,
             "    {}Processing Time      : {:?} seconds",
-            tree_formatter.branch_mid, seconds
+            branch.junction, seconds
         )?;
         writeln!(
             handler,
             "    {}Visible Dirs         : {}",
-            tree_formatter.branch_mid,
+            branch.junction,
             format_with_commas(self.directories)
         )?;
         writeln!(
             handler,
             "    {}Visible Files        : {}",
-            tree_formatter.branch_mid,
+            branch.junction,
             format_with_commas(self.files)
         )?;
         writeln!(
             handler,
             "    {}*Hidden Dirs/Files   : {}",
-            tree_formatter.branch_mid,
+            branch.junction,
             format_with_commas(self.hidden_file)
         )?;
         writeln!(
             handler,
             "    {}Total Items(excl.*)  : {}",
-            tree_formatter.branch_mid,
+            branch.junction,
             format_with_commas(self.files + self.directories)
         )?;
         writeln!(
             handler,
             "    {}Total Size           : {:.2} GB ({} bytes)",
-            tree_formatter.branch_end,
+            branch.twig,
             gigabytes,
             format_with_commas(self.size)
         )?;

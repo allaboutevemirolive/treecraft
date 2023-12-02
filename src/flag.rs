@@ -1,119 +1,29 @@
-use crate::config::Config;
-use crate::init::PrintLocation;
-use crate::sort::Sort;
-
+use crate::PrintLocation;
+use crate::Sort;
 use std::env;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
-#[rustfmt::skip]
-#[derive(Debug)]
 pub struct Flags {
-    // Folder's path
     pub dir_path: OsString,
-
-    // // Listing options
-    // aflag: bool,            // -a: All files are listed.
-    // dflag: bool,            // -d: List directories only.
-    // lflag: bool,            // -l: Follow symbolic links like directories.
-    // fflag: bool,            // -f: Print the full path prefix for each file.
-    // xflag: bool,            // -x: Stay on the current filesystem only.
-    // level: Option<usize>,   // -L level: Descend only level directories deep.
-    // Rflag: bool,            // -R: Rerun tree when the max directory level is reached.
-    // Pflag: Option<String>,  // -P pattern: List only those files that match the pattern given.
-    // Iflag: Option<String>,  // -I pattern: Do not list files that match the given pattern.
-    // gitignore: bool,        // --gitignore: Filter by using .gitignore files.
-    // gitfile: Option<String>,// --gitfile X: Explicitly read the gitignore file.
-    // ignore_case: bool,      // --ignore-case: Ignore case when pattern matching.
-    // matchdirs: bool,        // --matchdirs: Include directory names in -P pattern matching.
-    // metafirst: bool,        // --metafirst: Print metadata at the beginning of each line.
-    // prune: bool,            // --prune: Prune empty directories from the output.
-    // info: bool,             // --info: Print information about files found in .info files.
-    // infofile: Option<String>,// --infofile X: Explicitly read the info file.
-    // noreport: bool,         // --noreport: Turn off file/directory count at the end of the tree listing.
-    // charset: Option<String>,// --charset X: Use charset X for terminal/HTML and indentation line output.
-    // filelimit: Option<usize>,// --filelimit #: Do not descend dirs with more than # files in them.
-    // output: Option<String>, // -o filename: Output to a file instead of stdout.
-
-    // // File options
-    // qflag: bool,            // -q: Print non-printable characters as '?'.
-    // Nflag: bool,            // -N: Print non-printable characters as is.
-    // Qflag: bool,            // -Q: Quote filenames with double quotes.
-    // pflag: bool,            // -p: Print the protections for each file.
-    // uflag: bool,            // -u: Displays file owner or UID number.
-    // gflag: bool,            // -g: Displays file group owner or GID number.
-    // sflag: bool,            // -s: Print the size in bytes of each file.
-    // hflag: bool,            // -h: Print the size in a more human-readable way.
-    // si: bool,               // --si: Like -h, but use SI units (powers of 1000).
-    // duflag: bool,           // --du: Compute the size of directories by their contents.
-    // Dflag: bool,            // -D: Print the date of the last modification or (-c) status change.
-    // timefmt: Option<String>,// --timefmt <f>: Print and format time according to the format <f>.
-    // Fflag: bool,            // -F: Appends '/', '=', '*', '@', '|' or '>' as per ls -F.
-    // inodes: bool,           // --inodes: Print the inode number of each file.
-    // device: bool,           // --device: Print the device ID number to which each file belongs.
-    pub config: Config,
-    pub allinfos: bool,
-
-    // // Sorting options
-    // vflag: bool,            // -v: Sort files alphanumerically by version.
-    // tflag: bool,            // -t: Sort files by the last modification time.
-    // cflag: bool,            // -c: Sort files by the last status change time.
-    // Uflag: bool,            // -U: Leave files unsorted.
-    // rflag: bool,            // -r: Reverse the order of the sort.
-    // dirsfirst: bool,        // --dirsfirst: List directories before files (-U disables).
-    // filesfirst: bool,       // --filesfirst: List files before directories (-U disables).
-    // sort: Option<String>,   // --sort X: Select sort: name, version, size, mtime, ctime.
-    pub sorttype: Sort,
-
-    // // Graphics options
-    // i: bool,                // -i: Don't print indentation lines.
-    // A: bool,                // -A: Print ANSI lines graphic indentation lines.
-    // S: bool,                // -S: Print with CP437 (console) graphics indentation lines.
-    // n: bool,                // -n: Turn colorization off always (-C overrides).
-    // C: bool,                // -C: Turn colorization on always.
-
-    // // XML/HTML/JSON options
-    // X: bool,                // -X: Prints out an XML representation of the tree.
-    // J: bool,                // -J: Prints out a JSON representation of the tree.
-    // H: Option<String>,      // -H baseHREF: Prints out HTML format with baseHREF as the top directory.
-    // T: Option<String>,      // -T string: Replace the default HTML title and H1 header with string.
-    // nolinks: bool,          // --nolinks: Turn off hyperlinks in HTML output.
-    // hintro: Option<String>, // --hintro X: Use file X as the HTML intro.
-    // houtro: Option<String>, // --houtro X: Use file X as the HTML outro.
-    pub output: PrintLocation,
-
-    // // Input options
-    // fromfile: bool,         // --fromfile: Reads paths from files (.=stdin)
-    // fromtabfile: bool,      // --fromtabfile: Reads trees from tab indented files (.=stdin).
-    // fflinks: bool,          // --fflinks: Process link information when using --fromfile.
-
-    // // Input options
-    // fromfile: bool,            // --fromfile: Reads paths from files (.=stdin)
-    // fromtabfile: bool,         // --fromtabfile: Reads trees from tab indented files (.=stdin)
-    // fflinks: bool,             // --fflinks: Process link information when using --fromfile.
-
-    // // Miscellaneous options
-    // version: bool,              // --version: Print version and exit.
-    pub help: bool,                // --help: Print usage and this help message and exit.
-    // terminator: bool,           // --: Options processing terminator.
+    pub sort_ty: Sort,
+    pub loc: PrintLocation,
+    pub help: bool,
 }
 
 impl Default for Flags {
-    fn default() -> Self {
+    fn default() -> Flags {
         Flags {
             dir_path: OsString::from(get_absolute_current_dir()),
-            config: Config::Default,
-            // FIXME
-            allinfos: false,
-            sorttype: Sort::CaseSensitive,
-            output: PrintLocation::Stdout,
+            sort_ty: Sort::CaseSensitive,
+            loc: PrintLocation::Stdout,
             help: false,
         }
     }
 }
 
 impl Flags {
-    pub fn new() -> Self {
+    pub fn new() -> Flags {
         Default::default()
     }
 
@@ -125,58 +35,15 @@ impl Flags {
                 self.dir_path = path.into_os_string();
             } else {
                 match arg.as_str() {
-                    // "-a" => self.aflag = true,
-                    // "-d" => self.dflag = true,
-                    // "-f" => self.fflag = true,
-                    // "-l" => self.lflag = true,
-                    // "-p" => self.pflag = true,
-                    // "-s" => self.sflag = true,
-                    // "-F" => self.Fflag = true,
-                    // "-u" => self.uflag = true,
-                    // "-g" => self.gflag = true,
-                    // "-D" => self.Dflag = true,
-                    // "-q" => self.qflag = true,
-                    // "-N" => self.Nflag = true,
-                    // "-Q" => self.Qflag = true,
-                    // "-R" => self.Rflag = true,
-                    // "-h" => self.hflag = true,
-                    // "-H" => self.Hflag = true,
-                    // "-si" => self.siflag = true,
-                    // "-c" => self.cflag = true,
-                    // "--no-indent" => self.noindent = true,
-                    // "--force-color" => self.force_color = true,
-                    // "--no-color" => self.nocolor = true,
-                    // "--xdev" => self.xdev = true,
-                    // "--no-report" => self.noreport = true,
-                    // "--no-links" => self.nolinks = true,
-                    // "--reverse" => self.reverse = true,
-                    // "--ignore-case" => self.ignorecase = true,
-                    // "--match-dirs" => self.matchdirs = true,
-                    // "--inode" => self.inodeflag = true,
-                    // "--dev" => self.devflag = true,
-                    // "--X" => self.Xflag = true,
-                    // "--J" => self.Jflag = true,
-                    // "--ff-links" => self.fflinks = true,
-                    // "--du" => self.duflag = true,
-                    // "--prune" => self.pruneflag = true,
-                    // "--meta-first" => self.metafirst = true,
-                    // "--git-ignore" => self.gitignore = true,
-
-                    // File options
-                    "-confall" => self.config = Config::All,
-                    "-infos" => self.allinfos = true,
-
                     // Output options
-                    "-out" => self.output = PrintLocation::File,
-
-                    // "-out--filename--filepath"
+                    "-out" => self.loc = PrintLocation::File,
 
                     // Sort
-                    "-def" => self.sorttype = Sort::default(),
-                    "-cs" => self.sorttype = Sort::CaseSensitive,
-                    "-ci" => self.sorttype = Sort::CaseInsensitive,
-                    "-n" => self.sorttype = Sort::None,
-                    "-xt" => self.sorttype = Sort::Extension,
+                    "-def" => self.sort_ty = Sort::default(),
+                    "-cs" => self.sort_ty = Sort::CaseSensitive,
+                    "-ci" => self.sort_ty = Sort::CaseInsensitive,
+                    "-no" => self.sort_ty = Sort::None,
+                    "-xt" => self.sort_ty = Sort::Extension,
 
                     // Miscellaneous options
                     "-help" => self.help = true,

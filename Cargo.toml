@@ -1,8 +1,17 @@
 [package]
 name = "treecraft"
-version = "0.1.0"
+version = "0.4.0"
 edition = "2021"
+authors = ["Akmal Firdaus", "https://twitter.com/akmalfirdxus"]
+description = "TreeCraft is a pure Rust command-line utility that allows user to see directory structures in ASCII format on terminal or save them to a text file."
+license = "MIT OR Apache-2.0"
+categories = ["command-line-utilities", "development-tools::cargo-plugins"]
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "tr"
+path = "src/main.rs"
 
 [dependencies]

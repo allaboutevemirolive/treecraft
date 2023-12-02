@@ -3,13 +3,9 @@ use std::fmt;
 use std::io::{self, Write};
 use std::rc::Rc;
 
-/// This struct supports various data sources and formats,
-///
-/// including `files`, `Stdout`, `TCP streams`, `memory buffers`,
-///
-/// `databases`, `JSON`, `HTML`, `XML`, and more.
+// #[derive(Clone)]
 pub struct OutputHandler {
-    inner: Rc<RefCell<dyn Write>>,
+    container: Rc<RefCell<dyn Write>>,
 }
 
 impl fmt::Debug for OutputHandler {
@@ -19,17 +15,17 @@ impl fmt::Debug for OutputHandler {
 }
 
 impl OutputHandler {
-    pub fn new(inner: Rc<RefCell<dyn Write>>) -> Self {
-        OutputHandler { inner }
+    pub fn new(container: Rc<RefCell<dyn Write>>) -> OutputHandler {
+        OutputHandler { container }
     }
 }
 
 impl Write for OutputHandler {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.inner.borrow_mut().write(buf)
+        self.container.borrow_mut().write(buf)
     }
 
     fn flush(&mut self) -> io::Result<()> {
-        self.inner.borrow_mut().flush()
+        self.container.borrow_mut().flush()
     }
 }

@@ -16,16 +16,12 @@ pub enum Sort {
     // Size
     // Time
     // Version
+    //
     /// `-xt` sort based on file's extension
     Extension,
 }
 
-// TODO
-// Add more sort option.
-#[allow(clippy::cognitive_complexity)]
-#[cfg(any(unix, windows))]
-#[inline(always)]
-pub fn sort_entries(entries: &mut [Result<DirEntry, io::Error>], sorter: &Sort) {
+pub fn sort_ty(entries: &mut [Result<DirEntry, io::Error>], sorter: &Sort) {
     match sorter {
         Sort::CaseInsensitive => {
             entries.sort_unstable_by(|a, b| {

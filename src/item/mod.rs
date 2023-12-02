@@ -1,55 +1,9 @@
-pub mod all;
-pub mod default;
-
-use self::all::ConfigAll;
-use self::default::ConfigDefault;
-
 use std::ffi::OsString;
 use std::fmt;
-use std::fs::DirEntry;
 use std::path::PathBuf;
 
-#[derive(Debug, Default)]
-pub enum Config {
-    All,
-    #[default]
-    Default,
-}
-
-/// This wrapper enables the return of different types.
-/// 1. `Default`: Collect minimal metada and improve.
-/// 2. `All`: Collect all metadata.
-///
-/// ### INFO
-///
-/// Enum variants in Rust should have the same type,
-/// thus we need enum wrapper.
-#[derive(Debug)]
-pub enum ConfigInfo {
-    /// Collect all metada
-    All(ConfigAll),
-    /// Collect default metada
-    Default(ConfigDefault),
-}
-
-// FIXME
-impl ConfigInfo {
-    #[rustfmt::skip]
-    pub fn new(
-        entry: &DirEntry,
-        depth: &i32,
-        config: &Config,
-    ) -> Result<Self, Box<dyn std::error::Error>> {
-        match config {
-            Config::All => Ok(
-                ConfigInfo::All(ConfigAll::new(entry, depth)?)
-            ),
-            Config::Default => Ok(
-                ConfigInfo::Default(ConfigDefault::new(entry, depth)?)
-            ),
-        }
-    }
-}
+pub mod all;
+pub mod default;
 
 pub struct DisplayOsString<'a>(pub &'a OsString);
 
