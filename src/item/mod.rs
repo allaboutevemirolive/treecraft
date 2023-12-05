@@ -1,39 +1,49 @@
+use std::borrow::Cow;
 use std::ffi::OsString;
 use std::fmt;
-use std::path::PathBuf;
 
 pub mod all;
 pub mod default;
 
-pub struct DisplayOsString<'a>(pub &'a OsString);
+pub struct DisplayFormatted<'a, T> {
+    pub content: &'a T,
+    pub format_fn: fn(&T, &mut fmt::Formatter) -> fmt::Result,
+}
 
-impl<'a> fmt::Display for DisplayOsString<'a> {
+impl<'a, T> fmt::Display for DisplayFormatted<'a, T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0.to_string_lossy())
+        (self.format_fn)(self.content, f)
     }
 }
 
-/// Meant for output in a terminal with ANSI support
-pub struct DisplayBrightGreen<'a>(pub &'a OsString);
+// // Example format functions
+// fn format_default_str<'a>(s: &'a str, f: &mut fmt::Formatter) -> fmt::Result {
+//     write!(f, "{}", s)
+// }
 
-impl<'a> fmt::Display for DisplayBrightGreen<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // Apply bright green color formatting to the string,
-        // insert the OsString, and reset the color to default
-        write!(f, "\x1b[1;32m{}\x1b[0m", self.0.to_string_lossy(),)
-    }
+// fn format_bright_green_str<'a>(s: &'a str, f: &mut fmt::Formatter) -> fmt::Result {
+//     write!(f, "\x1b[1;32m{}\x1b[0m", s)
+// }
+
+// fn format_name_path<'a>(
+//     (name, path): &'a (OsString, PathBuf),
+//     f: &mut fmt::Formatter,
+// ) -> fmt::Result {
+//     write!(f, "{} ({})", name.to_string_lossy(), path.to_string_lossy())
+// }
+
+pub fn format_cow_str<'a>(s: &'a Cow<'a, str>, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "{}", s)
 }
 
-pub struct DisplayNamePath<'a>(pub &'a OsString, pub &'a PathBuf);
+pub fn format_bright_green_cow_str<'a>(s: &'a Cow<'a, str>, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "\x1b[1;32m{}\x1b[0m", s)
+}
 
-// DisplayNamePath(&info.name, &info.path)
-impl<'a> fmt::Display for DisplayNamePath<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{} ({})",
-            self.0.to_string_lossy(),
-            self.1.to_string_lossy()
-        )
-    }
+pub fn format_os_string(s: &OsString, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "{}", s.to_string_lossy())
+}
+
+pub fn format_bright_green_os_string(s: &OsString, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "\x1b[1;32m{}\x1b[0m", s.to_string_lossy())
 }

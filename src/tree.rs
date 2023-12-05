@@ -1,4 +1,3 @@
-
 // Primary components of a tree's structure:
 // 1. Root System
 // 2. Stem/Trunk

@@ -1,4 +1,5 @@
-use crate::item::DisplayBrightGreen;
+// use crate::item::DisplayBrightGreen;
+use crate::item::*;
 use crate::stat::total::Totals;
 use crate::WalkDirs;
 use std::ffi::OsString;
@@ -11,8 +12,6 @@ use crate::flag::Flags;
 use crate::handle::OutputHandler;
 use crate::loc::PrintLocation;
 use crate::tree::Tree;
-
-use super::DisplayOsString;
 
 pub struct ItemCollector {
     pub name: OsString,
@@ -51,9 +50,25 @@ impl ItemCollector {
             // Avoid ANSI color if printing in a file,
             // but include ANSI when printing to the terminal.
             if flags.loc == PrintLocation::File {
-                writeln!(handler, "{}", DisplayOsString(&self.name)).unwrap_or_default();
+                writeln!(
+                    handler,
+                    "{}",
+                    DisplayFormatted {
+                        content: &self.name,
+                        format_fn: format_os_string,
+                    }
+                )
+                .unwrap_or_default();
             } else {
-                writeln!(handler, "{}", DisplayBrightGreen(&self.name)).unwrap_or_default();
+                writeln!(
+                    handler,
+                    "{}",
+                    DisplayFormatted {
+                        content: &self.name,
+                        format_fn: format_bright_green_os_string,
+                    }
+                )
+                .unwrap_or_default();
             }
 
             total.directories += 1;
@@ -64,7 +79,15 @@ impl ItemCollector {
 
             walker.walk_dirs();
         } else {
-            writeln!(handler, "{}", DisplayOsString(&self.name)).unwrap_or_default();
+            writeln!(
+                handler,
+                "{}",
+                DisplayFormatted {
+                    content: &self.name,
+                    format_fn: format_os_string,
+                }
+            )
+            .unwrap_or_default();
             total.files += 1;
         }
 

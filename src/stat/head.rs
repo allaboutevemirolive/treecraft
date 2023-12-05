@@ -1,3 +1,7 @@
+// use crate::item::DisplayCowStr;
+use crate::item::DisplayFormatted;
+use crate::item::*;
+use crate::loc::PrintLocation;
 use crate::Flags;
 use crate::OutputHandler;
 use std::io::Write;
@@ -20,6 +24,10 @@ impl<'a> Header<'a> {
     pub(crate) fn print_header(self) {
         let dir_name = Path::new(&self.flags.dir_path);
         let dir_name_os = dir_name.file_name().unwrap_or_default();
+
+        // TODO: Avoid using "Cow<'_, str>" all over the codebase
+        // Needs to convert it to &str early
+        // let curr_dir = &dir_name_os.to_string_lossy().deref();
         let curr_dir = &dir_name_os.to_string_lossy();
 
         //
@@ -49,20 +57,37 @@ impl<'a> Header<'a> {
         // Calculate the number of spaces needed to center the text
         let total_spaces = 4;
         let curr_dir_len = curr_dir.len();
+
+        // Padding 'remaining spaces' in front of 'curr_dir' to get
+        // better alligntment.
         let remaining_spaces = if curr_dir_len < total_spaces {
             total_spaces - curr_dir_len
         } else {
             0
         };
 
-        // Create a string `indented_curr_dir` where `curr_dir`
-        // is right-aligned and padded with spaces on the left to
-        // achieve a minimum width specified by `remaining_spaces`.
-        // This helps in aligning the text properly.
-        // Add remaining spaces in front of curr_dir.
-        let indented_curr_dir = format!("{:width$}{}", "", curr_dir, width = remaining_spaces);
+        let indented_curr_dir = if self.flags.loc == PrintLocation::File {
+            format!(
+                "{:width$}{}",
+                "",
+                DisplayFormatted {
+                    content: curr_dir,
+                    format_fn: format_cow_str,
+                },
+                width = remaining_spaces
+            )
+        } else {
+            format!(
+                "{:width$}{}",
+                "",
+                DisplayFormatted {
+                    content: curr_dir,
+                    format_fn: format_bright_green_cow_str,
+                },
+                width = remaining_spaces
+            )
+        };
 
-        // Print header
         write!(self.handler, "\n {}\n    .\n", indented_curr_dir).unwrap_or_default();
     }
 }
