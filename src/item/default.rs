@@ -1,4 +1,3 @@
-// use crate::item::DisplayBrightGreen;
 use crate::item::*;
 use crate::stat::total::Totals;
 use crate::WalkDirs;

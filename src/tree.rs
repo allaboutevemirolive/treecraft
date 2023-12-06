@@ -59,7 +59,6 @@ impl Tree {
     }
 }
 
-// TODO: Use 'lazy_static'
 #[derive(Debug, Clone)]
 pub struct Branch {
     /// End of a branch, `"└── "`
