@@ -1,4 +1,3 @@
-// use crate::item::DisplayCowStr;
 use crate::item::DisplayFormatted;
 use crate::item::*;
 use crate::loc::PrintLocation;
@@ -23,12 +22,11 @@ impl<'a> Header<'a> {
     #[inline(always)]
     pub(crate) fn print_header(self) {
         let dir_name = Path::new(&self.flags.dir_path);
-        let dir_name_os = dir_name.file_name().unwrap_or_default();
 
-        // TODO: Avoid using "Cow<'_, str>" all over the codebase
-        // Needs to convert it to &str early
-        // let curr_dir = &dir_name_os.to_string_lossy().deref();
-        let curr_dir = &dir_name_os.to_string_lossy();
+        let curr_dir = dir_name
+            .file_name()
+            .and_then(|os_str| os_str.to_str())
+            .map_or_else(String::default, String::from);
 
         //
         // release
@@ -71,8 +69,8 @@ impl<'a> Header<'a> {
                 "{:width$}{}",
                 "",
                 DisplayFormatted {
-                    content: curr_dir,
-                    format_fn: format_cow_str,
+                    content: &curr_dir,
+                    format_fn: format_default_ref_string,
                 },
                 width = remaining_spaces
             )
@@ -81,8 +79,8 @@ impl<'a> Header<'a> {
                 "{:width$}{}",
                 "",
                 DisplayFormatted {
-                    content: curr_dir,
-                    format_fn: format_bright_green_cow_str,
+                    content: &curr_dir,
+                    format_fn: format_bright_green_ref_string,
                 },
                 width = remaining_spaces
             )

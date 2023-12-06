@@ -1,4 +1,3 @@
-use std::borrow::Cow;
 use std::ffi::OsString;
 use std::fmt;
 
@@ -16,12 +15,27 @@ impl<'a, T> fmt::Display for DisplayFormatted<'a, T> {
     }
 }
 
-// // Example format functions
-// fn format_default_str<'a>(s: &'a str, f: &mut fmt::Formatter) -> fmt::Result {
+pub fn format_default_ref_string(s: &String, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "{}", s)
+}
+
+pub fn format_bright_green_ref_string(s: &String, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "\x1b[1;32m{}\x1b[0m", s)
+}
+
+// pub fn format_default_string(s: String, f: &mut fmt::Formatter) -> fmt::Result {
 //     write!(f, "{}", s)
 // }
 
-// fn format_bright_green_str<'a>(s: &'a str, f: &mut fmt::Formatter) -> fmt::Result {
+// pub fn format_bright_green_string(s: String, f: &mut fmt::Formatter) -> fmt::Result {
+//     write!(f, "\x1b[1;32m{}\x1b[0m", s)
+// }
+
+// pub fn format_default_str(s: &&str, f: &mut fmt::Formatter) -> fmt::Result {
+//     write!(f, "{}", s)
+// }
+
+// pub fn format_bright_green_str(s: &&str, f: &mut fmt::Formatter) -> fmt::Result {
 //     write!(f, "\x1b[1;32m{}\x1b[0m", s)
 // }
 
@@ -32,13 +46,13 @@ impl<'a, T> fmt::Display for DisplayFormatted<'a, T> {
 //     write!(f, "{} ({})", name.to_string_lossy(), path.to_string_lossy())
 // }
 
-pub fn format_cow_str<'a>(s: &'a Cow<'a, str>, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(f, "{}", s)
-}
+// pub fn format_cow_str<'a>(s: &'a Cow<'a, str>, f: &mut fmt::Formatter) -> fmt::Result {
+//     write!(f, "{}", s)
+// }
 
-pub fn format_bright_green_cow_str<'a>(s: &'a Cow<'a, str>, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(f, "\x1b[1;32m{}\x1b[0m", s)
-}
+// pub fn format_bright_green_cow_str<'a>(s: &'a Cow<'a, str>, f: &mut fmt::Formatter) -> fmt::Result {
+//     write!(f, "\x1b[1;32m{}\x1b[0m", s)
+// }
 
 pub fn format_os_string(s: &OsString, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{}", s.to_string_lossy())
