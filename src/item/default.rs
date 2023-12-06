@@ -1,7 +1,6 @@
-use crate::item::DisplayBrightGreen;
+use crate::item::*;
 use crate::stat::total::Totals;
 use crate::WalkDirs;
-use std::ffi::OsString;
 use std::fs::{self, DirEntry, FileType};
 use std::io;
 use std::io::Write;
@@ -12,10 +11,8 @@ use crate::handle::OutputHandler;
 use crate::loc::PrintLocation;
 use crate::tree::Tree;
 
-use super::DisplayOsString;
-
 pub struct ItemCollector {
-    pub name: OsString,
+    pub name: String,
     pub path: PathBuf,
     pub depth: u32,
     pub file_type: FileType,
@@ -31,7 +28,8 @@ impl ItemCollector {
         Ok(ItemCollector {
             name: full_path
                 .file_name()
-                .map(|os_str| os_str.to_os_string())
+                .and_then(|os_str| os_str.to_str())
+                .map(ToString::to_string)
                 .unwrap_or_else(|| "Invalid full-path".into()),
             path: full_path.clone(),
             depth: *depth,
@@ -51,9 +49,25 @@ impl ItemCollector {
             // Avoid ANSI color if printing in a file,
             // but include ANSI when printing to the terminal.
             if flags.loc == PrintLocation::File {
-                writeln!(handler, "{}", DisplayOsString(&self.name)).unwrap_or_default();
+                writeln!(
+                    handler,
+                    "{}",
+                    DisplayFormatted {
+                        content: &self.name,
+                        format_fn: format_default_ref_string,
+                    }
+                )
+                .unwrap_or_default();
             } else {
-                writeln!(handler, "{}", DisplayBrightGreen(&self.name)).unwrap_or_default();
+                writeln!(
+                    handler,
+                    "{}",
+                    DisplayFormatted {
+                        content: &self.name,
+                        format_fn: format_bright_green_ref_string,
+                    }
+                )
+                .unwrap_or_default();
             }
 
             total.directories += 1;
@@ -64,7 +78,15 @@ impl ItemCollector {
 
             walker.walk_dirs();
         } else {
-            writeln!(handler, "{}", DisplayOsString(&self.name)).unwrap_or_default();
+            writeln!(
+                handler,
+                "{}",
+                DisplayFormatted {
+                    content: &self.name,
+                    format_fn: format_default_ref_string,
+                }
+            )
+            .unwrap_or_default();
             total.files += 1;
         }
 

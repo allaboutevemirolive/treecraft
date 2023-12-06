@@ -1,4 +1,3 @@
-
 // Primary components of a tree's structure:
 // 1. Root System
 // 2. Stem/Trunk
@@ -30,7 +29,7 @@ impl Tree {
     pub fn print_tree(&self, handle: &mut OutputHandler) -> io::Result<()> {
         write!(handle, "    ")?;
 
-        // Use usize type for indexing slices, arrays, and vectors.
+        // INFO: Use usize type for indexing slices, arrays, and vectors.
         for i in 0..=self.reach as usize {
             if let Some(marker) = self.nodes.get(i) {
                 match self.nodes.get(i + 1) {
