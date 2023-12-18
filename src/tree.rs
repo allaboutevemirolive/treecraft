@@ -1,4 +1,6 @@
-use crate::{flag::Flags, flag::OptOutput, OutputHandler};
+use crate::OutputHandler;
+use crate::flag::Flags;
+use crate::flag::OptOutput;
 use std::io::{self, Write};
 
 #[derive(Clone)]
