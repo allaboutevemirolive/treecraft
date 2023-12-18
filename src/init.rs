@@ -1,9 +1,11 @@
 use std::{fs, path::Path};
 
-use crate::{
-    flag::Flags, handle::OutputHandler, item::default::*, sort::sort_ty, stat::total::Totals,
-    tree::Tree,
-};
+use crate::flag::Flags;
+use crate::handle::OutputHandler;
+use crate::item::default::*;
+use crate::sort::sort_ty;
+use crate::stat::total::Totals;
+use crate::tree::Tree;
 
 pub struct WalkDirs<'a> {
     tree: &'a mut Tree,
@@ -56,7 +58,7 @@ impl<'a> WalkDirs<'a> {
             };
 
             // Print branch
-            self.tree.print_tree(self.handler).unwrap();
+            self.tree.print_tree(self.handler, self.flags).unwrap();
 
             let item = ItemCollector::new(entry.as_ref().unwrap(), &self.tree.reach).unwrap();
 

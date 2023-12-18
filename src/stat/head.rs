@@ -1,3 +1,4 @@
+use crate::flag::OptOutput;
 use crate::item::DisplayFormatted;
 use crate::item::*;
 use crate::loc::PrintLocation;
@@ -20,14 +21,16 @@ impl<'a> Header<'a> {
     /// Print the name and full path of the target directory
     /// or the current dir if none is specified.
     #[inline(always)]
-    pub(crate) fn print_header(self) {
+    pub(crate) fn print_header(mut self) {
         let dir_name = Path::new(&self.flags.dir_path);
 
+        // Get current dir
         let curr_dir = dir_name
             .file_name()
             .and_then(|os_str| os_str.to_str())
             .map_or_else(String::default, String::from);
 
+        // Example:
         //
         // release
         //    .
@@ -35,6 +38,15 @@ impl<'a> Header<'a> {
         //    ├── deps
         //
 
+        // TODO: Seperate header between 'All' and 'Default'
+        if self.flags.opt_ty == OptOutput::All {
+            self.get_indented_header(curr_dir);
+        } else {
+            self.get_default_header(curr_dir);
+        }
+    }
+
+    fn get_indented_header(&mut self, curr_dir: String) {
         //
         // Problem if 'go' is not long enough
         //
@@ -87,5 +99,9 @@ impl<'a> Header<'a> {
         };
 
         write!(self.handler, "\n {}\n    .\n", indented_curr_dir).unwrap_or_default();
+    }
+
+    fn get_default_header(&mut self, curr_dir: String) {
+        writeln!(self.handler, "/{}", curr_dir).unwrap_or_default();
     }
 }

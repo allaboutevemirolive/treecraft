@@ -7,6 +7,7 @@ pub mod sort;
 pub mod stat;
 pub mod tree;
 
+use crate::flag::OptOutput;
 use stat::head::Header;
 
 use crate::flag::*;
@@ -29,7 +30,7 @@ const HELP_TEXT: &str = "
 -cs                         Sort filenames with case-sensitive.
 -no                         Do not sort.
 -xt                         Sort based on file's extension.
--help                       Display usage information and exit.\n";
+-help                       Display usage information and exit.";
 
 pub fn arg_builder() {
     let mut flags = Flags::new();
@@ -37,9 +38,8 @@ pub fn arg_builder() {
     flags.processing_args(env::args().collect());
 
     if flags.help {
-        let stdout = io::stdout();
-        let mut handle = stdout.lock();
-        writeln!(&mut handle, "{}", HELP_TEXT).unwrap_or_default();
+        let mut stdout = io::stdout().lock();
+        writeln!(&mut stdout, "{}\n", HELP_TEXT).unwrap_or_default();
         std::process::exit(0);
     }
 
@@ -54,16 +54,20 @@ pub fn initializer(flags: &Flags) {
 
     let start_time = Instant::now();
 
-    header.print_header();
-
     let dir_name = flags.dir_path.to_string_lossy().into_owned();
     let path = Path::new(&dir_name);
 
     let mut tree = Tree::new(Vec::with_capacity(5_000), 1, Branch::new());
 
+    header.print_header();
+
     let mut walker = WalkDirs::new(&mut tree, path, &mut totals, &mut handler, flags);
 
     walker.walk_dirs();
 
-    totals.stats(&mut handler, start_time, tree.branch).unwrap();
+    if flags.opt_ty == OptOutput::All {
+        totals.stats(&mut handler, start_time, tree.branch).unwrap();
+    } else {
+        totals.default_stat(&mut handler).unwrap();
+    }
 }

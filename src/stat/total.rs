@@ -72,6 +72,22 @@ impl Totals {
 
         Ok(())
     }
+
+    pub fn default_stat(
+        self,
+        handler: &mut OutputHandler,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        writeln!(handler)?;
+        write!(
+            handler,
+            "{} directories",
+            format_with_commas(self.directories)
+        )?;
+        write!(handler, ", ")?;
+        write!(handler, "{} files", format_with_commas(self.files))?;
+        writeln!(handler)?;
+        Ok(())
+    }
 }
 
 fn format_with_commas<T: Display>(num: T) -> String {
