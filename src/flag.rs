@@ -4,11 +4,20 @@ use std::env;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
+#[derive(Debug, PartialEq, Default)]
+pub enum OptOutput {
+    #[default]
+    Default,
+    All,
+}
+
 pub struct Flags {
     pub dir_path: OsString,
     pub sort_ty: Sort,
     pub loc: PrintLocation,
+    pub opt_ty: OptOutput,
     pub help: bool,
+    // pub ignore_dirs: Vec<String>,
 }
 
 impl Default for Flags {
@@ -17,7 +26,9 @@ impl Default for Flags {
             dir_path: OsString::from(get_absolute_current_dir()),
             sort_ty: Sort::CaseSensitive,
             loc: PrintLocation::Stdout,
+            opt_ty: OptOutput::All,
             help: false,
+            // ignore_dirs: Vec<String, Global>,
         }
     }
 }
@@ -48,6 +59,23 @@ impl Flags {
                     // Miscellaneous options
                     "-help" => self.help = true,
 
+                    // OutputOption:
+                    // Werther we want default output like 'tree' or
+                    // exhaustive output with analysis
+                    // Default
+                    "-odef" => self.opt_ty = OptOutput::Default,
+
+                    /*
+                    -ignore=target&&src
+                    "--ignore=" => {
+                        let iters =  arg.trim_start_matches("--ignore="").into();
+
+                        for iter in iters.split("&&") {
+                            self.ignore_dirs.push(iter);
+                        }
+
+                    }
+                     */
                     _ => {
                         break;
                     }

@@ -3,7 +3,6 @@ use std::fmt;
 use std::io::{self, Write};
 use std::rc::Rc;
 
-// #[derive(Clone)]
 pub struct OutputHandler {
     container: Rc<RefCell<dyn Write>>,
 }

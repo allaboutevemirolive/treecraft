@@ -126,7 +126,7 @@ Download the treecraft binary and follow these steps:
 2. Go to the end of the file and add the following line, replacing the placeholders with your actual information:
 
    ```bash
-   alias trie="/path/to/your/project/target/release/your_binary_name"
+   alias tr="/path/to/your/project/target/release/your_binary_name"
    ```
 
    - Replace "/path/to/your/project" with the actual path to your project directory.

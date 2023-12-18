@@ -1,10 +1,6 @@
-// Primary components of a tree's structure:
-// 1. Root System
-// 2. Stem/Trunk
-// 3. Branches
-// 4. Leaves, Flowers, and Fruits
-
 use crate::OutputHandler;
+use crate::flag::Flags;
+use crate::flag::OptOutput;
 use std::io::{self, Write};
 
 #[derive(Clone)]
@@ -26,8 +22,10 @@ impl Tree {
         }
     }
 
-    pub fn print_tree(&self, handle: &mut OutputHandler) -> io::Result<()> {
-        write!(handle, "    ")?;
+    pub fn print_tree(&self, handle: &mut OutputHandler, flags: &Flags) -> io::Result<()> {
+        if flags.opt_ty == OptOutput::All {
+            write!(handle, "    ")?;
+        }
 
         // INFO: Use usize type for indexing slices, arrays, and vectors.
         for i in 0..=self.reach as usize {
