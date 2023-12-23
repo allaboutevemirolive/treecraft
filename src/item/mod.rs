@@ -4,6 +4,13 @@ use std::fmt;
 pub mod all;
 pub mod default;
 
+/*
+Using tweaking version of ANSI give use unnencessary complexity.
+It's nice to learn that we can call function and pass generic as well.
+Unfortunately, using full-fledge ANSI is the best way to do this.
+
+TODO: Implement ANSI crate.
+*/
 pub struct DisplayFormatted<'a, T> {
     pub content: &'a T,
     pub format_fn: fn(&T, &mut fmt::Formatter) -> fmt::Result,

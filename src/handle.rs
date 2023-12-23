@@ -3,6 +3,7 @@ use std::fmt;
 use std::io::{self, Write};
 use std::rc::Rc;
 
+// TODO: Replace with pattern matching
 pub struct OutputHandler {
     container: Rc<RefCell<dyn Write>>,
 }

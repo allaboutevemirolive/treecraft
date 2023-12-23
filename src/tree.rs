@@ -1,10 +1,22 @@
-use crate::OutputHandler;
 use crate::flag::Flags;
 use crate::flag::OptOutput;
+use crate::OutputHandler;
 use std::io::{self, Write};
+
+/// Tree's components
+trait TreeCmp {
+    fn stem(&self) -> &str;
+
+    fn axil(&self) -> &str;
+
+    fn junction(&self) -> &str;
+
+    fn twig(&self) -> &str;
+}
 
 #[derive(Clone)]
 pub struct Tree {
+    // TODO: Better documentation
     /// Points of attachment for leaves and buds
     pub nodes: Vec<i32>,
     /// Represent how far/depth a branch extends
@@ -23,6 +35,8 @@ impl Tree {
     }
 
     pub fn print_tree(&self, handle: &mut OutputHandler, flags: &Flags) -> io::Result<()> {
+        // TODO: We can implement more implementations like, checking
+        // file's permission etc.
         if flags.opt_ty == OptOutput::All {
             write!(handle, "    ")?;
         }
@@ -33,20 +47,16 @@ impl Tree {
                 match self.nodes.get(i + 1) {
                     Some(_) => {
                         if marker == &1 {
-                            // "│   "
-                            write!(handle, "{}", self.branch.stem)?;
+                            write!(handle, "{}", self.stem())?;
                         } else {
-                            // "    "
-                            write!(handle, "{}", self.branch.axil)?;
+                            write!(handle, "{}", self.axil())?;
                         }
                     }
                     None => {
                         if marker == &1 {
-                            // "├── "
-                            write!(handle, "{}", self.branch.junction)?;
+                            write!(handle, "{}", self.junction())?;
                         } else {
-                            // "└── "
-                            write!(handle, "{}", self.branch.twig)?;
+                            write!(handle, "{}", self.twig())?;
                         }
                     }
                 }
@@ -54,6 +64,28 @@ impl Tree {
         }
 
         Ok(())
+    }
+}
+
+impl TreeCmp for Tree {
+    /// "│   "
+    fn stem(&self) -> &str {
+        self.branch.stem
+    }
+
+    /// "    "
+    fn axil(&self) -> &str {
+        self.branch.axil
+    }
+
+    /// "├── "
+    fn junction(&self) -> &str {
+        self.branch.junction
+    }
+
+    /// "└── "
+    fn twig(&self) -> &str {
+        self.branch.twig
     }
 }
 

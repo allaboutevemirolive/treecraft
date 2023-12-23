@@ -13,12 +13,12 @@ pub enum Sort {
     /// `-n` No sort
     None,
 
+    /// `-xt` sort based on file's extension
+    Extension,
+    // TODO:
     // Size
     // Time
     // Version
-    //
-    /// `-xt` sort based on file's extension
-    Extension,
 }
 
 pub fn sort_ty(entries: &mut [Result<DirEntry, io::Error>], sorter: &Sort) {

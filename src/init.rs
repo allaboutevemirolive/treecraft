@@ -11,7 +11,7 @@ pub struct WalkDirs<'a> {
     tree: &'a mut Tree,
     path: &'a Path,
     total: &'a mut Totals,
-    handler: &'a mut OutputHandler,
+    handle: &'a mut OutputHandler,
     flags: &'a Flags,
 }
 
@@ -20,14 +20,14 @@ impl<'a> WalkDirs<'a> {
         tree: &'a mut Tree,
         path: &'a Path,
         total: &'a mut Totals,
-        handler: &'a mut OutputHandler,
+        handle: &'a mut OutputHandler,
         flags: &'a Flags,
     ) -> WalkDirs<'a> {
         WalkDirs {
             tree,
             path,
             total,
-            handler,
+            handle,
             flags,
         }
     }
@@ -46,7 +46,10 @@ impl<'a> WalkDirs<'a> {
                     }
                 }
                 Err(err) => {
-                    eprintln!("Error while retrieving hidden file (files/dirs's name start with '.') entry: {}", err);
+                    eprintln!(
+                        "Error retrieving hidden file (files/dirs's name start with '.') entry: {}",
+                        err
+                    );
                 }
             }
 
@@ -58,11 +61,11 @@ impl<'a> WalkDirs<'a> {
             };
 
             // Print branch
-            self.tree.print_tree(self.handler, self.flags).unwrap();
+            self.tree.print_tree(self.handle, self.flags).unwrap();
 
             let item = ItemCollector::new(entry.as_ref().unwrap(), &self.tree.reach).unwrap();
 
-            let mut visitor = Visitor::new(&item, self.total, self.tree, self.handler, self.flags);
+            let mut visitor = Visitor::new(&item, self.total, self.tree, self.handle, self.flags);
 
             visitor.ty_visitor();
 
@@ -82,7 +85,7 @@ pub struct Visitor<'a> {
     pub item: &'a ItemCollector,
     pub total: &'a mut Totals,
     pub tree: &'a Tree,
-    pub handler: &'a mut OutputHandler,
+    pub handle: &'a mut OutputHandler,
     pub flags: &'a Flags,
 }
 
@@ -91,20 +94,26 @@ impl<'a> Visitor<'a> {
         item: &'a ItemCollector,
         total: &'a mut Totals,
         tree: &'a Tree,
-        handler: &'a mut OutputHandler,
+        handle: &'a mut OutputHandler,
         flags: &'a Flags,
     ) -> Visitor<'a> {
         Visitor {
             item,
             total,
             tree,
-            handler,
+            handle,
             flags,
         }
     }
 
+    // TODO: Bad design. It should called function inside this file
     pub fn ty_visitor(&mut self) {
-        self.item
-            .get_item(self.flags, self.handler, self.total, self.tree.clone());
+        ItemCollector::get_item(
+            self.item,
+            self.flags,
+            self.handle,
+            self.total,
+            self.tree.clone(),
+        );
     }
 }

@@ -11,6 +11,10 @@ use crate::handle::OutputHandler;
 use crate::loc::PrintLocation;
 use crate::tree::Tree;
 
+/*
+TODO: Implement specialize crate to collect file metada.
+*/
+
 pub struct ItemCollector {
     pub name: String,
     pub path: PathBuf,
@@ -43,41 +47,30 @@ impl ItemCollector {
         flags: &Flags,
         handler: &mut OutputHandler,
         total: &mut Totals,
+        tree: Tree,
+    ) {
+        // TODO: Bad design
+        if self.file_type.is_dir() {
+            ItemCollector::process_dir(self, flags, handler, total, tree);
+        } else {
+            ItemCollector::process_file(self, handler, total);
+        }
+
+        total.size += self.size;
+    }
+
+    // TODO: 'process_dir' and 'process_file' should be a trait
+    // TODO: Fix the printout complexity
+    fn process_dir(
+        &self,
+        flags: &Flags,
+        handler: &mut OutputHandler,
+        total: &mut Totals,
         mut tree: Tree,
     ) {
-        if self.file_type.is_dir() {
-            // Avoid ANSI color if printing in a file,
-            // but include ANSI when printing to the terminal.
-            if flags.loc == PrintLocation::File {
-                writeln!(
-                    handler,
-                    "{}",
-                    DisplayFormatted {
-                        content: &self.name,
-                        format_fn: format_default_ref_string,
-                    }
-                )
-                .unwrap_or_default();
-            } else {
-                writeln!(
-                    handler,
-                    "{}",
-                    DisplayFormatted {
-                        content: &self.name,
-                        format_fn: format_bright_green_ref_string,
-                    }
-                )
-                .unwrap_or_default();
-            }
-
-            total.directories += 1;
-
-            tree.reach += 1;
-
-            let mut walker = WalkDirs::new(&mut tree, &self.path, total, handler, flags);
-
-            walker.walk_dirs();
-        } else {
+        // Avoid ANSI color if printing in a file,
+        // but include ANSI when printing to the terminal.
+        if flags.loc == PrintLocation::File {
             writeln!(
                 handler,
                 "{}",
@@ -87,9 +80,37 @@ impl ItemCollector {
                 }
             )
             .unwrap_or_default();
-            total.files += 1;
+        } else {
+            writeln!(
+                handler,
+                "{}",
+                DisplayFormatted {
+                    content: &self.name,
+                    format_fn: format_bright_green_ref_string,
+                }
+            )
+            .unwrap_or_default();
         }
 
-        total.size += self.size;
+        total.directories += 1;
+
+        tree.reach += 1;
+
+        // Iterate next depth of file, to perform DFS
+        let mut walker = WalkDirs::new(&mut tree, &self.path, total, handler, flags);
+        walker.walk_dirs();
+    }
+
+    fn process_file(&self, handler: &mut OutputHandler, total: &mut Totals) {
+        writeln!(
+            handler,
+            "{}",
+            DisplayFormatted {
+                content: &self.name,
+                format_fn: format_default_ref_string,
+            }
+        )
+        .unwrap_or_default();
+        total.files += 1;
     }
 }

@@ -24,6 +24,7 @@ use std::io::Write;
 use std::path::Path;
 use std::time::Instant;
 
+// TODO: Update
 const HELP_TEXT: &str = "
 -out                        Output the tree view to a text file.
 -ci                         Sort filenames with case-insensitive.
@@ -32,6 +33,9 @@ const HELP_TEXT: &str = "
 -xt                         Sort based on file's extension.
 -help                       Display usage information and exit.";
 
+/*
+TODO: Use clap to collect arguments
+*/
 pub fn arg_builder() {
     let mut flags = Flags::new();
 
@@ -46,7 +50,9 @@ pub fn arg_builder() {
     initializer(&flags);
 }
 
+// TODO
 pub fn initializer(flags: &Flags) {
+    // TODO
     let mut handler = (flags.loc).output_writer().unwrap();
 
     let mut totals = Totals::new();
