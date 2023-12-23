@@ -1,5 +1,7 @@
 # TreeCraft
 
+> UPDATE: TREECRAFT CURRENTLY IN FREEZE SHIPPING AND WILL BE GOING RAPID DEVELOPMENT AND BREAKING CHANGES.
+
 TreeCraft is a pure Rust command-line utility that allows user to see directory structures in ASCII format on terminal or save them to a text file. This project is meant to be a `drop-in replacement` for [tree](https://github.com/Old-Man-Programmer/tree.git) (see the link) that is written in the C language. This project aims to be non-bloated and more functional than the existing [tree](https://github.com/Old-Man-Programmer/tree.git).
 
 
