@@ -1,4 +1,4 @@
-use crate::PrintLocation;
+use crate::handle::loc::PrintLocation;
 use crate::Sort;
 use std::env;
 use std::ffi::OsString;

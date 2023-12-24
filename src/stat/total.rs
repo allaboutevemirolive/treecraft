@@ -1,5 +1,5 @@
+use crate::handle::loc::OutputHandler;
 use crate::Branch;
-use crate::handle::handle::OutputHandler;
 use std::fmt::Display;
 use std::io::Write;
 use std::time::Instant;

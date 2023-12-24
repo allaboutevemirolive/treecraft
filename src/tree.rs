@@ -1,6 +1,6 @@
 use crate::flag::Flags;
 use crate::flag::OptOutput;
-use crate::handle::handle::OutputHandler;
+use crate::handle::loc::OutputHandler;
 use std::io::{self, Write};
 
 /// Tree's components
@@ -16,23 +16,13 @@ trait TreeCmp {
 
 #[derive(Clone)]
 pub struct Tree {
-    // TODO: Better documentation
-    /// Points of attachment for leaves and buds
-    pub nodes: Vec<i32>,
-    /// Represent how far/depth a branch extends
-    /// horizontally from the main stem
-    pub reach: u32,
-    // TODO
+    pub config: TreeConfig,
     pub branch: Branch,
 }
 
 impl Tree {
-    pub fn new(nodes: Vec<i32>, reach: u32, branch: Branch) -> Tree {
-        Tree {
-            nodes,
-            reach,
-            branch,
-        }
+    pub fn new(config: TreeConfig, branch: Branch) -> Tree {
+        Tree { config, branch }
     }
 
     pub fn print_tree(&self, handle: &mut OutputHandler, flags: &Flags) -> io::Result<()> {
@@ -42,10 +32,9 @@ impl Tree {
             write!(handle, "    ")?;
         }
 
-        // INFO: Use usize type for indexing slices, arrays, and vectors.
-        for i in 0..=self.reach as usize {
-            if let Some(marker) = self.nodes.get(i) {
-                match self.nodes.get(i + 1) {
+        for i in 0..=self.config.depth.0 {
+            if let Some(marker) = self.config.nodes.get(i) {
+                match self.config.nodes.get(i + 1) {
                     Some(_) => {
                         if marker == &1 {
                             write!(handle, "{}", self.stem())?;
@@ -87,6 +76,36 @@ impl TreeCmp for Tree {
     /// "└── "
     fn twig(&self) -> &str {
         self.branch.twig
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct TreeDepth(pub usize);
+
+// TODO
+// impl TreeDepth {
+//     pub fn root() -> Self {
+//         Self(0)
+//     }
+
+//     pub fn deeper(self) -> Self {
+//         Self(self.0 + 1)
+//     }
+// }
+
+#[derive(Debug, Clone)]
+pub struct TreeConfig {
+    /// Points of attachment for leaves and buds
+    pub nodes: Vec<i32>,
+
+    /// Represent how far/depth a branch extends
+    /// horizontally from the main stem
+    pub depth: TreeDepth,
+}
+
+impl TreeConfig {
+    pub fn new(nodes: Vec<i32>, depth: TreeDepth) -> Self {
+        Self { nodes, depth }
     }
 }
 
