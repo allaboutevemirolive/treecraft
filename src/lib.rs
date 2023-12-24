@@ -2,7 +2,6 @@ pub mod flag;
 pub mod handle;
 pub mod init;
 pub mod item;
-pub mod loc;
 pub mod sort;
 pub mod stat;
 pub mod tree;
@@ -13,7 +12,6 @@ use stat::head::Header;
 use crate::flag::*;
 use crate::handle::*;
 use crate::init::*;
-use crate::loc::*;
 use crate::sort::*;
 use crate::stat::total::*;
 use crate::tree::*;
@@ -52,19 +50,24 @@ pub fn arg_builder() {
 
 // TODO
 pub fn initializer(flags: &Flags) {
-    // TODO
+    // TODO: Specify outputfile's name
     let mut handler = (flags.loc).output_writer().unwrap();
 
     let mut totals = Totals::new();
-    let header = Header::new(flags, &mut handler);
 
     let start_time = Instant::now();
 
+    // TODO: Conjoint this variable initialization
     let dir_name = flags.dir_path.to_string_lossy().into_owned();
     let path = Path::new(&dir_name);
 
-    let mut tree = Tree::new(Vec::with_capacity(5_000), 1, Branch::new());
+    let tree_config = TreeConfig::new(Vec::with_capacity(5_000), tree::TreeDepth(1));
 
+    // Initialize branches
+    let mut tree = Tree::new(tree_config, Branch::new());
+
+    // TODO: Conjoint
+    let header = Header::new(flags, &mut handler);
     header.print_header();
 
     let mut walker = WalkDirs::new(&mut tree, path, &mut totals, &mut handler, flags);

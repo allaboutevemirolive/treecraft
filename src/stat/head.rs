@@ -1,9 +1,9 @@
 use crate::flag::OptOutput;
+use crate::handle::loc::OutputHandler;
 use crate::item::DisplayFormatted;
 use crate::item::*;
 use crate::loc::PrintLocation;
 use crate::Flags;
-use crate::OutputHandler;
 use std::io::Write;
 use std::path::Path;
 

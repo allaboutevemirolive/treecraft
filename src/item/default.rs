@@ -7,8 +7,8 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use crate::flag::Flags;
-use crate::handle::OutputHandler;
-use crate::loc::PrintLocation;
+use crate::handle::loc::OutputHandler;
+use crate::handle::loc::PrintLocation;
 use crate::tree::Tree;
 
 /*
@@ -18,13 +18,13 @@ TODO: Implement specialize crate to collect file metada.
 pub struct ItemCollector {
     pub name: String,
     pub path: PathBuf,
-    pub depth: u32,
+    pub depth: usize,
     pub file_type: FileType,
     pub size: u64,
 }
 
 impl ItemCollector {
-    pub fn new(entry: &DirEntry, depth: &u32) -> io::Result<ItemCollector> {
+    pub fn new(entry: &DirEntry, depth: &usize) -> io::Result<ItemCollector> {
         let full_path = entry.path();
         let metadata = fs::symlink_metadata(&full_path)?;
         let file_type = entry.file_type()?;
@@ -47,7 +47,7 @@ impl ItemCollector {
         flags: &Flags,
         handler: &mut OutputHandler,
         total: &mut Totals,
-        tree: Tree,
+        tree: &mut Tree,
     ) {
         // TODO: Bad design
         if self.file_type.is_dir() {
@@ -66,7 +66,7 @@ impl ItemCollector {
         flags: &Flags,
         handler: &mut OutputHandler,
         total: &mut Totals,
-        mut tree: Tree,
+        tree: &mut Tree,
     ) {
         // Avoid ANSI color if printing in a file,
         // but include ANSI when printing to the terminal.
@@ -94,10 +94,10 @@ impl ItemCollector {
 
         total.directories += 1;
 
-        tree.reach += 1;
+        tree.config.depth.0 += 1;
 
         // Iterate next depth of file, to perform DFS
-        let mut walker = WalkDirs::new(&mut tree, &self.path, total, handler, flags);
+        let mut walker = WalkDirs::new(tree, &self.path, total, handler, flags);
         walker.walk_dirs();
     }
 
