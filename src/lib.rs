@@ -2,7 +2,6 @@ pub mod flag;
 pub mod handle;
 pub mod init;
 pub mod item;
-pub mod loc;
 pub mod sort;
 pub mod stat;
 pub mod tree;

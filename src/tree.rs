@@ -1,6 +1,6 @@
 use crate::flag::Flags;
 use crate::flag::OptOutput;
-use crate::OutputHandler;
+use crate::handle::handle::OutputHandler;
 use std::io::{self, Write};
 
 /// Tree's components
@@ -22,6 +22,7 @@ pub struct Tree {
     /// Represent how far/depth a branch extends
     /// horizontally from the main stem
     pub reach: u32,
+    // TODO
     pub branch: Branch,
 }
 

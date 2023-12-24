@@ -7,7 +7,7 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use crate::flag::Flags;
-use crate::handle::OutputHandler;
+use crate::handle::handle::OutputHandler;
 use crate::loc::PrintLocation;
 use crate::tree::Tree;
 
