@@ -5,9 +5,9 @@ use std::io;
 use std::io::Write;
 use std::path::PathBuf;
 
-use crate::flag::Flags;
-use crate::handle::loc::Location;
-use crate::handle::loc::OutputHandler;
+use crate::flag::Options;
+use crate::handle::Location;
+use crate::handle::OutputHandler;
 use crate::tree::Tree;
 use colored::*;
 
@@ -44,13 +44,13 @@ impl ItemCollector {
 
     pub fn get_item(
         &self,
-        flags: &Flags,
+        opts: &Options,
         handler: &mut OutputHandler,
         total: &mut Totals,
         tree: &mut Tree,
     ) {
         if self.file_type.is_dir() {
-            self.process_dir(flags, handler, total, tree);
+            self.process_dir(opts, handler, total, tree);
         } else {
             self.process_file(handler, total);
         }
@@ -61,7 +61,7 @@ impl ItemCollector {
     // TODO: 'process_dir' and 'process_file' should be a trait
     fn process_dir(
         &self,
-        flags: &Flags,
+        opts: &Options,
         handler: &mut OutputHandler,
         total: &mut Totals,
         tree: &mut Tree,
@@ -69,7 +69,7 @@ impl ItemCollector {
         // TODO
         // Avoid ANSI color if printing in a file,
         // but include ANSI when printing to the terminal.
-        if flags.loc == Location::File {
+        if opts.loc == Location::File {
             writeln!(handler, "{}", &self.name).unwrap_or_default();
         } else {
             writeln!(handler, "{}", &self.name.bright_green()).unwrap_or_default();
@@ -77,10 +77,10 @@ impl ItemCollector {
 
         total.directories += 1;
 
-        tree.config.depth.0 += 1;
+        tree.config.depth += 1;
 
         // Iterate next depth of file, to perform DFS
-        let mut walker = WalkDirs::new(tree, &self.path, total, handler, flags);
+        let mut walker = WalkDirs::new(tree, &self.path, total, handler, opts);
         walker.walk_dirs();
     }
 

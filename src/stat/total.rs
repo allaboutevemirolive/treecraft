@@ -1,4 +1,4 @@
-use crate::handle::loc::OutputHandler;
+use crate::handle::OutputHandler;
 use crate::Branch;
 use std::fmt::Display;
 use std::io::Write;

@@ -1,3 +1,3 @@
 fn main() {
-    treecraft::arg_builder();
+    treecraft::args_builder();
 }

@@ -1,35 +1,43 @@
-use crate::handle::loc::Location;
+use crate::handle::Location;
 use crate::*;
 use std::env;
-use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
-#[derive(Debug, PartialEq, Default)]
+pub mod layout {
+    pub static ALL: &str = "All";
+    pub static DEFAULT: &str = "Default";
+}
+
+pub mod sort_ty {
+    pub static SORT_CASE_SENSITIVE: &str = "Sort_case_sensitive";
+    pub static SORT_CASE_INSENSITIVE: &str = "Sort_case_insensitive";
+    pub static SORT_BY_EXTENSION: &str = "Sort_by_extension";
+    pub static NONE: &str = "None";
+}
+
+#[derive(Debug, PartialEq)]
 pub enum Layout {
-    #[default]
     Default,
     All,
 }
 
-pub struct Flags {
-    pub target_dir: OsString,
+pub struct Options {
+    pub target_dir: String,
     pub sort_ty: Sort,
     pub loc: Location,
     pub layout_ty: Layout,
-    pub guide: bool,
 }
 
-impl Flags {
-    pub fn new(args: &mut Vec<String>) -> Flags {
-        let mut default_flags: Flags = Flags {
-            target_dir: OsString::from(get_absolute_current_dir()),
+impl Options {
+    pub fn new(args: &mut Vec<String>) -> Options {
+        let mut default_flags: Options = Options {
+            target_dir: get_absolute_current_dir(),
             sort_ty: Sort::CaseSensitive,
             loc: Location::Stdout,
             layout_ty: Layout::All,
-            guide: false,
         };
 
-        // Sometimes we pass target path instead of current path
+        // Sometimes we pass 'target path' instead of 'current path'
         // We need to delete those target path before pass it to 'tc_app'
 
         // Find the index of the argument to delete
@@ -37,7 +45,7 @@ impl Flags {
 
         for (index, arg) in args.iter().skip(1).enumerate() {
             if let Some(path) = valid_path(arg) {
-                default_flags.target_dir = path.into_os_string();
+                default_flags.target_dir = path.to_string_lossy().to_string();
                 delete_index = Some(index + 1); // Adjust index to account for skipping the first element
                 break; // Exit loop since we found a valid path
             }
@@ -62,13 +70,6 @@ impl Flags {
             false => {}
         }
 
-        match matches.get_flag(options::GUIDE) {
-            true => {
-                default_flags.guide = true;
-            }
-            false => {}
-        }
-
         default_flags
     }
 }
@@ -88,4 +89,22 @@ pub fn get_absolute_current_dir() -> String {
         .to_str()
         .expect("Failed to convert path to str")
         .to_string()
+}
+
+pub fn tc_app() -> Command {
+    Command::new("treecraft")
+        .arg(
+            Arg::new(layout::DEFAULT)
+                .long("default")
+                .short('d')
+                .help("Print default layout. Etc. GNU tree's layout")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(
+            Arg::new(sort_ty::SORT_CASE_SENSITIVE)
+                .long("case-sensitive")
+                .short('s')
+                .help("Sort list in case-sensitive")
+                .action(ArgAction::SetTrue),
+        )
 }

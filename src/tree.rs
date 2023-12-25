@@ -1,6 +1,6 @@
-use crate::flag::Flags;
 use crate::flag::Layout;
-use crate::handle::loc::OutputHandler;
+use crate::flag::Options;
+use crate::handle::OutputHandler;
 use std::io::{self, Write};
 
 /// Tree's components
@@ -25,14 +25,14 @@ impl Tree {
         Tree { config, branch }
     }
 
-    pub fn print_tree(&self, handle: &mut OutputHandler, flags: &Flags) -> io::Result<()> {
+    pub fn print_tree(&self, handle: &mut OutputHandler, opts: &Options) -> io::Result<()> {
         // TODO: We can implement more implementations like, checking
         // file's permission etc.
-        if flags.layout_ty == Layout::All {
+        if opts.layout_ty == Layout::All {
             write!(handle, "    ")?;
         }
 
-        for i in 0..=self.config.depth.0 {
+        for i in 0..=self.config.depth {
             if let Some(marker) = self.config.nodes.get(i) {
                 match self.config.nodes.get(i + 1) {
                     Some(_) => {
@@ -79,20 +79,6 @@ impl TreeCmp for Tree {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
-pub struct TreeDepth(pub usize);
-
-// TODO
-// impl TreeDepth {
-//     pub fn root() -> Self {
-//         Self(0)
-//     }
-
-//     pub fn deeper(self) -> Self {
-//         Self(self.0 + 1)
-//     }
-// }
-
 #[derive(Debug, Clone)]
 pub struct TreeConfig {
     /// Points of attachment for leaves and buds
@@ -100,11 +86,11 @@ pub struct TreeConfig {
 
     /// Represent how far/depth a branch extends
     /// horizontally from the main stem
-    pub depth: TreeDepth,
+    pub depth: usize,
 }
 
 impl TreeConfig {
-    pub fn new(nodes: Vec<i32>, depth: TreeDepth) -> Self {
+    pub fn new(nodes: Vec<i32>, depth: usize) -> Self {
         Self { nodes, depth }
     }
 }

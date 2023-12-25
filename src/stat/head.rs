@@ -1,27 +1,27 @@
 use crate::flag::Layout;
-use crate::handle::loc::OutputHandler;
-use crate::loc::Location;
-use crate::Flags;
+use crate::handle::OutputHandler;
+use crate::Location;
+use crate::Options;
 use colored::*;
 use std::io::Write;
 use std::path::Path;
 
 pub struct Header<'a> {
-    flags: &'a Flags,
+    opts: &'a Options,
     handler: &'a mut OutputHandler,
 }
 
 impl<'a> Header<'a> {
     #[inline(always)]
-    pub(crate) fn new(flags: &'a Flags, handler: &'a mut OutputHandler) -> Header<'a> {
-        Header { flags, handler }
+    pub(crate) fn new(opts: &'a Options, handler: &'a mut OutputHandler) -> Header<'a> {
+        Header { opts, handler }
     }
 
     /// Print the name and full path of the target directory
     /// or the current dir if none is specified.
     #[inline(always)]
     pub(crate) fn print_header(mut self) {
-        let dir_name = Path::new(&self.flags.target_dir);
+        let dir_name = Path::new(&self.opts.target_dir);
 
         // Get current dir
         let curr_dir = dir_name
@@ -38,7 +38,7 @@ impl<'a> Header<'a> {
         //
 
         // TODO: Seperate header between 'All' and 'Default'
-        if self.flags.layout_ty == Layout::All {
+        if self.opts.layout_ty == Layout::All {
             self.get_indented_header(curr_dir);
         } else {
             self.get_default_header(curr_dir);
@@ -75,7 +75,7 @@ impl<'a> Header<'a> {
             0
         };
 
-        let indented_curr_dir = if self.flags.loc == Location::File {
+        let indented_curr_dir = if self.opts.loc == Location::File {
             format!("{:remaining_spaces$}{}", "", &curr_dir)
         } else {
             format!("{:remaining_spaces$}{}", "", &curr_dir.bright_green(),)
