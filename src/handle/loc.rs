@@ -4,6 +4,10 @@ use std::fs::File;
 use std::io::{self, BufWriter, Write};
 use std::rc::Rc;
 
+/*
+We may need to replace 'OutputHandler' with normal output
+and rely with pipeline to procude desired output.
+*/
 pub struct OutputHandler {
     container: Rc<RefCell<dyn Write>>,
 }
@@ -31,17 +35,17 @@ impl Write for OutputHandler {
 }
 
 #[derive(Debug, PartialEq, Default)]
-pub enum PrintLocation {
+pub enum Location {
     File,
     #[default]
     Stdout,
 }
 
-impl PrintLocation {
+impl Location {
     pub(crate) fn output_writer(&self) -> Result<OutputHandler, Box<dyn std::error::Error>> {
         let output_writer: Box<dyn Write> = match self {
-            PrintLocation::File => Box::new(BufWriter::new(File::create("Output.txt")?)),
-            PrintLocation::Stdout => Box::new(BufWriter::new(io::stdout().lock())),
+            Location::File => Box::new(BufWriter::new(File::create("Output.txt")?)),
+            Location::Stdout => Box::new(BufWriter::new(io::stdout().lock())),
         };
 
         Ok(OutputHandler::new(Rc::new(RefCell::new(output_writer))))

@@ -1,5 +1,5 @@
 use crate::flag::Flags;
-use crate::flag::OptOutput;
+use crate::flag::Layout;
 use crate::handle::loc::OutputHandler;
 use std::io::{self, Write};
 
@@ -28,7 +28,7 @@ impl Tree {
     pub fn print_tree(&self, handle: &mut OutputHandler, flags: &Flags) -> io::Result<()> {
         // TODO: We can implement more implementations like, checking
         // file's permission etc.
-        if flags.opt_ty == OptOutput::All {
+        if flags.layout_ty == Layout::All {
             write!(handle, "    ")?;
         }
 
@@ -122,12 +122,13 @@ pub struct Branch {
 }
 
 impl Default for Branch {
+    #[rustfmt::skip]
     fn default() -> Branch {
         Branch {
-            twig: "└── ",
+            twig:     "└── ",
             junction: "├── ",
-            axil: "    ",
-            stem: "│   ",
+            axil:     "    ",
+            stem:     "│   ",
         }
     }
 }

@@ -1,9 +1,8 @@
-use crate::flag::OptOutput;
+use crate::flag::Layout;
 use crate::handle::loc::OutputHandler;
-use crate::item::DisplayFormatted;
-use crate::item::*;
-use crate::loc::PrintLocation;
+use crate::loc::Location;
 use crate::Flags;
+use colored::*;
 use std::io::Write;
 use std::path::Path;
 
@@ -22,7 +21,7 @@ impl<'a> Header<'a> {
     /// or the current dir if none is specified.
     #[inline(always)]
     pub(crate) fn print_header(mut self) {
-        let dir_name = Path::new(&self.flags.dir_path);
+        let dir_name = Path::new(&self.flags.target_dir);
 
         // Get current dir
         let curr_dir = dir_name
@@ -39,7 +38,7 @@ impl<'a> Header<'a> {
         //
 
         // TODO: Seperate header between 'All' and 'Default'
-        if self.flags.opt_ty == OptOutput::All {
+        if self.flags.layout_ty == Layout::All {
             self.get_indented_header(curr_dir);
         } else {
             self.get_default_header(curr_dir);
@@ -76,31 +75,17 @@ impl<'a> Header<'a> {
             0
         };
 
-        let indented_curr_dir = if self.flags.loc == PrintLocation::File {
-            format!(
-                "{:width$}{}",
-                "",
-                DisplayFormatted {
-                    content: &curr_dir,
-                    format_fn: format_default_ref_string,
-                },
-                width = remaining_spaces
-            )
+        let indented_curr_dir = if self.flags.loc == Location::File {
+            format!("{:remaining_spaces$}{}", "", &curr_dir)
         } else {
-            format!(
-                "{:width$}{}",
-                "",
-                DisplayFormatted {
-                    content: &curr_dir,
-                    format_fn: format_bright_green_ref_string,
-                },
-                width = remaining_spaces
-            )
+            format!("{:remaining_spaces$}{}", "", &curr_dir.bright_green(),)
         };
 
+        // TODO
         write!(self.handler, "\n {}\n    .\n", indented_curr_dir).unwrap_or_default();
     }
 
+    // TODO
     fn get_default_header(&mut self, curr_dir: String) {
         writeln!(self.handler, "/{}", curr_dir).unwrap_or_default();
     }
