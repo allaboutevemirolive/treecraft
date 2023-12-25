@@ -6,8 +6,8 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use crate::flag::Flags;
+use crate::handle::loc::Location;
 use crate::handle::loc::OutputHandler;
-use crate::handle::loc::PrintLocation;
 use crate::tree::Tree;
 use colored::*;
 
@@ -69,7 +69,7 @@ impl ItemCollector {
         // TODO
         // Avoid ANSI color if printing in a file,
         // but include ANSI when printing to the terminal.
-        if flags.loc == PrintLocation::File {
+        if flags.loc == Location::File {
             writeln!(handler, "{}", &self.name).unwrap_or_default();
         } else {
             writeln!(handler, "{}", &self.name.bright_green()).unwrap_or_default();
