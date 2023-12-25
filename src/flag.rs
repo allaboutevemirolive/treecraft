@@ -1,87 +1,75 @@
-use crate::handle::loc::PrintLocation;
-use crate::Sort;
+use crate::handle::loc::Location;
+use crate::*;
 use std::env;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, PartialEq, Default)]
-pub enum OptOutput {
+pub enum Layout {
     #[default]
     Default,
     All,
 }
 
 pub struct Flags {
-    pub dir_path: OsString,
+    pub target_dir: OsString,
     pub sort_ty: Sort,
-    pub loc: PrintLocation,
-    pub opt_ty: OptOutput,
-    pub help: bool,
-    // pub ignore_dirs: Vec<String>,
-}
-
-impl Default for Flags {
-    fn default() -> Flags {
-        Flags {
-            dir_path: OsString::from(get_absolute_current_dir()),
-            sort_ty: Sort::CaseSensitive,
-            loc: PrintLocation::Stdout,
-            opt_ty: OptOutput::All,
-            help: false,
-            // ignore_dirs: Vec<String, Global>,
-        }
-    }
+    pub loc: Location,
+    pub layout_ty: Layout,
+    pub guide: bool,
 }
 
 impl Flags {
-    pub fn new() -> Flags {
-        Default::default()
-    }
+    pub fn new(args: &mut Vec<String>) -> Flags {
+        let mut default_flags: Flags = Flags {
+            target_dir: OsString::from(get_absolute_current_dir()),
+            sort_ty: Sort::CaseSensitive,
+            loc: Location::Stdout,
+            layout_ty: Layout::All,
+            guide: false,
+        };
 
-    pub fn processing_args(&mut self, args: Vec<String>) {
-        let mut iter = args.iter().skip(1);
+        // Sometimes we pass target path instead of current path
+        // We need to delete those target path before pass it to 'tc_app'
 
-        for arg in &mut iter {
+        // Find the index of the argument to delete
+        let mut delete_index = None;
+
+        for (index, arg) in args.iter().skip(1).enumerate() {
             if let Some(path) = valid_path(arg) {
-                self.dir_path = path.into_os_string();
-            } else {
-                match arg.as_str() {
-                    // Output options
-                    "-out" => self.loc = PrintLocation::File,
-
-                    // Sort
-                    "-def" => self.sort_ty = Sort::default(),
-                    "-cs" => self.sort_ty = Sort::CaseSensitive,
-                    "-ci" => self.sort_ty = Sort::CaseInsensitive,
-                    "-no" => self.sort_ty = Sort::None,
-                    "-xt" => self.sort_ty = Sort::Extension,
-
-                    // Miscellaneous options
-                    "-help" => self.help = true,
-
-                    // OutputOption:
-                    // Werther we want default output like 'tree' or
-                    // exhaustive output with analysis
-                    // Default
-                    "-odef" => self.opt_ty = OptOutput::Default,
-
-                    /*
-                    -ignore=target&&src
-                    "--ignore=" => {
-                        let iters =  arg.trim_start_matches("--ignore="").into();
-
-                        for iter in iters.split("&&") {
-                            self.ignore_dirs.push(iter);
-                        }
-
-                    }
-                     */
-                    _ => {
-                        break;
-                    }
-                }
+                default_flags.target_dir = path.into_os_string();
+                delete_index = Some(index + 1); // Adjust index to account for skipping the first element
+                break; // Exit loop since we found a valid path
             }
         }
+
+        // Delete argument if found
+        if let Some(index) = delete_index {
+            args.remove(index);
+        }
+
+        // Clone args vector before passing it to 'try_get_matches_from'
+        let cloned_args: Vec<String> = args.clone();
+
+        let matches = tc_app()
+            .try_get_matches_from(cloned_args)
+            .unwrap_or_else(|e| e.exit());
+
+        match matches.get_flag(layout::DEFAULT) {
+            true => {
+                default_flags.layout_ty = Layout::Default;
+            }
+            false => {}
+        }
+
+        match matches.get_flag(options::GUIDE) {
+            true => {
+                default_flags.guide = true;
+            }
+            false => {}
+        }
+
+        default_flags
     }
 }
 
