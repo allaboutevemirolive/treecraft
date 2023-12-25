@@ -1,7 +1,7 @@
 use std::{fs, path::Path};
 
-use crate::flag::Flags;
-use crate::handle::loc::OutputHandler;
+use crate::flag::Options;
+use crate::handle::OutputHandler;
 use crate::item::default::*;
 use crate::sort::sort_ty;
 use crate::stat::total::Totals;
@@ -12,7 +12,7 @@ pub struct WalkDirs<'a> {
     path: &'a Path,
     total: &'a mut Totals,
     handle: &'a mut OutputHandler,
-    flags: &'a Flags,
+    opts: &'a Options,
 }
 
 impl<'a> WalkDirs<'a> {
@@ -21,14 +21,14 @@ impl<'a> WalkDirs<'a> {
         path: &'a Path,
         total: &'a mut Totals,
         handle: &'a mut OutputHandler,
-        flags: &'a Flags,
+        opts: &'a Options,
     ) -> WalkDirs<'a> {
         WalkDirs {
             tree,
             path,
             total,
             handle,
-            flags,
+            opts,
         }
     }
 
@@ -36,7 +36,7 @@ impl<'a> WalkDirs<'a> {
         let mut entries: Vec<_> = fs::read_dir(self.path).expect("Error walking").collect();
 
         // If no, default sort, case-sensitive is used
-        sort_ty(&mut entries, &self.flags.sort_ty);
+        sort_ty(&mut entries, &self.opts.sort_ty);
 
         for (index, entry) in entries.iter().enumerate() {
             // Check for "dot" file
@@ -63,13 +63,13 @@ impl<'a> WalkDirs<'a> {
             };
 
             // Print branch
-            self.tree.print_tree(self.handle, self.flags).unwrap();
+            self.tree.print_tree(self.handle, self.opts).unwrap();
 
             // collect item
             let item =
-                ItemCollector::new(entry.as_ref().unwrap(), &self.tree.config.depth.0).unwrap();
+                ItemCollector::new(entry.as_ref().unwrap(), &self.tree.config.depth).unwrap();
 
-            item.get_item(self.flags, self.handle, self.total, self.tree);
+            item.get_item(self.opts, self.handle, self.total, self.tree);
 
             self.tree.config.nodes.pop();
         }
