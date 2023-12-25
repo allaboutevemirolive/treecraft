@@ -57,7 +57,7 @@ pub fn arg_builder() {
 
     if flags.guide {
         let mut stdout = io::stdout().lock();
-        writeln!(&mut stdout, "{}\n", HELP_TEXT).unwrap_or_default();
+        writeln!(&mut stdout, "{}", HELP_TEXT).unwrap_or_default();
         std::process::exit(0);
     }
 
