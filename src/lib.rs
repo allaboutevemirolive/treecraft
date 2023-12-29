@@ -26,29 +26,27 @@ pub fn args_builder() {
 
     let options = Options::new(&mut args);
 
-    initializer(&options);
+    exec(&options);
 }
 
 // TODO
-pub fn initializer(options: &Options) {
+pub fn exec(options: &Options) {
     // TODO: Specify outputfile's name
-    let mut handler = (options.loc).output_writer().unwrap();
+    let mut handler = (options.loc).output_writer(options).unwrap();
 
     let mut totals = Totals::new();
 
     let start_time = Instant::now();
 
-    // TODO: Conjoint this variable initialization
-    let dir_name = &options.target_dir;
-    let path = Path::new(&dir_name);
+    let path = Path::new(&options.target_dir);
 
     let tree_config = TreeConfig::new(Vec::with_capacity(5_000), 1);
 
     // Initialize branches
     let mut tree = Tree::new(tree_config, Branch::new());
 
-    // TODO: Conjoint
     let header = Header::new(options, &mut handler);
+
     header.print_header();
 
     let mut walker = WalkDirs::new(&mut tree, path, &mut totals, &mut handler, options);

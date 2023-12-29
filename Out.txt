@@ -1,0 +1,276 @@
+
+ treecraft
+    .
+    ├── CHANGELOG.md
+    ├── CODE_OF_CONDUCT.md
+    ├── CONTRIBUTING.md
+    ├── Cargo.lock
+    ├── Cargo.toml
+    ├── LICENSE.md
+    ├── Out.txt
+    ├── README.md
+    ├── src
+    │   ├── flag.rs
+    │   ├── handle
+    │   │   ├── README.md
+    │   │   └── mod.rs
+    │   ├── init.rs
+    │   ├── item
+    │   │   ├── all.rs
+    │   │   ├── default.rs
+    │   │   └── mod.rs
+    │   ├── lib.rs
+    │   ├── main.rs
+    │   ├── sort.rs
+    │   ├── stat
+    │   │   ├── head.rs
+    │   │   ├── mod.rs
+    │   │   └── total.rs
+    │   └── tree.rs
+    └── target
+        ├── CACHEDIR.TAG
+        └── debug
+            ├── build
+            ├── deps
+            │   ├── anstream-095823d142faa8b2.d
+            │   ├── anstream-60285bdcafc5ee30.d
+            │   ├── anstyle-884e230a6adede60.d
+            │   ├── anstyle-f4bf1ccf07d9edae.d
+            │   ├── anstyle_parse-783d83033c961323.d
+            │   ├── anstyle_parse-f0917b4782d34576.d
+            │   ├── anstyle_query-2692d8e6b4f98603.d
+            │   ├── anstyle_query-b3ba9057d914a333.d
+            │   ├── clap-1e61cabea86bd860.d
+            │   ├── clap-bd3ab01fb35ced2d.d
+            │   ├── clap_builder-e6ffbf9989c03189.d
+            │   ├── clap_builder-f78f34ea82ff35dd.d
+            │   ├── clap_lex-2cb77b7246933da8.d
+            │   ├── clap_lex-482724a7dbbab633.d
+            │   ├── colorchoice-0b698e736fe7c838.d
+            │   ├── colorchoice-c616dfc51be944b7.d
+            │   ├── colored-009a676cd3525981.d
+            │   ├── colored-60fffaa2d47c1046.d
+            │   ├── lazy_static-b82c15677deef9e2.d
+            │   ├── lazy_static-cfcc8480bfe4faf6.d
+            │   ├── libanstream-095823d142faa8b2.rmeta
+            │   ├── libanstream-60285bdcafc5ee30.rlib
+            │   ├── libanstream-60285bdcafc5ee30.rmeta
+            │   ├── libanstyle-884e230a6adede60.rmeta
+            │   ├── libanstyle-f4bf1ccf07d9edae.rlib
+            │   ├── libanstyle-f4bf1ccf07d9edae.rmeta
+            │   ├── libanstyle_parse-783d83033c961323.rlib
+            │   ├── libanstyle_parse-783d83033c961323.rmeta
+            │   ├── libanstyle_parse-f0917b4782d34576.rmeta
+            │   ├── libanstyle_query-2692d8e6b4f98603.rlib
+            │   ├── libanstyle_query-2692d8e6b4f98603.rmeta
+            │   ├── libanstyle_query-b3ba9057d914a333.rmeta
+            │   ├── libclap-1e61cabea86bd860.rlib
+            │   ├── libclap-1e61cabea86bd860.rmeta
+            │   ├── libclap-bd3ab01fb35ced2d.rmeta
+            │   ├── libclap_builder-e6ffbf9989c03189.rmeta
+            │   ├── libclap_builder-f78f34ea82ff35dd.rlib
+            │   ├── libclap_builder-f78f34ea82ff35dd.rmeta
+            │   ├── libclap_lex-2cb77b7246933da8.rlib
+            │   ├── libclap_lex-2cb77b7246933da8.rmeta
+            │   ├── libclap_lex-482724a7dbbab633.rmeta
+            │   ├── libcolorchoice-0b698e736fe7c838.rmeta
+            │   ├── libcolorchoice-c616dfc51be944b7.rlib
+            │   ├── libcolorchoice-c616dfc51be944b7.rmeta
+            │   ├── libcolored-009a676cd3525981.rmeta
+            │   ├── libcolored-60fffaa2d47c1046.rlib
+            │   ├── libcolored-60fffaa2d47c1046.rmeta
+            │   ├── liblazy_static-b82c15677deef9e2.rlib
+            │   ├── liblazy_static-b82c15677deef9e2.rmeta
+            │   ├── liblazy_static-cfcc8480bfe4faf6.rmeta
+            │   ├── libstrsim-ab204b3768f55eff.rmeta
+            │   ├── libstrsim-dc8145b3de3a0df7.rlib
+            │   ├── libstrsim-dc8145b3de3a0df7.rmeta
+            │   ├── libtc-50489279c5e642b9.rmeta
+            │   ├── libtc-5f821a98048a7983.rmeta
+            │   ├── libtc-f6d9725424eab801.rmeta
+            │   ├── libtreecraft-37fa2fab9ca7f7c3.rmeta
+            │   ├── libtreecraft-75f2fcd91abaa922.rlib
+            │   ├── libtreecraft-75f2fcd91abaa922.rmeta
+            │   ├── libtreecraft-954ea2753fa60786.rmeta
+            │   ├── libtreecraft-ee9b4902fb173da0.rmeta
+            │   ├── libutf8parse-aa10ddb1ddfb17ea.rmeta
+            │   ├── libutf8parse-f46d75c45027b5b7.rlib
+            │   ├── libutf8parse-f46d75c45027b5b7.rmeta
+            │   ├── strsim-ab204b3768f55eff.d
+            │   ├── strsim-dc8145b3de3a0df7.d
+            │   ├── tc-50489279c5e642b9.d
+            │   ├── tc-5f821a98048a7983.d
+            │   ├── tc-9be8aa3505c2319b
+            │   ├── tc-9be8aa3505c2319b.d
+            │   ├── tc-9be8aa3505c2319b.s
+            │   ├── tc-f6d9725424eab801.d
+            │   ├── treecraft-37fa2fab9ca7f7c3.d
+            │   ├── treecraft-75f2fcd91abaa922.d
+            │   ├── treecraft-954ea2753fa60786.d
+            │   ├── treecraft-ee9b4902fb173da0.d
+            │   ├── utf8parse-aa10ddb1ddfb17ea.d
+            │   └── utf8parse-f46d75c45027b5b7.d
+            ├── examples
+            ├── incremental
+            │   ├── tc-1r5ch07e6u8m8
+            │   │   ├── s-grya1suroz-1ww847j-45vxab1uydioqvqzxjebh749g
+            │   │   │   ├── dep-graph.bin
+            │   │   │   ├── query-cache.bin
+            │   │   │   └── work-products.bin
+            │   │   └── s-grya1suroz-1ww847j.lock
+            │   ├── tc-1y5pjwjt0xk2l
+            │   │   ├── s-gryag7f9rb-8dfl6d-4n2jnfqyhsmz9djiv9ztys7x1
+            │   │   │   ├── dep-graph.bin
+            │   │   │   ├── query-cache.bin
+            │   │   │   └── work-products.bin
+            │   │   └── s-gryag7f9rb-8dfl6d.lock
+            │   ├── tc-2tq24qkxb8k5g
+            │   │   ├── s-gryag7f9rg-10ektk3-5qdy87l4xsapwu2tuwcrr89l7
+            │   │   │   ├── dep-graph.bin
+            │   │   │   ├── query-cache.bin
+            │   │   │   └── work-products.bin
+            │   │   └── s-gryag7f9rg-10ektk3.lock
+            │   ├── tc-ur31j4ebo6br
+            │   │   ├── s-gryagh62i1-8ratjq-83g1mwqqjazpha4x39jipwqk
+            │   │   │   ├── 1xx6w6q27gktlgdr.o
+            │   │   │   ├── 29mtzfu0dhvpfm3s.o
+            │   │   │   ├── 4xcwbonrsmqg4zxk.o
+            │   │   │   ├── 593c41mm71178log.o
+            │   │   │   ├── 67loppgdwatodm9.o
+            │   │   │   ├── dep-graph.bin
+            │   │   │   ├── query-cache.bin
+            │   │   │   └── work-products.bin
+            │   │   └── s-gryagh62i1-8ratjq.lock
+            │   ├── treecraft-1d128z3opaydx
+            │   │   ├── s-grya1sp0cj-l4u3d4-5ydld0s2barbkvzoo4baa43kp
+            │   │   │   ├── dep-graph.bin
+            │   │   │   ├── query-cache.bin
+            │   │   │   └── work-products.bin
+            │   │   └── s-grya1sp0cj-l4u3d4.lock
+            │   ├── treecraft-3eeqrgp47ilhx
+            │   │   ├── s-gryag2bdfa-ubvoap-working
+            │   │   │   ├── dep-graph.bin
+            │   │   │   ├── dep-graph.part.bin
+            │   │   │   ├── query-cache.bin
+            │   │   │   └── work-products.bin
+            │   │   ├── s-gryag2bdfa-ubvoap.lock
+            │   │   ├── s-gryag7dsvp-1x2j7cx-4vje4uw1es67hhs4giqnqoi8l
+            │   │   │   ├── dep-graph.bin
+            │   │   │   ├── query-cache.bin
+            │   │   │   └── work-products.bin
+            │   │   └── s-gryag7dsvp-1x2j7cx.lock
+            │   ├── treecraft-3h3p4msv8hzba
+            │   │   ├── s-gryagh2aze-1rcqipg-9h6df6yom32grpi5wiogmlpgs
+            │   │   │   ├── 11uww9uz45ko7ulx.o
+            │   │   │   ├── 12sajwm0e6jivfwc.o
+            │   │   │   ├── 13qubab5wsc5h1gz.o
+            │   │   │   ├── 149n2ubo52zwj2on.o
+            │   │   │   ├── 14xlpo97a97smyf1.o
+            │   │   │   ├── 183c4g8u67dnf95y.o
+            │   │   │   ├── 1bpetr9fuzwk0150.o
+            │   │   │   ├── 1f9evu6v9h20oh83.o
+            │   │   │   ├── 1j16sviqzc8p2kzw.o
+            │   │   │   ├── 1kd2w1ra2yx2fzii.o
+            │   │   │   ├── 1mj1ke2yw3o6xc8a.o
+            │   │   │   ├── 1nl3ilwjm98qv4r8.o
+            │   │   │   ├── 1oaoewx1094shxfk.o
+            │   │   │   ├── 1off797jmre3m7bp.o
+            │   │   │   ├── 1peuy7nf9x9e3d8v.o
+            │   │   │   ├── 1ppekd39524802ea.o
+            │   │   │   ├── 1uarjmf9bcjafsbu.o
+            │   │   │   ├── 1vnto5az9reekma2.o
+            │   │   │   ├── 20zzemm1vofp7iw7.o
+            │   │   │   ├── 2134fge72qfsfglq.o
+            │   │   │   ├── 28r3g8xz4hyv9d4k.o
+            │   │   │   ├── 29ll8jcfh1cfqr4h.o
+            │   │   │   ├── 2b90rhrw0rwczf94.o
+            │   │   │   ├── 2bl5eto1tia37q8.o
+            │   │   │   ├── 2bql2xdatdaaqc0r.o
+            │   │   │   ├── 2e07nyrvqsz430d9.o
+            │   │   │   ├── 2j3zgnhirep9xx60.o
+            │   │   │   ├── 2pkjaq13aik3yvgv.o
+            │   │   │   ├── 2tkkg0sys6jgavep.o
+            │   │   │   ├── 2vy6wk2lzlm5p1ms.o
+            │   │   │   ├── 2yc5ugaf9zpazt63.o
+            │   │   │   ├── 2zqq1eio4t5jxquu.o
+            │   │   │   ├── 3527n37tz4dkxftc.o
+            │   │   │   ├── 365bafpf2jmkkszi.o
+            │   │   │   ├── 36uy3n2thczpf17l.o
+            │   │   │   ├── 370j2u08v3o9hv2q.o
+            │   │   │   ├── 3ayh80gkhfb0jc43.o
+            │   │   │   ├── 3bfi5vwj0hfc08o2.o
+            │   │   │   ├── 3fjbngggajjvwld1.o
+            │   │   │   ├── 3o3i6rl895sptcw8.o
+            │   │   │   ├── 3o9cfe4vzlffhpfh.o
+            │   │   │   ├── 3v9zwna3zab5deso.o
+            │   │   │   ├── 3vysll1qw7lm4yyf.o
+            │   │   │   ├── 3wjbeuxg9ze082hg.o
+            │   │   │   ├── 41z9cxj0aermtm5k.o
+            │   │   │   ├── 43o9kwbp9ttwqlra.o
+            │   │   │   ├── 469q1q7dc7wcn7cg.o
+            │   │   │   ├── 4906f3cvzjq8cj6c.o
+            │   │   │   ├── 4as4avmez2x01egh.o
+            │   │   │   ├── 4cch288zecmb1psm.o
+            │   │   │   ├── 4dhfl7gztkdf5fei.o
+            │   │   │   ├── 4e6gby1bd05pevaa.o
+            │   │   │   ├── 4fej4h16rdoiolkc.o
+            │   │   │   ├── 4g0m4pwzi4hsss1a.o
+            │   │   │   ├── 4isgaxt9dkes6ayq.o
+            │   │   │   ├── 4o303qov7s0dejee.o
+            │   │   │   ├── 4qpbx8zb5ex357hf.o
+            │   │   │   ├── 4r4ihfzjs7sk7sxk.o
+            │   │   │   ├── 4s7s5a80hdpc695o.o
+            │   │   │   ├── 4v9n8cc9aeeeg0of.o
+            │   │   │   ├── 4vxser9hf9azywrh.o
+            │   │   │   ├── 51expc3j7wyycoid.o
+            │   │   │   ├── 561t86et75ia3rok.o
+            │   │   │   ├── 564pymljgbqy1x6x.o
+            │   │   │   ├── 56cq5sotj3wmtext.o
+            │   │   │   ├── 572968rzogkcfl4v.o
+            │   │   │   ├── 57wqirxgow8uw4dr.o
+            │   │   │   ├── 58fs12uoaqywj32p.o
+            │   │   │   ├── 59p0pw4haq041jyh.o
+            │   │   │   ├── 5bwprec2jxasrxab.o
+            │   │   │   ├── 5fo3kkv43h4uo179.o
+            │   │   │   ├── 5g3a67b7wzfi0wvj.o
+            │   │   │   ├── dep-graph.bin
+            │   │   │   ├── dk4o05i4t3he6es.o
+            │   │   │   ├── gaq86tyxlqfi2s1.o
+            │   │   │   ├── ix8fgao0zemczuo.o
+            │   │   │   ├── nejbqmvy0lyq48d.o
+            │   │   │   ├── ngiaqdiwk4pzy7c.o
+            │   │   │   ├── nqo5go70gihtcfz.o
+            │   │   │   ├── p6mlf363031zx7l.o
+            │   │   │   ├── przblg7yd344850.o
+            │   │   │   ├── query-cache.bin
+            │   │   │   ├── r12udsiv96lpave.o
+            │   │   │   ├── work-products.bin
+            │   │   │   └── x5oycvtuie0gr2f.o
+            │   │   └── s-gryagh2aze-1rcqipg.lock
+            │   └── treecraft-qzn9hfnpg9yt
+            │       ├── s-gryag2bbcz-2rr7qw-working
+            │       │   ├── dep-graph.bin
+            │       │   ├── dep-graph.part.bin
+            │       │   ├── query-cache.bin
+            │       │   └── work-products.bin
+            │       ├── s-gryag2bbcz-2rr7qw.lock
+            │       ├── s-gryag7dsvl-ihqdts-1e1yxvyua8ud7nsceu8clni51
+            │       │   ├── dep-graph.bin
+            │       │   ├── query-cache.bin
+            │       │   └── work-products.bin
+            │       └── s-gryag7dsvl-ihqdts.lock
+            ├── libtreecraft.d
+            ├── libtreecraft.rlib
+            ├── tc
+            └── tc.d
+
+
+ Insights:
+    .
+    ├── Processing Time      : 0.001784458 seconds
+    ├── Visible Dirs         : 28
+    ├── Visible Files        : 234
+    ├── *Hidden Dirs/Files   : 5
+    ├── Total Items(excl.*)  : 262
+    └── Total Size           : 0.08 GB (86,629,432 bytes)
+
