@@ -1,15 +1,15 @@
 use crate::stat::total::Totals;
-use crate::WalkDirs;
+use crate::{flag, WalkDirs};
 use std::fs::{self, DirEntry, FileType};
 use std::io;
 use std::io::Write;
 use std::path::PathBuf;
 
 use crate::flag::Options;
-use crate::handle::Location;
 use crate::handle::OutputHandler;
 use crate::tree::Tree;
 use colored::*;
+use flag::Location;
 
 /*
 TODO: Implement specialize crate to collect file metada.
