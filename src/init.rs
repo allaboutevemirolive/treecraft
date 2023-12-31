@@ -1,5 +1,4 @@
 use std::{fs, path::Path};
-
 use crate::flag::Options;
 use crate::handle::OutputHandler;
 use crate::item::default::*;
@@ -16,6 +15,7 @@ pub struct WalkDirs<'a> {
 }
 
 impl<'a> WalkDirs<'a> {
+    #[inline(always)]
     pub(crate) fn new(
         tree: &'a mut Tree,
         path: &'a Path,
@@ -39,31 +39,30 @@ impl<'a> WalkDirs<'a> {
         // If no, default sort, case-sensitive is used
         sort_ty(&mut entries, &self.opts.sort_ty);
 
-        for (index, entry) in entries
-            .iter()
-            .enumerate()
-            .map(|(index, entry)| (index, entry.as_ref()))
-        {
-            match entry {
+        let len = entries.len();
+        entries.iter().zip(0..).for_each(|(entry, index)| {
+            match entry.as_ref() {
+                // skip hidden file
                 Ok(entry) if Self::check_hidden_file(entry) => {
                     self.total.hidden_file += 1;
-                    continue;
                 }
-                Ok(_) => {
+                Ok(entry) => {
                     // Modify current vector for generating tree branch
-                    if index < entries.len() - 1 {
+                    if index < len - 1 {
                         self.tree.config.nodes.push(1);
                     } else {
                         self.tree.config.nodes.push(2);
-                    };
-
-                    // Print branch
-                    self.tree.print_tree(self.handle, self.opts).unwrap();
+                    }
 
                     // collect item
-                    let item = ItemCollector::new(entry.unwrap(), &self.tree.config.depth).unwrap();
+                    if let Ok(item) = ItemCollector::new(entry, &self.tree.config.depth) {
+                        // Print branch after collecting item
+                        self.tree.print_tree(self.handle, self.opts).unwrap();
 
-                    item.get_item(self.opts, self.handle, self.total, self.tree);
+                        item.get_item(self.opts, self.handle, self.total, self.tree);
+                    } else {
+                        eprintln!("Error creating item");
+                    }
 
                     self.tree.config.nodes.pop();
                 }
@@ -74,7 +73,7 @@ impl<'a> WalkDirs<'a> {
                     );
                 }
             }
-        }
+        });
     }
 
     fn check_hidden_file(check_hidden: &fs::DirEntry) -> bool {

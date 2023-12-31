@@ -3,7 +3,12 @@ use crate::flag::Options;
 use crate::handle::OutputHandler;
 use std::io::{self, Write};
 
-/// Tree's components
+pub static TWIG: &str = "└── ";
+pub static JUNCTION: &str = "├── ";
+pub static AXIL: &str = "    ";
+pub static STEM: &str = "│   ";
+
+/// Tree's components-
 trait TreeCmp {
     fn stem(&self) -> &str;
 
@@ -37,16 +42,16 @@ impl Tree {
                 match self.config.nodes.get(i + 1) {
                     Some(_) => {
                         if marker == &1 {
-                            write!(handle, "{}", self.stem())?;
+                            write!(handle, "{}", STEM)?;
                         } else {
-                            write!(handle, "{}", self.axil())?;
+                            write!(handle, "{}", AXIL)?;
                         }
                     }
                     None => {
                         if marker == &1 {
-                            write!(handle, "{}", self.junction())?;
+                            write!(handle, "{}", JUNCTION)?;
                         } else {
-                            write!(handle, "{}", self.twig())?;
+                            write!(handle, "{}", TWIG)?;
                         }
                     }
                 }
@@ -125,12 +130,6 @@ impl Branch {
     }
 }
 
-// mod part {
-//     pub static TWIG: &str = "└── ";
-//     pub static JUNCTION: &str = "├── ";
-//     pub static AXIL: &str = "    ";
-//     pub static STEM: &str = "│   ";
-// }
 
 // pub enum BranchPart {
 //     Twig,
@@ -142,10 +141,10 @@ impl Branch {
 // impl BranchPart {
 //     pub fn get_part(&self) -> &str {
 //         match self {
-//             BranchPart::Twig => part::TWIG,
-//             BranchPart::Junction => part::JUNCTION,
-//             BranchPart::Axil => part::AXIL,
-//             BranchPart::Stem => part::STEM,
+//             BranchPart::Twig => TWIG,
+//             BranchPart::Junction => JUNCTION,
+//             BranchPart::Axil => AXIL,
+//             BranchPart::Stem => STEM,
 //         }
 //     }
 // }

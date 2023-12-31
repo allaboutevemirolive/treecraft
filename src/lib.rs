@@ -25,9 +25,7 @@ use std::time::Instant;
 pub fn args_builder() {
     let mut args: Vec<String> = env::args().collect();
 
-    let options = Options::new(&mut args);
-
-    exec(&options);
+    exec(&Options::new(&mut args));
 }
 
 // TODO
@@ -39,20 +37,23 @@ pub fn exec(options: &Options) {
 
     let start_time = Instant::now();
 
-    let path = Path::new(&options.target_dir);
+    // let path = Path::new(&options.target_dir);
 
     let tree_config = TreeConfig::new(Vec::with_capacity(5_000), 1);
 
     // Initialize branches
     let mut tree = Tree::new(tree_config, Branch::new());
 
-    let header = Header::new(options, &mut handler);
+    Header::new(options, &mut handler).print_header();
 
-    header.print_header();
-
-    let mut walker = WalkDirs::new(&mut tree, path, &mut totals, &mut handler, options);
-
-    walker.walk_dirs();
+    WalkDirs::new(
+        &mut tree,
+        Path::new(&options.target_dir),
+        &mut totals,
+        &mut handler,
+        options,
+    )
+    .walk_dirs();
 
     if options.layout_ty == Layout::All {
         totals.stats(&mut handler, start_time, tree.branch).unwrap();
