@@ -1,8 +1,8 @@
+use crate::ansi::*;
 use crate::flag::Layout;
 use crate::handle::OutputHandler;
 use crate::Location;
 use crate::Options;
-use colored::*;
 use std::io::Write;
 use std::path::Path;
 
@@ -12,14 +12,12 @@ pub struct Header<'a> {
 }
 
 impl<'a> Header<'a> {
-    #[inline(always)]
     pub(crate) fn new(opts: &'a Options, handler: &'a mut OutputHandler) -> Header<'a> {
         Header { opts, handler }
     }
 
     /// Print the name and full path of the target directory
     /// or the current dir if none is specified.
-    #[inline(always)]
     pub(crate) fn print_header(mut self) {
         let dir_name = Path::new(&self.opts.target_dir);
 
@@ -45,6 +43,7 @@ impl<'a> Header<'a> {
         }
     }
 
+    #[rustfmt::skip]
     fn get_indented_header(&mut self, curr_dir: String) {
         //
         // Problem if 'go' is not long enough
@@ -78,7 +77,7 @@ impl<'a> Header<'a> {
         let indented_curr_dir = if self.opts.loc == Location::File {
             format!("{:remaining_spaces$}{}", "", &curr_dir)
         } else {
-            format!("{:remaining_spaces$}{}", "", &curr_dir.bright_green(),)
+            format!("{:remaining_spaces$}{}{}{}", "", BRIGHT_GREEN, &curr_dir, ANSI_RESET)
         };
 
         // TODO

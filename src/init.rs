@@ -32,46 +32,48 @@ impl<'a> WalkDirs<'a> {
         }
     }
 
+    #[inline(always)]
     pub(crate) fn walk_dirs(&mut self) {
         let mut entries: Vec<_> = fs::read_dir(self.path).expect("Error walking").collect();
 
         // If no, default sort, case-sensitive is used
         sort_ty(&mut entries, &self.opts.sort_ty);
 
-        for (index, entry) in entries.iter().enumerate() {
-            // Check for "dot" file
-            match entry.as_ref() {
-                Ok(entry) => {
-                    if Self::check_hidden_file(entry) {
-                        self.total.hidden_file += 1;
-                        continue;
-                    }
+        for (index, entry) in entries
+            .iter()
+            .enumerate()
+            .map(|(index, entry)| (index, entry.as_ref()))
+        {
+            match entry {
+                Ok(entry) if Self::check_hidden_file(entry) => {
+                    self.total.hidden_file += 1;
+                    continue;
+                }
+                Ok(_) => {
+                    // Modify current vector for generating tree branch
+                    if index < entries.len() - 1 {
+                        self.tree.config.nodes.push(1);
+                    } else {
+                        self.tree.config.nodes.push(2);
+                    };
+
+                    // Print branch
+                    self.tree.print_tree(self.handle, self.opts).unwrap();
+
+                    // collect item
+                    let item = ItemCollector::new(entry.unwrap(), &self.tree.config.depth).unwrap();
+
+                    item.get_item(self.opts, self.handle, self.total, self.tree);
+
+                    self.tree.config.nodes.pop();
                 }
                 Err(err) => {
                     eprintln!(
-                        "Error retrieving hidden file (files/dirs's name start with '.') entry: {}",
+                        "Error retrieving hidden file (files/dirs' name start with '.') entry: {}",
                         err
                     );
                 }
             }
-
-            // Modify current vector for generating tree branch
-            if index < entries.len() - 1 {
-                self.tree.config.nodes.push(1);
-            } else {
-                self.tree.config.nodes.push(2);
-            };
-
-            // Print branch
-            self.tree.print_tree(self.handle, self.opts).unwrap();
-
-            // collect item
-            let item =
-                ItemCollector::new(entry.as_ref().unwrap(), &self.tree.config.depth).unwrap();
-
-            item.get_item(self.opts, self.handle, self.total, self.tree);
-
-            self.tree.config.nodes.pop();
         }
     }
 

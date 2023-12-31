@@ -124,3 +124,28 @@ impl Branch {
         Default::default()
     }
 }
+
+// mod part {
+//     pub static TWIG: &str = "└── ";
+//     pub static JUNCTION: &str = "├── ";
+//     pub static AXIL: &str = "    ";
+//     pub static STEM: &str = "│   ";
+// }
+
+// pub enum BranchPart {
+//     Twig,
+//     Junction,
+//     Axil,
+//     Stem,
+// }
+
+// impl BranchPart {
+//     pub fn get_part(&self) -> &str {
+//         match self {
+//             BranchPart::Twig => part::TWIG,
+//             BranchPart::Junction => part::JUNCTION,
+//             BranchPart::Axil => part::AXIL,
+//             BranchPart::Stem => part::STEM,
+//         }
+//     }
+// }
