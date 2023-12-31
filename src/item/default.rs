@@ -1,6 +1,6 @@
-use crate::ansi::*;
+
 use crate::stat::total::Totals;
-use crate::{flag, WalkDirs};
+use crate::{WalkDirs};
 use std::fs::{self, DirEntry, FileType};
 use std::io;
 use std::io::Write;
@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use crate::flag::Options;
 use crate::handle::OutputHandler;
 use crate::tree::Tree;
-use flag::Location;
+
 
 /*
 TODO: Implement specialize crate to collect file metada.
@@ -24,6 +24,7 @@ pub struct ItemCollector {
 }
 
 impl ItemCollector {
+    #[inline(always)]
     pub fn new(entry: &DirEntry, depth: &usize) -> io::Result<ItemCollector> {
         let full_path = entry.path();
         let metadata = fs::symlink_metadata(&full_path)?;
@@ -42,6 +43,7 @@ impl ItemCollector {
         })
     }
 
+    #[inline(always)]
     pub fn get_item(
         &self,
         opts: &Options,
@@ -59,7 +61,7 @@ impl ItemCollector {
     }
 
     #[inline(always)]
-    #[rustfmt::skip]
+    // #[rustfmt::skip]
     // TODO: 'process_dir' and 'process_file' should be a trait
     fn process_dir(
         &self,
@@ -68,25 +70,23 @@ impl ItemCollector {
         total: &mut Totals,
         tree: &mut Tree,
     ) {
-        // TODO
-        // Avoid ANSI color if printing in a file,
-        // but include ANSI when printing to the terminal.
-        if opts.loc == Location::File {
-            writeln!(handler, "{}", &self.name).unwrap_or_default();
-        } else {
-            writeln!( handler, "{}{}{}", BRIGHT_GREEN, &self.name, ANSI_RESET ).unwrap_or_default();
-        }
+
+        writeln!( handler, "{}{}{}", opts.ansi_co.bright_green, &self.name, opts.ansi_co.reset_ansi ).unwrap_or_default();
 
         total.directories += 1;
-
         tree.config.depth += 1;
 
         // Iterate next depth of file, to perform DFS
-        let mut walker = WalkDirs::new(tree, &self.path, total, handler, opts);
-
-        walker.walk_dirs();
+        WalkDirs::new(
+            tree, 
+            &self.path, 
+            total, 
+            handler, opts
+        )
+        .walk_dirs();
     }
 
+    #[inline(always)]
     fn process_file(&self, handler: &mut OutputHandler, total: &mut Totals) {
         writeln!(handler, "{}", &self.name).unwrap_or_default();
         total.files += 1;

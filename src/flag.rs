@@ -58,16 +58,28 @@ pub struct Options {
     pub sort_ty: Sort,
     pub loc: Location,
     pub layout_ty: Layout,
+    pub ansi_co: AnsiColor,
+}
+
+pub struct AnsiColor {
+    pub bright_green: String,
+    pub reset_ansi: String,
 }
 
 impl Options {
     pub fn new(args: &mut Vec<String>) -> Options {
+        let ansi_co = AnsiColor {
+            bright_green: "\x1B[92m".to_string(),
+            reset_ansi: "\x1B[0m".to_string(),
+        };
+
         let mut default_flags: Options = Options {
             target_dir: get_absolute_current_dir(),
             out_filename: "Out.txt".to_owned(),
             sort_ty: Sort::CaseSensitive,
             loc: Location::Stdout,
             layout_ty: Layout::All,
+            ansi_co,
         };
 
         get_target_path(args, &mut default_flags);
@@ -158,6 +170,8 @@ fn process_flags(args: &mut [String], default_flags: &mut Options) {
     match matches.get_flag(output_ty::FILE) {
         true => {
             default_flags.loc = Location::File;
+            default_flags.ansi_co.bright_green = "".to_string();
+            default_flags.ansi_co.reset_ansi = "".to_string();
         }
         false => {}
     }
