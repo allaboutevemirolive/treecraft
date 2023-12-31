@@ -1,3 +1,4 @@
+use crate::ansi::*;
 use crate::stat::total::Totals;
 use crate::{flag, WalkDirs};
 use std::fs::{self, DirEntry, FileType};
@@ -8,7 +9,6 @@ use std::path::PathBuf;
 use crate::flag::Options;
 use crate::handle::OutputHandler;
 use crate::tree::Tree;
-use colored::*;
 use flag::Location;
 
 /*
@@ -58,6 +58,8 @@ impl ItemCollector {
         total.size += self.size;
     }
 
+    #[inline(always)]
+    #[rustfmt::skip]
     // TODO: 'process_dir' and 'process_file' should be a trait
     fn process_dir(
         &self,
@@ -72,7 +74,7 @@ impl ItemCollector {
         if opts.loc == Location::File {
             writeln!(handler, "{}", &self.name).unwrap_or_default();
         } else {
-            writeln!(handler, "{}", &self.name.bright_green()).unwrap_or_default();
+            writeln!( handler, "{}{}{}", BRIGHT_GREEN, &self.name, ANSI_RESET ).unwrap_or_default();
         }
 
         total.directories += 1;
@@ -81,12 +83,12 @@ impl ItemCollector {
 
         // Iterate next depth of file, to perform DFS
         let mut walker = WalkDirs::new(tree, &self.path, total, handler, opts);
+
         walker.walk_dirs();
     }
 
     fn process_file(&self, handler: &mut OutputHandler, total: &mut Totals) {
         writeln!(handler, "{}", &self.name).unwrap_or_default();
-        // Update file count
         total.files += 1;
     }
 }

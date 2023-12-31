@@ -141,8 +141,8 @@ fn get_target_path(args: &mut Vec<String>, default_flags: &mut Options) {
     }
 }
 
-fn process_flags(args: &mut Vec<String>, default_flags: &mut Options) {
-    let cloned_args: Vec<String> = args.clone();
+fn process_flags(args: &mut [String], default_flags: &mut Options) {
+    let cloned_args: Vec<String> = args.to_owned();
 
     let matches = tc_app()
         .try_get_matches_from(cloned_args)
