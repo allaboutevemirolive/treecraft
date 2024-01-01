@@ -1,6 +1,8 @@
 use std::fs::DirEntry;
 use std::io;
 
+use crate::init::WalkDirs;
+
 #[derive(Debug, Default)]
 pub enum Sort {
     /// `-ci` Sort file's name with case-Insensitive
@@ -15,14 +17,16 @@ pub enum Sort {
 
     /// `-xt` sort based on file's extension
     Extension,
+    //
     // TODO:
     // Size
     // Time
     // Version
 }
 
-pub fn sort_ty(entries: &mut [Result<DirEntry, io::Error>], sorter: &Sort) {
-    match sorter {
+/// If no, default sort, case-sensitive is used
+pub fn sort_ty(entries: &mut [Result<DirEntry, io::Error>], walker: &mut WalkDirs<'_>) {
+    match walker.opts.sort_ty {
         Sort::CaseInsensitive => {
             entries.sort_unstable_by(|a, b| {
                 let a_name = a.as_ref().unwrap().file_name();

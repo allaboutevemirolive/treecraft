@@ -1,4 +1,3 @@
-pub mod ansi;
 pub mod flag;
 pub mod handle;
 pub mod init;
@@ -29,6 +28,7 @@ pub fn args_builder() {
 }
 
 // TODO
+#[rustfmt::skip]
 pub fn exec(options: &Options) {
     // TODO: Specify outputfile's name
     let mut handler = (options.loc).output_writer(options).unwrap();
@@ -37,14 +37,16 @@ pub fn exec(options: &Options) {
 
     let start_time = Instant::now();
 
-    // let path = Path::new(&options.target_dir);
-
     let tree_config = TreeConfig::new(Vec::with_capacity(5_000), 1);
 
     // Initialize branches
     let mut tree = Tree::new(tree_config, Branch::new());
 
-    Header::new(options, &mut handler).print_header();
+    Header::new(
+        options, 
+        &mut handler
+    )
+    .print_header();
 
     WalkDirs::new(
         &mut tree,

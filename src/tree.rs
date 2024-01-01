@@ -130,7 +130,6 @@ impl Branch {
     }
 }
 
-
 // pub enum BranchPart {
 //     Twig,
 //     Junction,
