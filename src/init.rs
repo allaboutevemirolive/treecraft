@@ -6,6 +6,7 @@ use crate::stat::total::Totals;
 use crate::tree::Tree;
 use std::io::Write;
 use std::{fs, path::Path};
+
 pub struct WalkDirs<'a> {
     pub tree: &'a mut Tree,
     pub path: &'a Path,
@@ -90,7 +91,7 @@ impl<'a> WalkDirs<'a> {
         self.tree.print_tree(self.handle, self.opts).unwrap();
     }
 
-    /// skip hidden file
+    /// Skip hidden file
     fn file_depth(&self) -> usize {
         self.tree.config.depth
     }
