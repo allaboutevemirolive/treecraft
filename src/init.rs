@@ -1,17 +1,17 @@
-use std::{fs, path::Path};
 use crate::flag::Options;
 use crate::handle::OutputHandler;
 use crate::item::default::*;
 use crate::sort::sort_ty;
 use crate::stat::total::Totals;
 use crate::tree::Tree;
-
+use std::io::Write;
+use std::{fs, path::Path};
 pub struct WalkDirs<'a> {
-    tree: &'a mut Tree,
-    path: &'a Path,
-    total: &'a mut Totals,
-    handle: &'a mut OutputHandler,
-    opts: &'a Options,
+    pub tree: &'a mut Tree,
+    pub path: &'a Path,
+    pub total: &'a mut Totals,
+    pub handle: &'a mut OutputHandler,
+    pub opts: &'a Options,
 }
 
 impl<'a> WalkDirs<'a> {
@@ -36,50 +36,66 @@ impl<'a> WalkDirs<'a> {
     pub(crate) fn walk_dirs(&mut self) {
         let mut entries: Vec<_> = fs::read_dir(self.path).expect("Error walking").collect();
 
-        // If no, default sort, case-sensitive is used
-        sort_ty(&mut entries, &self.opts.sort_ty);
+        sort_ty(&mut entries, self);
 
         let len = entries.len();
+
         entries.iter().zip(0..).for_each(|(entry, index)| {
             match entry.as_ref() {
-                // skip hidden file
-                Ok(entry) if Self::check_hidden_file(entry) => {
-                    self.total.hidden_file += 1;
-                }
                 Ok(entry) => {
-                    // Modify current vector for generating tree branch
-                    if index < len - 1 {
-                        self.tree.config.nodes.push(1);
+                    // TODO
+                    if check_hidden_file(entry) {
+                        self.total.hidden_file += 1;
                     } else {
-                        self.tree.config.nodes.push(2);
+                        // Modify current vector for generating tree branch
+                        if index < len - 1 {
+                            self.not_end_list();
+                        } else {
+                            self.end_list();
+                        }
+
+                        self.print_branch();
+
+                        // collect item
+                        ItemCollector::new(entry, &self.file_depth())
+                            .unwrap()
+                            .get_item(self);
+
+                        self.pop_node();
                     }
-
-                    // collect item
-                    if let Ok(item) = ItemCollector::new(entry, &self.tree.config.depth) {
-                        // Print branch after collecting item
-                        self.tree.print_tree(self.handle, self.opts).unwrap();
-
-                        item.get_item(self.opts, self.handle, self.total, self.tree);
-                    } else {
-                        eprintln!("Error creating item");
-                    }
-
-                    self.tree.config.nodes.pop();
                 }
                 Err(err) => {
-                    eprintln!(
-                        "Error retrieving hidden file (files/dirs' name start with '.') entry: {}",
-                        err
-                    );
+                    let _ = writeln!(self.handle, "{}", err);
                 }
             }
         });
     }
+}
 
-    fn check_hidden_file(check_hidden: &fs::DirEntry) -> bool {
-        let check_hidden = check_hidden.file_name();
-        let entry_name = check_hidden.to_string_lossy();
-
-        entry_name.starts_with('.')
+impl<'a> WalkDirs<'a> {
+    fn not_end_list(&mut self) {
+        self.tree.config.nodes.push(1);
     }
+
+    fn end_list(&mut self) {
+        self.tree.config.nodes.push(2);
+    }
+
+    fn pop_node(&mut self) {
+        self.tree.config.nodes.pop();
+    }
+
+    /// Print branch after collecting item
+    fn print_branch(&mut self) {
+        self.tree.print_tree(self.handle, self.opts).unwrap();
+    }
+
+    /// skip hidden file
+    fn file_depth(&self) -> usize {
+        self.tree.config.depth
+    }
+}
+
+fn check_hidden_file(check_hidden: &fs::DirEntry) -> bool {
+    check_hidden.file_name().to_string_lossy().starts_with('.')
 }

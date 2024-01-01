@@ -1,7 +1,5 @@
-use crate::ansi::*;
 use crate::flag::Layout;
 use crate::handle::OutputHandler;
-use crate::Location;
 use crate::Options;
 use std::io::Write;
 use std::path::Path;
@@ -43,7 +41,6 @@ impl<'a> Header<'a> {
         }
     }
 
-    #[rustfmt::skip]
     fn get_indented_header(&mut self, curr_dir: String) {
         //
         // Problem if 'go' is not long enough
@@ -74,11 +71,10 @@ impl<'a> Header<'a> {
             0
         };
 
-        let indented_curr_dir = if self.opts.loc == Location::File {
-            format!("{:remaining_spaces$}{}", "", &curr_dir)
-        } else {
-            format!("{:remaining_spaces$}{}{}{}", "", BRIGHT_GREEN, &curr_dir, ANSI_RESET)
-        };
+        let indented_curr_dir = format!(
+            "{:remaining_spaces$}{}{}{}",
+            "", self.opts.ansi_co.bright_green, &curr_dir, self.opts.ansi_co.reset_ansi
+        );
 
         // TODO
         write!(self.handler, "\n {}\n    .\n", indented_curr_dir).unwrap_or_default();
