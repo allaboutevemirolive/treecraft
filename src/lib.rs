@@ -45,6 +45,7 @@ pub fn run_tree(flags: &Flags) {
 
     Header::new(flags, &mut handler).print_header();
 
+    // Entry point of our dir traversal
     WalkDirs::new(
         &mut tree,
         Path::new(&flags.target_dir),
