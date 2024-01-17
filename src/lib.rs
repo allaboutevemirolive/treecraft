@@ -1,37 +1,38 @@
-pub mod flag;
-pub mod handle;
-pub mod init;
-pub mod item;
-pub mod sort;
-pub mod stat;
-pub mod tree;
-
-use crate::flag::Layout;
-use stat::head::Header;
-
-use crate::flag::*;
-use crate::handle::*;
-use crate::init::*;
-use crate::sort::*;
-use crate::stat::total::*;
-use crate::tree::*;
-
 use clap::{Arg, ArgAction, Command};
 use std::env;
 use std::path::Path;
 use std::time::Instant;
 
+pub mod flag;
+use crate::flag::*;
+
+pub mod handle;
+use crate::handle::*;
+
+pub mod init;
+use crate::init::*;
+
+pub mod item;
+
+pub mod sort;
+use crate::sort::*;
+
+pub mod stat;
+use crate::stat::{head::Header, total::*};
+
+pub mod tree;
+use crate::tree::*;
+
 pub fn args_builder() {
     let mut args: Vec<String> = env::args().collect();
 
-    exec(&Options::new(&mut args));
+    run_tree(&Flags::new(&mut args));
 }
 
 // TODO
-#[rustfmt::skip]
-pub fn exec(options: &Options) {
+pub fn run_tree(flags: &Flags) {
     // TODO: Specify outputfile's name
-    let mut handler = (options.loc).output_writer(options).unwrap();
+    let mut handler = (flags.loc).output_writer(flags).unwrap();
 
     let mut totals = Totals::new();
 
@@ -42,22 +43,18 @@ pub fn exec(options: &Options) {
     // Initialize branches
     let mut tree = Tree::new(tree_config, Branch::new());
 
-    Header::new(
-        options, 
-        &mut handler
-    )
-    .print_header();
+    Header::new(flags, &mut handler).print_header();
 
     WalkDirs::new(
         &mut tree,
-        Path::new(&options.target_dir),
+        Path::new(&flags.target_dir),
         &mut totals,
         &mut handler,
-        options,
+        flags,
     )
     .walk_dirs();
 
-    if options.layout_ty == Layout::All {
+    if flags.layout_ty == Layout::All {
         totals.stats(&mut handler, start_time, tree.branch).unwrap();
     } else {
         totals.default_stat(&mut handler).unwrap();

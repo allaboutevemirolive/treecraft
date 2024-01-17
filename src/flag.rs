@@ -38,10 +38,10 @@ pub enum Location {
 
 impl Location {
     #[rustfmt::skip]
-    pub(crate) fn output_writer(&self, options: &Options ) -> Result<OutputHandler, Box<dyn std::error::Error>> {
+    pub(crate) fn output_writer(&self, flags: &Flags ) -> Result<OutputHandler, Box<dyn std::error::Error>> {
         let output_writer: Box<dyn Write> = match self {
             Location::File => Box::new(
-                BufWriter::new(File::create(&options.out_filename)?)
+                BufWriter::new(File::create(&flags.out_filename)?)
             ),
             Location::Stdout => Box::new(
                 BufWriter::new(io::stdout().lock())
@@ -52,7 +52,7 @@ impl Location {
     }
 }
 
-pub struct Options {
+pub struct Flags {
     pub target_dir: String,
     pub out_filename: String,
     pub sort_ty: Sort,
@@ -66,14 +66,14 @@ pub struct AnsiColor {
     pub reset_ansi: String,
 }
 
-impl Options {
-    pub fn new(args: &mut Vec<String>) -> Options {
+impl Flags {
+    pub fn new(args: &mut Vec<String>) -> Flags {
         let ansi_co = AnsiColor {
             bright_green: "\x1B[92m".to_string(),
             reset_ansi: "\x1B[0m".to_string(),
         };
 
-        let mut default_flags: Options = Options {
+        let mut default_flags: Flags = Flags {
             target_dir: get_absolute_current_dir(),
             out_filename: "Out.txt".to_owned(),
             sort_ty: Sort::CaseSensitive,
@@ -135,7 +135,7 @@ pub fn tc_app() -> Command {
 
 // Sometimes we pass 'target path' instead of 'current path'
 // We need to delete those target path before pass it to 'tc_app'
-fn get_target_path(args: &mut Vec<String>, default_flags: &mut Options) {
+fn get_target_path(args: &mut Vec<String>, default_flags: &mut Flags) {
     let mut delete_index = None;
 
     for (index, arg) in args.iter().skip(1).enumerate() {
@@ -153,7 +153,7 @@ fn get_target_path(args: &mut Vec<String>, default_flags: &mut Options) {
     }
 }
 
-fn process_flags(args: &mut [String], default_flags: &mut Options) {
+fn process_flags(args: &mut [String], default_flags: &mut Flags) {
     let cloned_args: Vec<String> = args.to_owned();
 
     let matches = tc_app()

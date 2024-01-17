@@ -1,16 +1,16 @@
 use crate::flag::Layout;
 use crate::handle::OutputHandler;
-use crate::Options;
+use crate::Flags;
 use std::io::Write;
 use std::path::Path;
 
 pub struct Header<'a> {
-    opts: &'a Options,
+    opts: &'a Flags,
     handler: &'a mut OutputHandler,
 }
 
 impl<'a> Header<'a> {
-    pub(crate) fn new(opts: &'a Options, handler: &'a mut OutputHandler) -> Header<'a> {
+    pub(crate) fn new(opts: &'a Flags, handler: &'a mut OutputHandler) -> Header<'a> {
         Header { opts, handler }
     }
 
@@ -35,13 +35,13 @@ impl<'a> Header<'a> {
 
         // TODO: Seperate header between 'All' and 'Default'
         if self.opts.layout_ty == Layout::All {
-            self.get_indented_header(curr_dir);
+            self.get_modified_header(curr_dir);
         } else {
-            self.get_default_header(curr_dir);
+            writeln!(self.handler, "{}/", curr_dir).unwrap_or_default();
         }
     }
 
-    fn get_indented_header(&mut self, curr_dir: String) {
+    fn get_modified_header(&mut self, curr_dir: String) {
         //
         // Problem if 'go' is not long enough
         //
@@ -78,10 +78,5 @@ impl<'a> Header<'a> {
 
         // TODO
         write!(self.handler, "\n {}\n    .\n", indented_curr_dir).unwrap_or_default();
-    }
-
-    // TODO
-    fn get_default_header(&mut self, curr_dir: String) {
-        writeln!(self.handler, "/{}", curr_dir).unwrap_or_default();
     }
 }

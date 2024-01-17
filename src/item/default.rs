@@ -4,9 +4,7 @@ use std::io;
 use std::io::Write;
 use std::path::PathBuf;
 
-/*
-TODO: Implement specialize crate to collect file metada.
-*/
+// TODO: Implement specialize crate to collect file metada.
 
 pub struct ItemCollector {
     pub name: String,
@@ -47,9 +45,8 @@ impl ItemCollector {
         walker.total.size += self.size;
     }
 
-    #[inline(always)]
-    // #[rustfmt::skip]
     // TODO: 'process_dir' and 'process_file' should be a trait
+    #[inline(always)]
     fn process_dir(&self, walker: &mut WalkDirs<'_>) {
         writeln!(
             walker.handle,

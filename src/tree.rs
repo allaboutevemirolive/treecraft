@@ -1,14 +1,9 @@
+use crate::flag::Flags;
 use crate::flag::Layout;
-use crate::flag::Options;
 use crate::handle::OutputHandler;
 use std::io::{self, Write};
 
-pub static TWIG: &str = "└── ";
-pub static JUNCTION: &str = "├── ";
-pub static AXIL: &str = "    ";
-pub static STEM: &str = "│   ";
-
-/// Tree's components-
+/// Tree's components
 trait TreeCmp {
     fn stem(&self) -> &str;
 
@@ -30,10 +25,23 @@ impl Tree {
         Tree { config, branch }
     }
 
-    pub fn print_tree(&self, handle: &mut OutputHandler, opts: &Options) -> io::Result<()> {
+    pub fn print_tree(
+        &mut self,
+        handle: &mut OutputHandler,
+        flags: &Flags,
+        index: usize,
+        len: usize,
+    ) -> io::Result<()> {
+        // Modify current vector for generating tree branch
+        if index < len - 1 {
+            self.not_end_list();
+        } else {
+            self.end_list();
+        }
+
         // TODO: We can implement more implementations like, checking
         // file's permission etc.
-        if opts.layout_ty == Layout::All {
+        if flags.layout_ty == Layout::All {
             write!(handle, "    ")?;
         }
 
@@ -42,16 +50,16 @@ impl Tree {
                 match self.config.nodes.get(i + 1) {
                     Some(_) => {
                         if marker == &1 {
-                            write!(handle, "{}", STEM)?;
+                            write!(handle, "{}", self.stem())?;
                         } else {
-                            write!(handle, "{}", AXIL)?;
+                            write!(handle, "{}", self.axil())?;
                         }
                     }
                     None => {
                         if marker == &1 {
-                            write!(handle, "{}", JUNCTION)?;
+                            write!(handle, "{}", self.junction())?;
                         } else {
-                            write!(handle, "{}", TWIG)?;
+                            write!(handle, "{}", self.twig())?;
                         }
                     }
                 }
@@ -59,6 +67,14 @@ impl Tree {
         }
 
         Ok(())
+    }
+
+    fn not_end_list(&mut self) {
+        self.config.nodes.push(1);
+    }
+
+    fn end_list(&mut self) {
+        self.config.nodes.push(2);
     }
 }
 
@@ -129,21 +145,3 @@ impl Branch {
         Default::default()
     }
 }
-
-// pub enum BranchPart {
-//     Twig,
-//     Junction,
-//     Axil,
-//     Stem,
-// }
-
-// impl BranchPart {
-//     pub fn get_part(&self) -> &str {
-//         match self {
-//             BranchPart::Twig => TWIG,
-//             BranchPart::Junction => JUNCTION,
-//             BranchPart::Axil => AXIL,
-//             BranchPart::Stem => STEM,
-//         }
-//     }
-// }
