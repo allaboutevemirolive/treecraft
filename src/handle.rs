@@ -3,10 +3,9 @@ use std::fmt;
 use std::io::{self, Write};
 use std::rc::Rc;
 
-/*
-We may need to replace 'OutputHandler' with normal output
-and rely with pipeline to procude desired output.
-*/
+// We may need to replace 'OutputHandler' with normal output
+// and rely with pipeline to procude desired output.
+
 pub struct OutputHandler {
     handle: Rc<RefCell<dyn Write>>,
 }

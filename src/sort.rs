@@ -25,6 +25,7 @@ pub enum Sort {
 }
 
 /// If no, default sort, case-sensitive is used
+#[inline(always)]
 pub fn sort_ty(entries: &mut [Result<DirEntry, io::Error>], walker: &mut WalkDirs<'_>) {
     match walker.opts.sort_ty {
         Sort::CaseInsensitive => {
@@ -36,7 +37,7 @@ pub fn sort_ty(entries: &mut [Result<DirEntry, io::Error>], walker: &mut WalkDir
                     .cmp(&b_name.to_ascii_lowercase())
             });
         }
-        // The default sort in GNU ls is case-sensitive
+        // We follow the GNU ls's default sorting behaviour, case-sensitive
         Sort::CaseSensitive => {
             entries.sort_unstable_by_key(|entry| entry.as_ref().unwrap().file_name());
         }

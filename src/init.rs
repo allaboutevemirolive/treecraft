@@ -1,4 +1,4 @@
-use crate::flag::Options;
+use crate::flag::Flags;
 use crate::handle::OutputHandler;
 use crate::item::default::*;
 use crate::sort::sort_ty;
@@ -12,7 +12,7 @@ pub struct WalkDirs<'a> {
     pub path: &'a Path,
     pub total: &'a mut Totals,
     pub handle: &'a mut OutputHandler,
-    pub opts: &'a Options,
+    pub opts: &'a Flags,
 }
 
 impl<'a> WalkDirs<'a> {
@@ -22,7 +22,7 @@ impl<'a> WalkDirs<'a> {
         path: &'a Path,
         total: &'a mut Totals,
         handle: &'a mut OutputHandler,
-        opts: &'a Options,
+        opts: &'a Flags,
     ) -> WalkDirs<'a> {
         WalkDirs {
             tree,
@@ -37,9 +37,22 @@ impl<'a> WalkDirs<'a> {
     pub(crate) fn walk_dirs(&mut self) {
         let mut entries: Vec<_> = fs::read_dir(self.path).expect("Error walking").collect();
 
-        sort_ty(&mut entries, self);
+        // TODO: Implement small optimization
+        // if len is 1, we can skip all check and directly print tree.
+        // This is benaficial if the dir we want to traverse is something
+        // like java projects, where java has a lot of 'a folder' branch
+        //
+        // if len == 1 {
+        //     self.end_list();
+        //     self.print_branch();
+        //     let ff = &entries[0];
 
-        let len = entries.len();
+        //     // ItemCollector::new(&ff.clone().unwrap(), &self.file_depth())
+        //     //                 .unwrap()
+        //     //                 .get_item(self);
+        // }
+
+        sort_ty(&mut entries, self);
 
         entries.iter().zip(0..).for_each(|(entry, index)| {
             match entry.as_ref() {
@@ -48,14 +61,9 @@ impl<'a> WalkDirs<'a> {
                     if check_hidden_file(entry) {
                         self.total.hidden_file += 1;
                     } else {
-                        // Modify current vector for generating tree branch
-                        if index < len - 1 {
-                            self.not_end_list();
-                        } else {
-                            self.end_list();
-                        }
-
-                        self.print_branch();
+                        self.tree
+                            .print_tree(self.handle, self.opts, index, entries.len())
+                            .unwrap();
 
                         // collect item
                         ItemCollector::new(entry, &self.file_depth())
@@ -66,31 +74,15 @@ impl<'a> WalkDirs<'a> {
                     }
                 }
                 Err(err) => {
-                    let _ = writeln!(self.handle, "{}", err);
+                    writeln!(self.handle, "{}", err).unwrap_or_default();
                 }
             }
         });
-    }
-}
-
-impl<'a> WalkDirs<'a> {
-    fn not_end_list(&mut self) {
-        self.tree.config.nodes.push(1);
-    }
-
-    fn end_list(&mut self) {
-        self.tree.config.nodes.push(2);
     }
 
     fn pop_node(&mut self) {
         self.tree.config.nodes.pop();
     }
-
-    /// Print branch after collecting item
-    fn print_branch(&mut self) {
-        self.tree.print_tree(self.handle, self.opts).unwrap();
-    }
-
     /// Skip hidden file
     fn file_depth(&self) -> usize {
         self.tree.config.depth
