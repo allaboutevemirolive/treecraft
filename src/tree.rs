@@ -1,107 +1,57 @@
-use crate::flag::Flags;
 use crate::flag::Layout;
-use crate::handle::OutputHandler;
-use std::io::{self, Write};
-
-/// Tree's components
-trait TreeCmp {
-    fn stem(&self) -> &str;
-
-    fn axil(&self) -> &str;
-
-    fn junction(&self) -> &str;
-
-    fn twig(&self) -> &str;
-}
+use std::io::Write;
 
 #[derive(Clone)]
 pub struct Tree {
-    pub config: TreeConfig,
+    pub config: Config,
     pub branch: Branch,
 }
 
 impl Tree {
-    pub fn new(config: TreeConfig, branch: Branch) -> Tree {
+    pub fn new(config: Config, branch: Branch) -> Tree {
         Tree { config, branch }
     }
 
-    pub fn print_tree(
-        &mut self,
-        handle: &mut OutputHandler,
-        flags: &Flags,
-        index: usize,
-        len: usize,
-    ) -> io::Result<()> {
-        // Modify current vector for generating tree branch
-        if index < len - 1 {
-            self.not_end_list();
-        } else {
-            self.end_list();
-        }
-
+    /// Print branch based on the vector.
+    pub fn print_tree(walk: &mut crate::WalkDir<'_>, index: usize, len: usize) {
         // TODO: We can implement more implementations like, checking
         // file's permission etc.
-        if flags.layout_ty == Layout::All {
-            write!(handle, "    ")?;
+        if walk.flag.layout_ty == Layout::All {
+            write!(walk.std_out, "    ").unwrap();
         }
 
-        for i in 0..=self.config.depth {
-            if let Some(marker) = self.config.nodes.get(i) {
-                match self.config.nodes.get(i + 1) {
-                    Some(_) => {
-                        if marker == &1 {
-                            write!(handle, "{}", self.stem())?;
-                        } else {
-                            write!(handle, "{}", self.axil())?;
-                        }
+        // If there is remaining folder needs to traverse
+        if index < len - 1 {
+            walk.tree.config.nodes.push(1);
+        } else {
+            walk.tree.config.nodes.push(2);
+        }
+
+        // Iterate vector's items
+        for (depth, item) in walk.tree.config.nodes.iter().enumerate() {
+            // Check if there is remaining item (in vector) need to traverse
+            match walk.tree.config.nodes.get(depth + 1) {
+                Some(_) => {
+                    if item == &1 {
+                        write!(walk.std_out, "{}", walk.tree.branch.stem).unwrap();
+                    } else {
+                        write!(walk.std_out, "{}", walk.tree.branch.axil).unwrap();
                     }
-                    None => {
-                        if marker == &1 {
-                            write!(handle, "{}", self.junction())?;
-                        } else {
-                            write!(handle, "{}", self.twig())?;
-                        }
+                }
+                None => {
+                    if item == &1 {
+                        write!(walk.std_out, "{}", walk.tree.branch.junction).unwrap();
+                    } else {
+                        write!(walk.std_out, "{}", walk.tree.branch.twig).unwrap();
                     }
                 }
             }
         }
-
-        Ok(())
-    }
-
-    fn not_end_list(&mut self) {
-        self.config.nodes.push(1);
-    }
-
-    fn end_list(&mut self) {
-        self.config.nodes.push(2);
-    }
-}
-
-impl TreeCmp for Tree {
-    /// "│   "
-    fn stem(&self) -> &str {
-        self.branch.stem
-    }
-
-    /// "    "
-    fn axil(&self) -> &str {
-        self.branch.axil
-    }
-
-    /// "├── "
-    fn junction(&self) -> &str {
-        self.branch.junction
-    }
-
-    /// "└── "
-    fn twig(&self) -> &str {
-        self.branch.twig
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct TreeConfig {
+pub struct Config {
     /// Points of attachment for leaves and buds
     pub nodes: Vec<i32>,
 
@@ -110,7 +60,7 @@ pub struct TreeConfig {
     pub depth: usize,
 }
 
-impl TreeConfig {
+impl Config {
     pub fn new(nodes: Vec<i32>, depth: usize) -> Self {
         Self { nodes, depth }
     }

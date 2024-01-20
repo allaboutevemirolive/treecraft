@@ -1,23 +1,22 @@
 use crate::flag::Layout;
-use crate::handle::OutputHandler;
-use crate::Flags;
-use std::io::Write;
+use crate::Flag;
+use std::io::{BufWriter, Stdout, Write};
 use std::path::Path;
 
 pub struct Header<'a> {
-    opts: &'a Flags,
-    handler: &'a mut OutputHandler,
+    flag: &'a Flag,
+    std_out: &'a mut BufWriter<Stdout>,
 }
 
 impl<'a> Header<'a> {
-    pub(crate) fn new(opts: &'a Flags, handler: &'a mut OutputHandler) -> Header<'a> {
-        Header { opts, handler }
+    pub(crate) fn new(flag: &'a Flag, std_out: &'a mut BufWriter<Stdout>) -> Header<'a> {
+        Header { flag, std_out }
     }
 
     /// Print the name and full path of the target directory
     /// or the current dir if none is specified.
     pub(crate) fn print_header(mut self) {
-        let dir_name = Path::new(&self.opts.target_dir);
+        let dir_name = Path::new(&self.flag.target_dir);
 
         // Get current dir
         let curr_dir = dir_name
@@ -34,14 +33,14 @@ impl<'a> Header<'a> {
         //
 
         // TODO: Seperate header between 'All' and 'Default'
-        if self.opts.layout_ty == Layout::All {
-            self.get_modified_header(curr_dir);
+        if self.flag.layout_ty == Layout::All {
+            self.mod_header(curr_dir);
         } else {
-            writeln!(self.handler, "{}/", curr_dir).unwrap_or_default();
+            writeln!(self.std_out, "{}/", curr_dir).unwrap_or_default();
         }
     }
 
-    fn get_modified_header(&mut self, curr_dir: String) {
+    fn mod_header(&mut self, curr_dir: String) {
         //
         // Problem if 'go' is not long enough
         //
@@ -73,10 +72,10 @@ impl<'a> Header<'a> {
 
         let indented_curr_dir = format!(
             "{:remaining_spaces$}{}{}{}",
-            "", self.opts.ansi_co.bright_green, &curr_dir, self.opts.ansi_co.reset_ansi
+            "", self.flag.ansi_co.bright_green, &curr_dir, self.flag.ansi_co.reset_ansi
         );
 
         // TODO
-        write!(self.handler, "\n {}\n    .\n", indented_curr_dir).unwrap_or_default();
+        write!(self.std_out, "\n  {}\n    .\n", indented_curr_dir).unwrap_or_default();
     }
 }

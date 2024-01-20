@@ -1,7 +1,6 @@
-use crate::handle::OutputHandler;
 use crate::Branch;
 use std::fmt::Display;
-use std::io::Write;
+use std::io::{BufWriter, Stdout, Write};
 use std::time::Instant;
 
 #[derive(Debug, Default, Clone, Copy)]
@@ -19,7 +18,7 @@ impl Totals {
 
     pub(crate) fn stats(
         self,
-        handler: &mut OutputHandler,
+        std_out: &mut BufWriter<Stdout>,
         start_time: Instant,
         branch: Branch,
     ) -> Result<(), Box<dyn std::error::Error>> {
@@ -30,62 +29,62 @@ impl Totals {
         // Convert bytes to gigabytes
         let gigabytes = self.size as f64 / 1_073_741_824.0;
 
-        writeln!(handler)?;
-        writeln!(handler, "\n Insights:\n    .")?;
+        writeln!(std_out)?;
+        writeln!(std_out, "\n  Insights:\n    .")?;
         writeln!(
-            handler,
+            std_out,
             "    {}Processing Time      : {:?} seconds",
             branch.junction, seconds
         )?;
         writeln!(
-            handler,
+            std_out,
             "    {}Visible Dirs         : {}",
             branch.junction,
             format_with_commas(self.directories)
         )?;
         writeln!(
-            handler,
+            std_out,
             "    {}Visible Files        : {}",
             branch.junction,
             format_with_commas(self.files)
         )?;
         writeln!(
-            handler,
+            std_out,
             "    {}*Hidden Dirs/Files   : {}",
             branch.junction,
             format_with_commas(self.hidden_file)
         )?;
         writeln!(
-            handler,
+            std_out,
             "    {}Total Items(excl.*)  : {}",
             branch.junction,
             format_with_commas(self.files + self.directories)
         )?;
         writeln!(
-            handler,
+            std_out,
             "    {}Total Size           : {:.2} GB ({} bytes)",
             branch.twig,
             gigabytes,
             format_with_commas(self.size)
         )?;
-        writeln!(handler)?;
+        writeln!(std_out)?;
 
         Ok(())
     }
 
     pub fn default_stat(
         self,
-        handler: &mut OutputHandler,
+        std_out: &mut BufWriter<Stdout>,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        writeln!(handler)?;
+        writeln!(std_out)?;
         write!(
-            handler,
+            std_out,
             "{} directories",
             format_with_commas(self.directories)
         )?;
-        write!(handler, ", ")?;
-        write!(handler, "{} files", format_with_commas(self.files))?;
-        writeln!(handler)?;
+        write!(std_out, ", ")?;
+        write!(std_out, "{} files", format_with_commas(self.files))?;
+        writeln!(std_out)?;
         Ok(())
     }
 }

@@ -1,7 +1,7 @@
 use std::fs::DirEntry;
 use std::io;
 
-use crate::init::WalkDirs;
+use crate::walker::WalkDir;
 
 #[derive(Debug, Default)]
 pub enum Sort {
@@ -24,10 +24,10 @@ pub enum Sort {
     // Version
 }
 
-/// If no, default sort, case-sensitive is used
+/// If no sort specified, sort case-sensitive is used
 #[inline(always)]
-pub fn sort_ty(entries: &mut [Result<DirEntry, io::Error>], walker: &mut WalkDirs<'_>) {
-    match walker.opts.sort_ty {
+pub fn sort_ty(entries: &mut [Result<DirEntry, io::Error>], walk: &mut WalkDir<'_>) {
+    match walk.flag.sort_ty {
         Sort::CaseInsensitive => {
             entries.sort_unstable_by(|a, b| {
                 let a_name = a.as_ref().unwrap().file_name();

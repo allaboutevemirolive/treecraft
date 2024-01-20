@@ -1,6 +1,5 @@
-use crate::WalkDirs;
+use crate::WalkDir;
 use std::fs::{self, DirEntry, FileType};
-use std::io;
 use std::io::Write;
 use std::path::PathBuf;
 
@@ -16,62 +15,70 @@ pub struct ItemCollector {
 
 impl ItemCollector {
     #[inline(always)]
-    pub fn new(entry: &DirEntry, depth: &usize) -> io::Result<ItemCollector> {
+    pub fn new(entry: &DirEntry, depth: &usize) -> ItemCollector {
         let full_path = entry.path();
-        let metadata = fs::symlink_metadata(&full_path)?;
-        let file_type = entry.file_type()?;
+        let metadata = fs::symlink_metadata(&full_path).unwrap();
+        let file_type = entry.file_type().unwrap();
 
-        Ok(ItemCollector {
+        ItemCollector {
             name: full_path
                 .file_name()
                 .and_then(|os_str| os_str.to_str())
                 .map(ToString::to_string)
                 .unwrap_or_else(|| "Invalid full-path".into()),
-            path: full_path.clone(),
-            depth: *depth,
+            path: full_path,
+            depth: depth.to_owned(),
             file_type,
             size: metadata.len(),
-        })
+        }
     }
 
     #[inline(always)]
-    pub fn get_item(&self, walker: &mut WalkDirs<'_>) {
+    pub fn get_item(&self, walk: &mut WalkDir<'_>) {
         if self.file_type.is_dir() {
-            self.process_dir(walker);
+            self.process_dir(walk);
         } else {
-            self.process_file(walker);
+            self.process_file(walk);
         }
 
-        walker.total.size += self.size;
+        walk.total.size += self.size;
     }
 
     // TODO: 'process_dir' and 'process_file' should be a trait
     #[inline(always)]
-    fn process_dir(&self, walker: &mut WalkDirs<'_>) {
-        writeln!(
-            walker.handle,
+    fn process_dir(&self, walk: &mut WalkDir<'_>) {
+        write!(
+            walk.std_out,
             "{}{}{}",
-            walker.opts.ansi_co.bright_green, &self.name, walker.opts.ansi_co.reset_ansi
+            walk.flag.ansi_co.bright_green, &self.name, walk.flag.ansi_co.reset_ansi
         )
         .unwrap_or_default();
 
-        walker.total.directories += 1;
-        walker.tree.config.depth += 1;
+        if walk.flag.show_path {
+            write!(walk.std_out, " ──> {}", &self.path.display()).unwrap();
+        }
+
+        // Create newline
+        writeln!(walk.std_out).unwrap();
+
+        walk.total.directories += 1;
+        walk.tree.config.depth += 1;
 
         // Iterate next depth of file, to perform DFS
-        WalkDirs::new(
-            walker.tree,
-            &self.path,
-            walker.total,
-            walker.handle,
-            walker.opts,
-        )
-        .walk_dirs();
+        WalkDir::new(walk.tree, &self.path, walk.total, walk.std_out, walk.flag).walk();
     }
 
     #[inline(always)]
-    fn process_file(&self, walker: &mut WalkDirs<'_>) {
-        writeln!(walker.handle, "{}", &self.name).unwrap_or_default();
-        walker.total.files += 1;
+    fn process_file(&self, walk: &mut WalkDir<'_>) {
+        write!(walk.std_out, "{}", &self.name).unwrap_or_default();
+
+        if walk.flag.show_path {
+            write!(walk.std_out, " ──> {}", &self.path.display()).unwrap();
+        }
+
+        // Create newline
+        writeln!(walk.std_out).unwrap();
+
+        walk.total.files += 1;
     }
 }

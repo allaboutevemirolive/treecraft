@@ -15,5 +15,4 @@ name = "tc"
 path = "src/main.rs"
 
 [dependencies]
-# colored = "2.1.0"
 clap = "4.4.11"
