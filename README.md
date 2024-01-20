@@ -21,7 +21,7 @@ What shouldn't you expect?
 Example output:
 
 ```
-nemesis@nemesis:~/Documents/Github/Focus/util/treecraft/target/release$ trie
+$ tc
 
  release
     .
@@ -48,19 +48,22 @@ nemesis@nemesis:~/Documents/Github/Focus/util/treecraft/target/release$ trie
 
 TreeCraft offers several command line options:
 
-- `-out` : Output the tree view to a text file.
-- `-ci`  : Sort filenames with case insensitivity or lowercase.
-- `-cs`  : Sort filenames.
-- `-no`  : Do not sort.
-- `-xt`  : Sort based on file's extension.
-- `-help`: Display usage information and exit.
+```
+Usage: tc [OPTIONS]
+
+Options:
+  -d, --default         Print default layout. Etc. GNU tree's layout
+  -s, --case-sensitive  Sort list in case-sensitive
+  -f, --file            Printout output in a text file
+  -h, --help            Print help
+```
 
 
 # Recommended Usage
 
-### 1. Compile with `cargo build --release` (Recommended)
+### 1. Compile with `cargo build --release`
 
-To ensure optimal performance, compile TreeCraft with the following command, which generates highly efficient code tailored to your platform:
+Compile TreeCraft with the following command, which generates highly efficient code tailored to your platform:
 
 ```bash
 cargo build --release
@@ -105,13 +108,13 @@ Download the treecraft binary and follow these steps:
 3. Make the binary executable with the following command:
 
    ```bash
-   chmod +x treecraft
+   chmod +x tc
    ```
 
 4. Generate an ASCII tree view in the terminal by running:
 
    ```bash
-   ./treecraft "filepath"
+   ./tc "filepath"
    ```
 
    Replace `"filepath"` with the path to the directory you want to visualize.
@@ -141,32 +144,6 @@ Download the treecraft binary and follow these steps:
    ```bash
    source ~/.bashrc
    ```
-
-Now, when you open a new terminal session, you can use the "trie" alias to run your Rust binary.
-
-# Examples of TreeCraft Usage
-
-Here are two examples of how to use TreeCraft to visualize directory structures:
-
-### Example 1: Generate a Text File
-
-To create an ASCII tree-view and save it to a text file, utilize the `-tf` flag like this:
-
-```bash
-./treecraft /home/nemesis/Documents/Github/Focus/lang -tf
-```
-
-This will generate an `output.txt` file in the same directory as your specified target folder.
-
-### Example 2: Terminal Tree-View
-
-For an ASCII tree-view directly on the terminal, use this command:
-
-```bash
-./treecraft /home/nemesis/Documents/Github/Focus/util/treecraft/target/release
-```
-
-TreeCraft will then display the tree-view on your terminal screen, allowing you to conveniently explore your directory structure.
 
 ## Contributing
 
