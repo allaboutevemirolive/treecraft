@@ -23,7 +23,8 @@ pub mod tree;
 use crate::tree::*;
 
 pub fn args_builder() {
-    // Collect arguments. TODO: Use Clap instead.
+    // TODO: Use Clap instead.
+    // Collect arguments. 
     let mut args: Vec<String> = env::args().collect();
 
     run_tree(&Flag::new(&mut args));
@@ -38,13 +39,14 @@ fn run_tree(flag: &Flag) {
     // Initialize default values for Total
     let mut total = Totals::new();
 
-    // Initiate branch's configuration
-    // Vector is the heart and soul of 'treecraft'.
-    // It's enabled use to curate precise branches even if the folder is nested and wild
-    // like most of Java projects (src/main/java/smoketest/xml...).
-    // The idea we initialize vector with capacity 5_000 is that we 'assume'
-    // most folder's depth won't exceed more than 5_000. Constantly expand
-    // and unexpand capacity can cause us runtime's performance.
+    // Set up branch configuration
+    // The 'vector!' is the core of 'treecraft'.
+    // It allows us to accurately navigate through intricate branches, 
+    // even in deeply nested and complex folder structures typical of 
+    // Java projects (src/main/java/smoketest/xml...).
+    // Initializing the vector with a capacity of 5,000 is based on the 
+    // assumption that the depth of most folders won't exceed this limit. 
+    // Constantly expanding and contracting the capacity could impact runtime performance.
     let config = Config::new(Vec::with_capacity(5_000), 1);
 
     // Initialize tree information
