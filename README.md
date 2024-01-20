@@ -2,22 +2,18 @@
 
 > UPDATE: TREECRAFT CURRENTLY IN FREEZE SHIPPING AND WILL BE GOING RAPID DEVELOPMENT AND BREAKING CHANGES.
 
-TreeCraft is a pure Rust command-line utility that allows user to see directory structures in ASCII format on terminal or save them to a text file. This project is meant to be a `drop-in replacement` for [tree](https://github.com/Old-Man-Programmer/tree.git) (see the link) that is written in the C language. This project aims to be non-bloated and more functional than the existing [tree](https://github.com/Old-Man-Programmer/tree.git).
+TreeCraft is a command-line tool developed in pure Rust, designed for displaying directory structures in ASCII format on the terminal or saving them to a text file. It serves as a seamless replacement for the [tree](https://github.com/Old-Man-Programmer/tree.git) utility written in C. The primary goal of this project is to provide a non-bloated and more functional alternative to the existing [tree](https://github.com/Old-Man-Programmer/tree.git).
 
+What to anticipate:
 
-What should you expect?
+- A direct replacement for [tree](https://github.com/Old-Man-Programmer/tree.git).
+- Swift and efficient performance across various platforms.
+- Respect for `.gitignore` rules and graceful handling of hidden files (planned).
+- A minimalist design that is more functional compared to the current [tree](https://github.com/Old-Man-Programmer/tree.git).
 
-- A `drop-in replacement` for [tree](https://github.com/Old-Man-Programmer/tree.git).
-- Fast and efficient for most platforms.
-- Respect `.gitignore` and handle hidden files gracefully. (plan)
-- Minimalist and more functional than the existing [tree](https://github.com/Old-Man-Programmer/tree.git).
+What not to expect:
 
-
-What shouldn't you expect?
-
-- You shouldn't expect to see any other existing [GNU utilities's related](https://github.com/coreutils/coreutils.git), as they already fit for their purpose and didn't fit for this project.
-
-
+- No integration of other existing [GNU utilities](https://github.com/coreutils/coreutils.git), as they are already well-suited for their respective purposes and do not align with the goals of this project.
 Example output:
 
 ```
