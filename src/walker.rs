@@ -54,9 +54,19 @@ impl<'a> WalkDir<'a> {
                         Tree::print_tree(self, index, entries.len());
 
                         // Collect item
-                        ItemCollector::new(entry, &self.file_depth()).get_item(self);
+                        ItemCollector::new(entry, &self.tree.config.depth).get_item(self);
 
-                        self.pop_node();
+                        // Pop last item in our vector.
+                        // Note that we only use 1 vector for the whole operation.
+                        // Thus, it only pop `last item` of vector
+                        // not `last list` of folders.
+                        //
+                        // Example:
+                        //
+                        // vec![1 ,2, 3, 4, 5, 6]
+                        //                     ^ will be pop out
+                        //
+                        self.tree.config.nodes.pop();
                     }
                 }
                 Err(err) => {
@@ -64,28 +74,6 @@ impl<'a> WalkDir<'a> {
                 }
             }
         });
-    }
-
-    /// Pop last item in our vector.
-    ///
-    /// Note that we only use 1 vector for the whole operation.
-    ///
-    /// Thus, it only pop `last item` not `last list`.
-    ///
-    /// ### Example:
-    ///
-    /// ```
-    /// // vec![1 ,2, 3, 4, 5, 6]
-    /// //                     ^ will be pop out
-    /// ```
-    ///
-    fn pop_node(&mut self) {
-        self.tree.config.nodes.pop();
-    }
-
-    /// Skip hidden file
-    fn file_depth(&self) -> usize {
-        self.tree.config.depth
     }
 }
 

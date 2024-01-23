@@ -52,7 +52,14 @@ impl Tree {
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    /// Points of attachment for leaves and buds
+    /// The 'nodes' is the core of 'treecraft'.
+    /// It allows us to accurately navigate through intricate branches,
+    /// even in deeply nested and complex folder structures typical of
+    /// Java projects (src/main/java/smoketest/xml...).
+    /// Initializing the vector with a capacity of 5,000 is based on the
+    /// assumption that the depth of most folders won't exceed this limit.
+    /// Constantly expanding and contracting the capacity could impact
+    /// runtime performance.
     pub nodes: Vec<i32>,
 
     /// Represent how far/depth a branch extends
