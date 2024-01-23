@@ -41,9 +41,6 @@ jobs:
     - name: Run Clippy
       run: cargo clippy --all --all-targets -- -D warnings
 
-    - name: Install doc component
-      run: rustup component add doc --toolchain ${{ matrix.toolchain }}
-    
     - name: Audit Dependencies
       run: cargo audit
     
