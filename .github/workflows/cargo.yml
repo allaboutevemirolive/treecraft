@@ -29,6 +29,9 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
 
+    - name: Audit Dependencies
+      run: cargo audit
+
     - name: Install rustfmt
       run: rustup component add rustfmt --toolchain ${{ matrix.toolchain }}
 
@@ -41,8 +44,7 @@ jobs:
     - name: Run Clippy
       run: cargo clippy --all --all-targets -- -D warnings
 
-    - name: Audit Dependencies
-      run: cargo audit
+    
     
     
     
