@@ -36,8 +36,5 @@ jobs:
     - name: Run Clippy
       run: cargo clippy --all --all-targets -- -D warnings
 
-    - name: Analyze Binary Size
-      run: cargo bloat --release --crates
-
     - name: Generate Documentation
       run: cargo doc --no-deps --all-features --all
