@@ -9,3 +9,5 @@ Included Scripts:
 2. Generate a changelog.
 3. Generate a flame graph.
 4. Automatically update README.md.
+
+// newline
