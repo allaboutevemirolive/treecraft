@@ -44,5 +44,10 @@ jobs:
     - name: Install doc component
       run: rustup component add doc --toolchain ${{ matrix.toolchain }}
     
-    - name: Generate Documentation
-      run: cargo doc --no-deps --all-features --all
+    - name: Audit Dependencies
+      run: cargo audit
+    
+    - name: Code Coverage
+      run: cargo install cargo-tarpaulin && cargo tarpaulin --all
+    
+    
