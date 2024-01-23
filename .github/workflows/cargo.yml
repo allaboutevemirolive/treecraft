@@ -1,4 +1,4 @@
-name: Rust
+name: Cargo check
 
 on:
   pull_request:
@@ -44,7 +44,6 @@ jobs:
     - name: Audit Dependencies
       run: cargo audit
     
-    - name: Code Coverage
-      run: cargo install cargo-tarpaulin && cargo tarpaulin --all
+    
     
     
