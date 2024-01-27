@@ -44,7 +44,7 @@ impl ItemCollector {
         walk.total.size += self.size;
     }
 
-    // TODO: 'process_dir' and 'process_file' should be a trait
+    // TODO: 'process_dir' and 'process_file' should be a trait?
     #[inline(always)]
     fn process_dir(&self, walk: &mut WalkDir<'_>) {
         write!(
@@ -62,10 +62,16 @@ impl ItemCollector {
         writeln!(walk.std_out).unwrap();
 
         walk.total.directories += 1;
+
+        // Add 1 as we want to traverse the next folder depth
         walk.tree.config.depth += 1;
 
         // Iterate next depth of file, to perform DFS
         WalkDir::new(walk.tree, &self.path, walk.total, walk.std_out, walk.flag).walk();
+
+        // Subtract 1 as we fall back from DFS
+        // Without this, the depth for current folder is not accurate
+        walk.tree.config.depth -= 1;
     }
 
     #[inline(always)]
