@@ -22,21 +22,6 @@ use crate::stat::{head::Header, total::*};
 pub mod tree;
 use crate::tree::*;
 
-// use clap::Parser;
-
-// #[derive(Parser)]
-// #[command(version, about, long_about = None)]
-// struct Cli {
-//     #[arg(short = 'f')]
-//     eff: bool,
-
-//     #[arg(short = 'p', value_name = "PEAR")]
-//     pea: Option<String>,
-
-//     #[arg(last = true)]
-//     slop: Vec<String>,
-// }
-
 pub fn args_builder() {
     // TODO: Use Clap instead.
     // Collect arguments.

@@ -29,6 +29,10 @@ pub mod show_path {
     pub static HIDE: &str = "HIDE_Path";
 }
 
+pub mod level {
+    pub static GET: &str = "LEVEL";
+}
+
 #[derive(Debug, PartialEq)]
 pub enum Layout {
     Default,
@@ -53,6 +57,9 @@ pub struct Flag {
     /// `False` : Exclude hidden files.
     pub hidden_file: bool,
     pub show_path: bool,
+    // TODO
+    pub level: usize,
+    pub depth: LevelBranch,
 }
 
 pub struct AnsiColor {
@@ -61,10 +68,16 @@ pub struct AnsiColor {
 }
 
 impl Flag {
+    #[allow(unused_mut)]
     pub fn new(args: &mut Vec<String>) -> Flag {
         let ansi_co = AnsiColor {
             bright_green: "\x1B[92m".to_string(),
             reset_ansi: "\x1B[0m".to_string(),
+        };
+
+        let mut lb = LevelBranch {
+            limit: 0,
+            status: false,
         };
 
         let mut flag: Flag = Flag {
@@ -75,6 +88,8 @@ impl Flag {
             ansi_co,
             hidden_file: false,
             show_path: false,
+            level: 0,
+            depth: lb,
         };
 
         check_target_path(args, &mut flag);
@@ -138,6 +153,22 @@ pub fn tc_app() -> Command {
                 .help("Show path in the output for each directories and files")
                 .action(ArgAction::SetTrue),
         )
+        .arg(
+            Arg::new(level::GET)
+                .long("level")
+                .short('l')
+                .long("level")
+                .value_parser(clap::value_parser!(usize))
+                .action(clap::ArgAction::Set)
+                .num_args(1)
+                .help("Print tree until certain level"),
+        )
+}
+
+#[allow(unused_mut)]
+pub struct LevelBranch {
+    pub limit: usize,
+    pub status: bool,
 }
 
 // TODO: This is temporary hack. We need to use clap instead.
@@ -165,7 +196,7 @@ fn check_flags(args: &mut [String], flag: &mut Flag) {
     let cloned_args: Vec<String> = args.to_owned();
 
     let matches = tc_app()
-        .try_get_matches_from(cloned_args)
+        .try_get_matches_from(cloned_args.clone())
         .unwrap_or_else(|e| e.exit());
 
     if matches.get_flag(layout::DEFAULT) {
@@ -178,5 +209,11 @@ fn check_flags(args: &mut [String], flag: &mut Flag) {
         flag.hidden_file = true;
     } else if matches.get_flag(show_path::SHOW) {
         flag.show_path = true;
+    } else if matches.contains_id(level::GET) {
+        let level: usize = *matches.get_one(level::GET).expect("default");
+
+        flag.depth.limit = level;
+
+        flag.depth.status = true;
     }
 }
