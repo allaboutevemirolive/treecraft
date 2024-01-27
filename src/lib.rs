@@ -22,8 +22,6 @@ use crate::stat::{head::Header, total::*};
 pub mod tree;
 use crate::tree::*;
 
-
-
 pub fn args_builder() {
     // TODO: Use Clap instead.
     // Collect arguments.
