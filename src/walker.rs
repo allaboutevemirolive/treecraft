@@ -50,24 +50,6 @@ impl<'a> WalkDir<'a> {
                     // By default, we skip hidden_file
                     if !self.flag.hidden_file && check_hidden_file(entry) {
                         self.total.hidden_file += 1;
-                    } else if !self.flag.depth.status {
-                        // Printout branches
-                        Tree::print_tree(self, index, entries.len());
-
-                        // Collect item
-                        ItemCollector::new(entry, &self.tree.config.depth).get_item(self);
-
-                        // Pop last item in our vector.
-                        // Note that we only use 1 vector for the whole operation.
-                        // Thus, it only pop `last item` of vector
-                        // not `last list` of folders.
-                        //
-                        // Example:
-                        //
-                        // vec![1 ,2, 3, 4, 5, 6]
-                        //                     ^ will be pop out
-                        //
-                        self.tree.config.nodes.pop();
                     } else if self.tree.config.depth <= self.flag.depth.limit {
                         // Printout branches
                         Tree::print_tree(self, index, entries.len());

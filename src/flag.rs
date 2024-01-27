@@ -58,8 +58,7 @@ pub struct Flag {
     pub hidden_file: bool,
     pub show_path: bool,
     // TODO
-    pub level: usize,
-    pub depth: LevelBranch,
+    pub depth: Level,
 }
 
 pub struct AnsiColor {
@@ -75,10 +74,7 @@ impl Flag {
             reset_ansi: "\x1B[0m".to_string(),
         };
 
-        let mut lb = LevelBranch {
-            limit: 0,
-            status: false,
-        };
+        let mut lb = Level { limit: 5000 };
 
         let mut flag: Flag = Flag {
             target_dir: get_absolute_current_dir(),
@@ -88,7 +84,6 @@ impl Flag {
             ansi_co,
             hidden_file: false,
             show_path: false,
-            level: 0,
             depth: lb,
         };
 
@@ -161,14 +156,13 @@ pub fn tc_app() -> Command {
                 .value_parser(clap::value_parser!(usize))
                 .action(clap::ArgAction::Set)
                 .num_args(1)
-                .help("Print tree until certain level"),
+                .help("Print tree until certain depth. Default depth: 5000"),
         )
 }
 
 #[allow(unused_mut)]
-pub struct LevelBranch {
+pub struct Level {
     pub limit: usize,
-    pub status: bool,
 }
 
 // TODO: This is temporary hack. We need to use clap instead.
@@ -213,7 +207,5 @@ fn check_flags(args: &mut [String], flag: &mut Flag) {
         let level: usize = *matches.get_one(level::GET).expect("default");
 
         flag.depth.limit = level;
-
-        flag.depth.status = true;
     }
 }
