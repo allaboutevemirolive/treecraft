@@ -16,6 +16,7 @@ impl Totals {
         Default::default()
     }
 
+    #[allow(dead_code)]
     pub(crate) fn stats(
         self,
         std_out: &mut BufWriter<Stdout>,
@@ -84,6 +85,30 @@ impl Totals {
         )?;
         write!(std_out, ", ")?;
         write!(std_out, "{} files", format_with_commas(self.files))?;
+        writeln!(std_out)?;
+        Ok(())
+    }
+
+    pub fn simple_stat(
+        self,
+        std_out: &mut BufWriter<Stdout>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        writeln!(std_out)?;
+        write!(
+            std_out,
+            "  {} folders",
+            format_with_commas(self.directories)
+        )?;
+        write!(std_out, ", ")?;
+        write!(std_out, "{} files", format_with_commas(self.files))?;
+
+        write!(
+            std_out,
+            ", {} hidden folders",
+            format_with_commas(self.hidden_file)
+        )?;
+
+        writeln!(std_out)?;
         writeln!(std_out)?;
         Ok(())
     }
