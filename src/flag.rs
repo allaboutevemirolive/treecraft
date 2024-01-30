@@ -1,4 +1,5 @@
 use crate::*;
+
 use std::env;
 use std::path::{Path, PathBuf};
 
@@ -33,6 +34,8 @@ pub mod level {
     pub static GET: &str = "LEVEL";
 }
 
+// TODO: Refator name since its conflict with
+// existing rust std
 #[derive(Debug, PartialEq)]
 pub enum Layout {
     /// By default, print simple stat
@@ -222,5 +225,7 @@ fn check_flags(args: &mut [String], flag: &mut Flag) {
         let level: usize = *matches.get_one(level::GET).expect("default");
 
         flag.depth.limit = level;
+    } else if matches.get_flag(layout::ALL) {
+        flag.layout_ty = Layout::All;
     }
 }
