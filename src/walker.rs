@@ -35,7 +35,6 @@ impl<'a> WalkDir<'a> {
 
     /// Walk the whole directories
     #[inline(always)]
-    #[allow(clippy::if_same_then_else)]
     pub(crate) fn walk(&mut self) {
         // Read current dir contents
         let mut entries: Vec<_> = fs::read_dir(self.path).unwrap().collect();

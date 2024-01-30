@@ -14,9 +14,13 @@ impl Tree {
 
     /// Print branch based on the vector.
     pub fn print_tree(walk: &mut crate::WalkDir<'_>, index: usize, len: usize) {
-        // TODO: We can implement more implementations like, checking
-        // file's permission etc.
-        if walk.flag.layout_ty == Layout::All {
+        // TODO: We can implement more implementations like,
+        // checking file's permission etc.
+        // TODO: This is redudant, we need to determine werther
+        // we need indentation or not before DFS execution
+        if walk.flag.layout_ty == Layout::Default {
+            write!(walk.std_out, "").unwrap();
+        } else {
             write!(walk.std_out, "    ").unwrap();
         }
 

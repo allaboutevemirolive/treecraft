@@ -35,7 +35,12 @@ pub mod level {
 
 #[derive(Debug, PartialEq)]
 pub enum Layout {
+    /// By default, print simple stat
+    None,
+    // If user want default output like GNU tree
+    // we print like GNU tree, etc: "tc -d"
     Default,
+    // Print all stat
     All,
 }
 
@@ -50,6 +55,7 @@ pub struct Flag {
     pub target_dir: String,
     pub sort_ty: Sort,
     pub loc: Location,
+    // TODO:
     pub layout_ty: Layout,
     pub ansi_co: AnsiColor,
     /// `True` : Show hidden files.
@@ -80,7 +86,7 @@ impl Flag {
             target_dir: get_absolute_current_dir(),
             sort_ty: Sort::CaseSensitive,
             loc: Location::Stdout,
-            layout_ty: Layout::All,
+            layout_ty: Layout::None,
             ansi_co,
             hidden_file: false,
             show_path: false,
@@ -114,11 +120,20 @@ pub fn get_absolute_current_dir() -> String {
 
 pub fn tc_app() -> Command {
     Command::new("treecraft")
+        // If user want GNU tree layout, we give simple stat but append to right
         .arg(
             Arg::new(layout::DEFAULT)
                 .long("default")
                 .short('d')
                 .help("Print default layout. Etc. GNU tree's layout")
+                .action(ArgAction::SetTrue),
+        )
+        // If user want all stat
+        .arg(
+            Arg::new(layout::ALL)
+                .long("all")
+                .short('a')
+                .help("Print verbose stats")
                 .action(ArgAction::SetTrue),
         )
         .arg(

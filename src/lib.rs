@@ -58,10 +58,14 @@ fn run_tree(flag: &Flag) {
     )
     .walk();
 
-    // Printout stats
+    // If user want all insight, we print it with indentation
     if flag.layout_ty == Layout::All {
         total.stats(&mut std_out, start_time, tree.branch).unwrap();
-    } else {
+    } else if flag.layout_ty == Layout::Default {
+        // If user want GNU tree layout, we give simple stat but append to right
         total.default_stat(&mut std_out).unwrap();
+    } else {
+        // By, default we want to print simple stat with indentation
+        total.simple_stat(&mut std_out).unwrap();
     }
 }
