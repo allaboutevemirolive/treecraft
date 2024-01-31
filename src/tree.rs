@@ -1,4 +1,4 @@
-use crate::flag::Layout;
+use crate::flag::TreeOutput;
 use std::io::Write;
 
 #[derive(Clone)]
@@ -18,9 +18,7 @@ impl Tree {
         // checking file's permission etc.
         // TODO: This is redudant, we need to determine werther
         // we need indentation or not before DFS execution
-        if walk.flag.layout_ty == Layout::Default {
-            write!(walk.std_out, "").unwrap();
-        } else {
+        if walk.flag.tree_out == TreeOutput::VerboseIndent {
             write!(walk.std_out, "    ").unwrap();
         }
 

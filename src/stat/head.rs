@@ -1,4 +1,4 @@
-use crate::flag::Layout;
+use crate::flag::TreeOutput;
 use crate::Flag;
 use std::io::{BufWriter, Stdout, Write};
 use std::path::Path;
@@ -33,7 +33,7 @@ impl<'a> Header<'a> {
         //
 
         // TODO: Seperate header between 'All' and 'Default'
-        if self.flag.layout_ty == Layout::All {
+        if self.flag.tree_out == TreeOutput::VerboseIndent {
             self.mod_header(curr_dir);
         } else {
             writeln!(self.std_out, "{}/", curr_dir).unwrap_or_default();

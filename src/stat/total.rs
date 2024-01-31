@@ -16,8 +16,9 @@ impl Totals {
         Default::default()
     }
 
-    #[allow(dead_code)]
-    pub(crate) fn stats(
+    // TODO:
+    /// Print verbose stats with indentation
+    pub(crate) fn stats_verbose_indent(
         self,
         std_out: &mut BufWriter<Stdout>,
         start_time: Instant,
@@ -73,7 +74,8 @@ impl Totals {
         Ok(())
     }
 
-    pub fn default_stat(
+    /// Print simplified stats without indentation
+    pub fn stats_simple_no_indent(
         self,
         std_out: &mut BufWriter<Stdout>,
     ) -> Result<(), Box<dyn std::error::Error>> {
@@ -89,7 +91,8 @@ impl Totals {
         Ok(())
     }
 
-    pub fn simple_stat(
+    /// Print simplified stats with indentation
+    pub fn stats_simple_indent(
         self,
         std_out: &mut BufWriter<Stdout>,
     ) -> Result<(), Box<dyn std::error::Error>> {

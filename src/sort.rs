@@ -24,6 +24,7 @@ pub enum Sort {
     // Version
 }
 
+// TODO: Add sort number sensitive & etc. ...
 /// If no sort specified, sort case-sensitive is used
 #[inline(always)]
 pub fn sort_ty(entries: &mut [Result<DirEntry, io::Error>], walk: &mut WalkDir<'_>) {
