@@ -46,6 +46,7 @@ impl<'a> WalkDir<'a> {
         // Iterate dirs
         entries.iter().enumerate().for_each(|(index, entry)| {
             let entry = entry.as_ref().unwrap();
+            // TODO: Make skip hidden file as optional
             // By default, we skip hidden_file
             if !self.flag.hidden_file && check_hidden_file(entry) {
                 self.total.hidden_file += 1;
