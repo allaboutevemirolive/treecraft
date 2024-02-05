@@ -54,6 +54,8 @@ impl Tree {
 
 #[derive(Debug, Clone)]
 pub struct Config {
+    // TODO: Give user option to to modify vector's capacity.
+    ///
     /// The 'nodes' is the core of 'treecraft'.
     /// It allows us to accurately navigate through intricate branches,
     /// even in deeply nested and complex folder structures typical of

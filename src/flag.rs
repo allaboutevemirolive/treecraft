@@ -3,6 +3,9 @@ use crate::*;
 use std::env;
 use std::path::{Path, PathBuf};
 
+use crate::Branch;
+use std::io::{BufWriter, Stdout};
+
 // How the output should looks like
 // If use passed '-d' then the options below is not valid
 pub mod tree_out {
@@ -48,6 +51,30 @@ pub enum TreeOutput {
     VerboseIndent,
 }
 
+impl<'a> TreeOutput {
+    pub fn print_stats(
+        &self,
+        total: Totals,
+        std_out: &'a mut BufWriter<Stdout>,
+        start_time: Instant,
+        branch: Branch,
+    ) {
+        match &self {
+            TreeOutput::SimpleIndent => {
+                total.stats_simple_no_indent(std_out).unwrap();
+            }
+            TreeOutput::SimpleNoIndent => {
+                total.stats_simple_indent(std_out).unwrap();
+            }
+            TreeOutput::VerboseIndent => {
+                total
+                    .stats_verbose_indent(std_out, start_time, branch)
+                    .unwrap();
+            }
+        }
+    }
+}
+
 // TODO: Add option to printout in .md, html ...
 #[derive(Debug, PartialEq)]
 pub enum Location {
@@ -68,6 +95,7 @@ pub struct Flag {
     pub show_path: bool,
     // TODO: Rename variable
     pub depth: Level,
+    // pub indent: &str,
 }
 
 pub struct AnsiColor {
@@ -94,6 +122,7 @@ impl Flag {
             hidden_file: false,
             show_path: false,
             depth: lb,
+            // indent: &"    ",
         };
 
         // TODO: Check if clap already have function to
@@ -126,6 +155,16 @@ pub fn get_absolute_current_dir() -> String {
         .expect("Failed to convert path to str")
         .to_string()
 }
+
+/*
+
+TODO: There are several problem arg combinatination
+
+- tc -l2 --all
+
+Will print 'simple_indent' stat instead of 'verbose_indent'
+
+*/
 
 pub fn tc_app() -> Command {
     Command::new("treecraft")
@@ -186,7 +225,7 @@ pub fn tc_app() -> Command {
         )
 }
 
-// TODO:
+// TODO: Check if we needs this struct. Seems redundant.
 #[allow(unused_mut)]
 pub struct Level {
     pub limit: usize,

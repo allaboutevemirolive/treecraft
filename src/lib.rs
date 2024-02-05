@@ -5,6 +5,7 @@ use std::io::BufWriter;
 use std::path::Path;
 use std::time::Instant;
 
+// TODO: Be specific.
 pub mod flag;
 use crate::flag::*;
 
@@ -58,16 +59,6 @@ fn run_tree(flag: &Flag) {
     )
     .walk();
 
-    // If user want all insight, we print it with indentation
-    if flag.tree_out == TreeOutput::VerboseIndent {
-        total
-            .stats_verbose_indent(&mut std_out, start_time, tree.branch)
-            .unwrap();
-    } else if flag.tree_out == TreeOutput::SimpleNoIndent {
-        // If user want GNU tree layout, we give simple stat but append to right
-        total.stats_simple_no_indent(&mut std_out).unwrap();
-    } else {
-        // By, default we want to print simple stat with indentation
-        total.stats_simple_indent(&mut std_out).unwrap();
-    }
+    // Print stats based on user preference or use 'simple_indent' by default.
+    TreeOutput::print_stats(&flag.tree_out, total, &mut std_out, start_time, tree.branch);
 }
