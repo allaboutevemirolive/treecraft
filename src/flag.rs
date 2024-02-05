@@ -4,7 +4,7 @@ use std::env;
 use std::path::{Path, PathBuf};
 
 use crate::Branch;
-use std::io::{BufWriter, Stdout};
+use std::io::{BufWriter, Stdout, Write};
 
 // How the output should looks like
 // If use passed '-d' then the options below is not valid
@@ -51,6 +51,8 @@ pub enum TreeOutput {
     VerboseIndent,
 }
 
+use stat::head::*;
+
 impl<'a> TreeOutput {
     pub fn print_stats(
         &self,
@@ -70,6 +72,17 @@ impl<'a> TreeOutput {
                 total
                     .stats_verbose_indent(std_out, start_time, branch)
                     .unwrap();
+            }
+        }
+    }
+
+    pub fn print_header(&self, head: &mut Header, curr_dir: String) {
+        match &self {
+            TreeOutput::VerboseIndent => {
+                Header::mod_header(head, curr_dir);
+            }
+            _ => {
+                writeln!(head.std_out, "{}/", curr_dir).unwrap_or_default();
             }
         }
     }

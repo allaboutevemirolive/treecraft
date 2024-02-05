@@ -5,7 +5,7 @@ use std::path::Path;
 
 pub struct Header<'a> {
     flag: &'a Flag,
-    std_out: &'a mut BufWriter<Stdout>,
+    pub std_out: &'a mut BufWriter<Stdout>,
 }
 
 impl<'a> Header<'a> {
@@ -32,15 +32,18 @@ impl<'a> Header<'a> {
         //    ├── deps
         //
 
+        // TODO: Bad practice to use 'self' multiple times!
+        TreeOutput::print_header(&self.flag.tree_out, &mut self, curr_dir);
+
         // TODO: Seperate header between 'All' and 'Default'
-        if self.flag.tree_out == TreeOutput::VerboseIndent {
-            self.mod_header(curr_dir);
-        } else {
-            writeln!(self.std_out, "{}/", curr_dir).unwrap_or_default();
-        }
+        // if self.flag.tree_out == TreeOutput::VerboseIndent {
+        //     self.mod_header(curr_dir);
+        // } else {
+        //     writeln!(self.std_out, "{}/", curr_dir).unwrap_or_default();
+        // }
     }
 
-    fn mod_header(&mut self, curr_dir: String) {
+    pub fn mod_header(&mut self, curr_dir: String) {
         //
         // Problem if 'go' is not long enough
         //
