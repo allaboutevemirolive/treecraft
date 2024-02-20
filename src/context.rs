@@ -135,7 +135,7 @@ impl<T: fmt::Display> IndentKind<T> {
     pub fn as_str(&self) -> String {
         match &self {
             IndentKind::Info(t) =>  t.to_string(),
-            IndentKind::Indent =>   "    ".to_string(),
+            IndentKind::Indent =>   "\t".to_string(),
             IndentKind::NoIndent => "".to_string(),
             IndentKind::Space(v) => " ".repeat(*v),
         }
