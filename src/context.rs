@@ -62,30 +62,55 @@ pub struct BranchCtxt {
     // Depth
 }
 
-pub enum Branch {
-    Twig,
-    Junction,
-    Axil,
-    Stem,
+pub enum TreeComponent {
+    End,
+    Fork,
+    Empty,
+    Trunk,
 }
 
-impl Branch {
+impl TreeComponent {
     #[rustfmt::skip]
     pub fn as_str(&self) -> &'static str {
         match *self {
-            Branch::Twig =>     "└── ",
-            Branch::Junction => "├── ",
-            Branch::Axil =>     "    ",
-            Branch::Stem =>     "│   ",
+            TreeComponent::End =>   "└── ",
+            TreeComponent::Fork =>  "├── ",
+            TreeComponent::Empty => "    ",
+            TreeComponent::Trunk => "│   ",
         }
     }
 }
 
-impl fmt::Display for Branch {
+impl fmt::Display for TreeComponent {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt.write_str(self.as_str())
     }
 }
+
+// pub enum Branch {
+//     Twig,
+//     Junction,
+//     Axil,
+//     Stem,
+// }
+
+// impl Branch {
+//     #[rustfmt::skip]
+//     pub fn as_str(&self) -> &'static str {
+//         match *self {
+//             Branch::Twig =>     "└── ",
+//             Branch::Junction => "├── ",
+//             Branch::Axil =>     "    ",
+//             Branch::Stem =>     "│   ",
+//         }
+//     }
+// }
+
+// impl fmt::Display for Branch {
+//     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         fmt.write_str(self.as_str())
+//     }
+// }
 
 // Before print branch
 pub enum IndentKind<T> {
