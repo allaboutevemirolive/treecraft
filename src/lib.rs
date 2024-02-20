@@ -1,42 +1,47 @@
-use clap::{Arg, ArgAction, Command};
 use std::env;
 use std::io;
 use std::io::BufWriter;
 use std::path::Path;
 use std::time::Instant;
 
-pub mod flag;
-use crate::flag::*;
+mod context;
 
-pub mod walker;
-use crate::walker::*;
+mod flag;
+use crate::flag::Flag;
+use crate::flag::TreeOutput;
 
-pub mod item;
+mod walker;
+use crate::walker::WalkDir;
 
-pub mod sort;
-use crate::sort::*;
+mod item;
 
-pub mod stat;
-use crate::stat::{head::Header, total::*};
+mod sort;
 
-pub mod tree;
-use crate::tree::*;
+mod error;
+
+mod stat;
+use crate::stat::head::Header;
+use crate::stat::total::Totals;
+
+mod tree;
+use crate::tree::Branch;
+use crate::tree::Config;
+use crate::tree::Tree;
 
 pub fn args_builder() {
     // TODO: Use Clap instead.
-    // Collect arguments.
     let mut args: Vec<String> = env::args().collect();
 
-    run_tree(&Flag::new(&mut args));
+    run_tree(&Flag::new(&mut args).unwrap());
 }
 
 fn run_tree(flag: &Flag) {
-    // Our timer
+    // Initiate timer
     let start_time = Instant::now();
 
     let mut std_out = BufWriter::new(io::stdout());
 
-    // Initialize default values for Total
+    // Initialize default values for Total accumulation
     let mut total = Totals::new();
 
     // Set up branch configuration
@@ -58,14 +63,6 @@ fn run_tree(flag: &Flag) {
     )
     .walk();
 
-    // If user want all insight, we print it with indentation
-    if flag.layout_ty == Layout::All {
-        total.stats(&mut std_out, start_time, tree.branch).unwrap();
-    } else if flag.layout_ty == Layout::Default {
-        // If user want GNU tree layout, we give simple stat but append to right
-        total.default_stat(&mut std_out).unwrap();
-    } else {
-        // By, default we want to print simple stat with indentation
-        total.simple_stat(&mut std_out).unwrap();
-    }
+    // Print stats based on user preference or use 'simple_indent' by default.
+    TreeOutput::print_stats(&flag.tree_out, total, &mut std_out, start_time, tree.branch);
 }

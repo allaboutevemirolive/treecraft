@@ -1,10 +1,22 @@
-use crate::*;
+use core::fmt;
 use std::env;
+use std::io::{BufWriter, Stdout, Write};
 use std::path::{Path, PathBuf};
+use std::time::Instant;
 
-pub mod layout {
-    pub static ALL: &str = "All";
-    pub static DEFAULT: &str = "Default";
+use clap::{Arg, ArgAction, Command};
+
+use crate::Branch;
+use crate::Totals;
+
+use crate::sort::Sort;
+use crate::stat::head::Header;
+
+// How the output should looks like
+// If use passed '-d' then the options below is not valid
+pub mod tree_out {
+    pub static VERBOSE_INDENT: &str = "Verbose_indentation";
+    pub static SIMPLE_INDENT: &str = "Simple_indentation";
 }
 
 pub mod sort_ty {
@@ -33,38 +45,86 @@ pub mod level {
     pub static GET: &str = "LEVEL";
 }
 
+// TODO: We need proper indent enum
+/// Represent on how we construct the tree
 #[derive(Debug, PartialEq)]
-pub enum Layout {
-    /// By default, print simple stat
-    None,
+pub enum TreeOutput {
+    /// Print simple stat with indentation
+    SimpleIndent,
     // If user want default output like GNU tree
     // we print like GNU tree, etc: "tc -d"
-    Default,
-    // Print all stat
-    All,
+    /// Print simple stats with No-indentation
+    SimpleNoIndent,
+    ///  Print all stats with indentation
+    VerboseIndent,
+}
+
+impl<'a> TreeOutput {
+    pub fn print_stats(
+        &self,
+        total: Totals,
+        std_out: &'a mut BufWriter<Stdout>,
+        start_time: Instant,
+        branch: Branch,
+    ) {
+        match &self {
+            TreeOutput::SimpleIndent => {
+                total.stats_simple_no_indent(std_out).unwrap();
+            }
+            TreeOutput::SimpleNoIndent => {
+                total.stats_simple_indent(std_out).unwrap();
+            }
+            TreeOutput::VerboseIndent => {
+                total
+                    .stats_verbose_indent(std_out, start_time, branch)
+                    .unwrap();
+            }
+        }
+    }
+
+    // Header type
+    pub fn print_header(&self, head: &mut Header, curr_dir: String) {
+        match &self {
+            // Print `header` with indentation including alignment
+            TreeOutput::VerboseIndent => {
+                Header::mod_header(head, curr_dir);
+            }
+            TreeOutput::SimpleNoIndent => {
+                writeln!(head.std_out, "{}/", curr_dir).unwrap_or_default();
+            }
+            // Default option for header
+            _ => {
+                writeln!(head.std_out, ".").unwrap_or_default();
+            }
+        }
+    }
 }
 
 // TODO: Add option to printout in .md, html ...
 #[derive(Debug, PartialEq)]
 pub enum Location {
+    /// If print to terminal, we include ansi
     Stdout,
+    /// If print to a file, we strip-out ansi
     File,
 }
 
+// TODO: Our flag definition is not so great...
 pub struct Flag {
     pub target_dir: String,
     pub sort_ty: Sort,
     pub loc: Location,
-    // TODO:
-    pub layout_ty: Layout,
+    pub tree_out: TreeOutput,
     pub ansi_co: AnsiColor,
+    // TODO:
     /// `True` : Show hidden files.
     ///
     /// `False` : Exclude hidden files.
     pub hidden_file: bool,
     pub show_path: bool,
-    // TODO
+    // TODO: Rename variable
     pub depth: Level,
+    // pub indent: &str,
 }
 
 pub struct AnsiColor {
@@ -74,7 +134,7 @@ pub struct AnsiColor {
 
 impl Flag {
     #[allow(unused_mut)]
-    pub fn new(args: &mut Vec<String>) -> Flag {
+    pub fn new(args: &mut Vec<String>) -> Result<Flag, ()> {
         let ansi_co = AnsiColor {
             bright_green: "\x1B[92m".to_string(),
             reset_ansi: "\x1B[0m".to_string(),
@@ -86,21 +146,26 @@ impl Flag {
             target_dir: get_absolute_current_dir(),
             sort_ty: Sort::CaseSensitive,
             loc: Location::Stdout,
-            layout_ty: Layout::None,
+            tree_out: TreeOutput::SimpleIndent,
             ansi_co,
             hidden_file: false,
             show_path: false,
             depth: lb,
+            // indent: &"    ",
         };
 
+        // TODO: Check if clap already have function to
+        // retrieve path
         check_target_path(args, &mut flag);
 
+        // TODO: Bad design?
         check_flags(args, &mut flag);
 
-        flag
+        Ok(flag)
     }
 }
 
+/// Check if the path given pointed to dir or file
 fn valid_path(arg: &str) -> Option<PathBuf> {
     let path = Path::new(arg);
     if path.is_dir() || path.is_file() {
@@ -110,6 +175,8 @@ fn valid_path(arg: &str) -> Option<PathBuf> {
     }
 }
 
+/// If no path where given, retrieve current path
+/// where shell executed
 pub fn get_absolute_current_dir() -> String {
     env::current_dir()
         .expect("Failed to get current directory")
@@ -118,19 +185,30 @@ pub fn get_absolute_current_dir() -> String {
         .to_string()
 }
 
+/*
+
+TODO: There are several problem arg combinatination
+
+- tc -l2 --all
+
+Will print 'simple_indent' stat instead of 'verbose_indent'
+
+*/
+
 pub fn tc_app() -> Command {
     Command::new("treecraft")
         // If user want GNU tree layout, we give simple stat but append to right
         .arg(
-            Arg::new(layout::DEFAULT)
+            Arg::new(tree_out::SIMPLE_INDENT)
                 .long("default")
                 .short('d')
                 .help("Print default layout. Etc. GNU tree's layout")
                 .action(ArgAction::SetTrue),
         )
+        // TODO: Change 'all' -> 'pretty'
         // If user want all stat
         .arg(
-            Arg::new(layout::ALL)
+            Arg::new(tree_out::VERBOSE_INDENT)
                 .long("all")
                 .short('a')
                 .help("Print verbose stats")
@@ -163,6 +241,8 @@ pub fn tc_app() -> Command {
                 .help("Show path in the output for each directories and files")
                 .action(ArgAction::SetTrue),
         )
+        // DEBUG: If we pass "tc -l2 -a", the stats still 'simple_indent'.
+        // We want 'verbose_indent' instead
         .arg(
             Arg::new(level::GET)
                 .long("level")
@@ -175,6 +255,7 @@ pub fn tc_app() -> Command {
         )
 }
 
+// TODO: Check if we needs this struct. Seems redundant.
 #[allow(unused_mut)]
 pub struct Level {
     pub limit: usize,
@@ -208,8 +289,10 @@ fn check_flags(args: &mut [String], flag: &mut Flag) {
         .try_get_matches_from(cloned_args.clone())
         .unwrap_or_else(|e| e.exit());
 
-    if matches.get_flag(layout::DEFAULT) {
-        flag.layout_ty = Layout::Default;
+    // Get flag given by user
+    if matches.get_flag(tree_out::SIMPLE_INDENT) {
+        // TODO: Confusing between 'SimpleIndent' & 'SimpleNoIndent'
+        flag.tree_out = TreeOutput::SimpleNoIndent;
     } else if matches.get_flag(ansi::SHOW_ANSI) {
         flag.loc = Location::File;
         flag.ansi_co.bright_green = "".to_string();
@@ -222,5 +305,7 @@ fn check_flags(args: &mut [String], flag: &mut Flag) {
         let level: usize = *matches.get_one(level::GET).expect("default");
 
         flag.depth.limit = level;
+    } else if matches.get_flag(tree_out::VERBOSE_INDENT) {
+        flag.tree_out = TreeOutput::VerboseIndent;
     }
 }

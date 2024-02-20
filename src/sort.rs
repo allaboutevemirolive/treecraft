@@ -3,7 +3,7 @@ use std::io;
 
 use crate::walker::WalkDir;
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub enum Sort {
     /// `-ci` Sort file's name with case-Insensitive
     CaseInsensitive,
@@ -24,9 +24,10 @@ pub enum Sort {
     // Version
 }
 
+// TODO: Add sort number sensitive & etc. ...
 /// If no sort specified, sort case-sensitive is used
 #[inline(always)]
-pub fn sort_ty(entries: &mut [Result<DirEntry, io::Error>], walk: &mut WalkDir<'_>) {
+pub fn ty_sort(entries: &mut [Result<DirEntry, io::Error>], walk: &mut WalkDir<'_>) {
     match walk.flag.sort_ty {
         Sort::CaseInsensitive => {
             entries.sort_unstable_by(|a, b| {
