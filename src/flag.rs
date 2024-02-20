@@ -1,10 +1,16 @@
-use crate::*;
-
+use core::fmt;
 use std::env;
+use std::io::{BufWriter, Stdout, Write};
 use std::path::{Path, PathBuf};
+use std::time::Instant;
+
+use clap::{Arg, ArgAction, Command};
 
 use crate::Branch;
-use std::io::{BufWriter, Stdout, Write};
+use crate::Totals;
+
+use crate::sort::Sort;
+use crate::stat::head::Header;
 
 // How the output should looks like
 // If use passed '-d' then the options below is not valid
@@ -39,19 +45,19 @@ pub mod level {
     pub static GET: &str = "LEVEL";
 }
 
+// TODO: We need proper indent enum
 /// Represent on how we construct the tree
 #[derive(Debug, PartialEq)]
 pub enum TreeOutput {
-    /// By default, print simple stat
+    /// Print simple stat with indentation
     SimpleIndent,
     // If user want default output like GNU tree
     // we print like GNU tree, etc: "tc -d"
+    /// Print simple stats with No-indentation
     SimpleNoIndent,
-    // Print all stat
+    ///  Print all stats with indentation
     VerboseIndent,
 }
-
-use stat::head::*;
 
 impl<'a> TreeOutput {
     pub fn print_stats(
@@ -76,13 +82,19 @@ impl<'a> TreeOutput {
         }
     }
 
+    // Header type
     pub fn print_header(&self, head: &mut Header, curr_dir: String) {
         match &self {
+            // Print `header` with indentation including alignment
             TreeOutput::VerboseIndent => {
                 Header::mod_header(head, curr_dir);
             }
-            _ => {
+            TreeOutput::SimpleNoIndent => {
                 writeln!(head.std_out, "{}/", curr_dir).unwrap_or_default();
+            }
+            // Default option for header
+            _ => {
+                writeln!(head.std_out, ".").unwrap_or_default();
             }
         }
     }
@@ -91,16 +103,20 @@ impl<'a> TreeOutput {
 // TODO: Add option to printout in .md, html ...
 #[derive(Debug, PartialEq)]
 pub enum Location {
+    /// If print to terminal, we include ansi
     Stdout,
+    /// If print to a file, we strip-out ansi
     File,
 }
 
+// TODO: Our flag definition is not so great...
 pub struct Flag {
     pub target_dir: String,
     pub sort_ty: Sort,
     pub loc: Location,
     pub tree_out: TreeOutput,
     pub ansi_co: AnsiColor,
+    // TODO:
     /// `True` : Show hidden files.
     ///
     /// `False` : Exclude hidden files.
@@ -118,7 +134,7 @@ pub struct AnsiColor {
 
 impl Flag {
     #[allow(unused_mut)]
-    pub fn new(args: &mut Vec<String>) -> Flag {
+    pub fn new(args: &mut Vec<String>) -> Result<Flag, ()> {
         let ansi_co = AnsiColor {
             bright_green: "\x1B[92m".to_string(),
             reset_ansi: "\x1B[0m".to_string(),
@@ -145,7 +161,7 @@ impl Flag {
         // TODO: Bad design?
         check_flags(args, &mut flag);
 
-        flag
+        Ok(flag)
     }
 }
 
@@ -189,6 +205,7 @@ pub fn tc_app() -> Command {
                 .help("Print default layout. Etc. GNU tree's layout")
                 .action(ArgAction::SetTrue),
         )
+        // TODO: Change 'all' -> 'pretty'
         // If user want all stat
         .arg(
             Arg::new(tree_out::VERBOSE_INDENT)

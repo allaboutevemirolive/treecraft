@@ -1,43 +1,47 @@
-use clap::{Arg, ArgAction, Command};
 use std::env;
 use std::io;
 use std::io::BufWriter;
 use std::path::Path;
 use std::time::Instant;
 
-// TODO: Be specific.
-pub mod flag;
-use crate::flag::*;
+mod context;
 
-pub mod walker;
-use crate::walker::*;
+mod flag;
+use crate::flag::Flag;
+use crate::flag::TreeOutput;
 
-pub mod item;
+mod walker;
+use crate::walker::WalkDir;
 
-pub mod sort;
-use crate::sort::*;
+mod item;
 
-pub mod stat;
-use crate::stat::{head::Header, total::*};
+mod sort;
 
-pub mod tree;
-use crate::tree::*;
+mod error;
+
+mod stat;
+use crate::stat::head::Header;
+use crate::stat::total::Totals;
+
+mod tree;
+use crate::tree::Branch;
+use crate::tree::Config;
+use crate::tree::Tree;
 
 pub fn args_builder() {
     // TODO: Use Clap instead.
-    // Collect arguments.
     let mut args: Vec<String> = env::args().collect();
 
-    run_tree(&Flag::new(&mut args));
+    run_tree(&Flag::new(&mut args).unwrap());
 }
 
 fn run_tree(flag: &Flag) {
-    // Our timer
+    // Initiate timer
     let start_time = Instant::now();
 
     let mut std_out = BufWriter::new(io::stdout());
 
-    // Initialize default values for Total
+    // Initialize default values for Total accumulation
     let mut total = Totals::new();
 
     // Set up branch configuration

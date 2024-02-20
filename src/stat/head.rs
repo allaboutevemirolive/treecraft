@@ -1,7 +1,8 @@
-use crate::flag::TreeOutput;
-use crate::Flag;
 use std::io::{BufWriter, Stdout, Write};
 use std::path::Path;
+
+use crate::flag::TreeOutput;
+use crate::Flag;
 
 pub struct Header<'a> {
     flag: &'a Flag,

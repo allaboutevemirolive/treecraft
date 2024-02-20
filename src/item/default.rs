@@ -5,12 +5,19 @@ use std::path::PathBuf;
 
 // TODO: Implement specialize crate to collect file metada.
 
+// TODO: Rename to Visitor
 pub struct ItemCollector {
     pub name: String,
+    // TODO: Is this abosolute path or parent path?
     pub path: PathBuf,
     pub depth: usize,
+    // TODO: We need to collect this information and place it in this struct instead.
+    // This field is use to check wether our file type is dir or not.
+    // Later, we will use this information to process the item.
     pub file_type: FileType,
     pub size: u64,
+    // pub is_dir: bool,
+    // pub is_file: bool,
 }
 
 impl ItemCollector {
@@ -23,11 +30,15 @@ impl ItemCollector {
         ItemCollector {
             name: full_path
                 .file_name()
-                .and_then(|os_str| os_str.to_str())
-                .map(ToString::to_string)
-                .unwrap_or_else(|| "Invalid full-path".into()),
+                .expect("Error retrive filename")
+                .to_str()
+                .expect("Error convert OsStr to &str")
+                .to_string(),
+            // .map(|os_str| os_str.to_str()),
+            // .map(ToString::to_string)
+            // .unwrap_or_else(|| "Invalid full-path".into()),
             path: full_path,
-            depth: depth.to_owned(),
+            depth: *depth,
             file_type,
             size: metadata.len(),
         }
@@ -41,6 +52,7 @@ impl ItemCollector {
             self.process_file(walk);
         }
 
+        // Update size accumulation
         walk.total.size += self.size;
     }
 
@@ -52,7 +64,7 @@ impl ItemCollector {
             "{}{}{}",
             walk.flag.ansi_co.bright_green, &self.name, walk.flag.ansi_co.reset_ansi
         )
-        .unwrap_or_default();
+        .unwrap();
 
         if walk.flag.show_path {
             write!(walk.std_out, " ──> {}", &self.path.display()).unwrap();
@@ -69,6 +81,8 @@ impl ItemCollector {
         // Iterate next depth of file, to perform DFS
         WalkDir::new(walk.tree, &self.path, walk.total, walk.std_out, walk.flag).walk();
 
+        // TODO: We need to use depth from `ItemCollector` instead
+        // TODO: Use tail call optimization!
         // Subtract 1 as we fall back from DFS
         // Without this, the depth for current folder is not accurate
         walk.tree.config.depth -= 1;
@@ -76,7 +90,7 @@ impl ItemCollector {
 
     #[inline(always)]
     fn process_file(&self, walk: &mut WalkDir<'_>) {
-        write!(walk.std_out, "{}", &self.name).unwrap_or_default();
+        write!(walk.std_out, "{}", &self.name).unwrap();
 
         if walk.flag.show_path {
             write!(walk.std_out, " ──> {}", &self.path.display()).unwrap();
